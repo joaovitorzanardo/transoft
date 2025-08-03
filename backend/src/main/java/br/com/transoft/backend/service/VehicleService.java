@@ -8,7 +8,6 @@ public class VehicleService {
 
     public void saveVehicle(Vehicle vehicle) {
 
-
     }
 
 

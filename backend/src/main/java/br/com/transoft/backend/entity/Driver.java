@@ -1,96 +1,44 @@
 package br.com.transoft.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "driver")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 public class Driver {
 
     @Id
     @Column(name = "driver_id")
     private String driverId;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "cnh_number")
+    @Column(name = "cnh_number", nullable = false)
     private String cnhNumber;
 
-    @Column(name = "cnh_expiration_date")
+    @Column(name = "cnh_expiration_date", nullable = false)
     private LocalDate cnhExpirationDate;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_account_id")
     private UserAccount userAccount;
 
-    public Driver() {
-
-    }
-
-    public Driver(String driverId, String name, String cnhNumber, LocalDate cnhExpirationDate, String email, String phoneNumber) {
-        this.driverId = driverId;
-        this.name = name;
-        this.cnhNumber = cnhNumber;
-        this.cnhExpirationDate = cnhExpirationDate;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getDriverId() {
-        return driverId;
-    }
-
-    public void setDriverId(String id) {
-        this.driverId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCnhNumber() {
-        return cnhNumber;
-    }
-
-    public void setCnhNumber(String cnhNumber) {
-        this.cnhNumber = cnhNumber;
-    }
-
-    public LocalDate getCnhExpirationDate() {
-        return cnhExpirationDate;
-    }
-
-    public void setCnhExpirationDate(LocalDate cnhExpirationDate) {
-        this.cnhExpirationDate = cnhExpirationDate;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
 
 }

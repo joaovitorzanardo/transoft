@@ -17,11 +17,6 @@ public class VehicleModelController {
     }
 
     @GetMapping
-    public List<VehicleModelPresenter> listVehicleModels() {
-        return this.vehicleModelService.listVehicleModels();
-    }
-
-    @GetMapping
     public List<VehicleModelPresenter> listVehicleModelsByAutomaker(@RequestParam String automakerId) {
         return this.vehicleModelService.listVehicleModelsByAutomaker(automakerId);
     }

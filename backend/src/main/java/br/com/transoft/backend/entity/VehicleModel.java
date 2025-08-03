@@ -1,66 +1,29 @@
 package br.com.transoft.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "vehicle_model")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 public class VehicleModel {
 
     @Id
     @Column(name = "vehicle_model_id")
     private String vehicleModelId;
 
-    @Column(name = "model_name")
+    @Column(name = "model_name", nullable = false)
     private String modelName;
 
-    @Column(name = "model_year")
+    @Column(name = "model_year", nullable = false)
     private Integer modelYear;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "automaker_id")
     private Automaker automaker;
-
-    public VehicleModel() {
-    }
-
-    public VehicleModel(String vehicleModelId, String modelName, Integer modelYear, Automaker automaker) {
-        this.vehicleModelId = vehicleModelId;
-        this.modelName = modelName;
-        this.modelYear = modelYear;
-        this.automaker = automaker;
-    }
-
-    public String getVehicleModelId() {
-        return vehicleModelId;
-    }
-
-    public void setVehicleModelId(String vehicleModelId) {
-        this.vehicleModelId = vehicleModelId;
-    }
-
-    public String getModelName() {
-        return modelName;
-    }
-
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
-
-    public Integer getModelYear() {
-        return modelYear;
-    }
-
-    public void setModelYear(Integer modelYear) {
-        this.modelYear = modelYear;
-    }
-
-    public Automaker getAutomaker() {
-        return automaker;
-    }
-
-    public void setAutomaker(Automaker automaker) {
-        this.automaker = automaker;
-    }
 
 }

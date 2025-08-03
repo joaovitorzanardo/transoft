@@ -6,6 +6,7 @@ import br.com.transoft.backend.repository.AutomakerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
