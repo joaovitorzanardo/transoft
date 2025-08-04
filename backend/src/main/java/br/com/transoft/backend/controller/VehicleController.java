@@ -2,6 +2,7 @@ package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
+import br.com.transoft.backend.service.VehicleService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +12,15 @@ import java.util.List;
 @RequestMapping(path = "/api/vehicle")
 public class VehicleController {
 
+    private final VehicleService vehicleService;
+
+    public VehicleController(VehicleService vehicleService) {
+        this.vehicleService = vehicleService;
+    }
+
     @PostMapping
     public void registerVehicle(@RequestBody @Valid VehicleDto vehicleDto) {
-
+        this.vehicleService.saveVehicle(vehicleDto);
     }
 
     @GetMapping
