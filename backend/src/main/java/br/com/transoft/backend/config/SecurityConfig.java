@@ -35,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public Keycloak keycloak() {
         return KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8080/")
+                .serverUrl("http://localhost:8282/")
                 .realm("master")
                 .clientId("client_service")
                 .clientSecret(CLIENT_SERVICE_SECRET)

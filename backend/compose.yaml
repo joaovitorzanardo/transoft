@@ -20,7 +20,7 @@ services:
         KC_HOSTNAME_STRICT: false
         KC_HOSTNAME_STRICT_HTTPS: false
     ports:
-        - "8080:8080"
+        - "8282:8080"
     restart: always
 
 volumes:
