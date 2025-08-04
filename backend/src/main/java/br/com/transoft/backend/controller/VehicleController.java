@@ -24,23 +24,28 @@ public class VehicleController {
     }
 
     @GetMapping
-    public List<VehiclePresenter> listVehicles() {
-        return null;
+    public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "10") int size) {
+        return this.vehicleService.listVehicles(page, size);
     }
 
     @GetMapping("/{vehicleId}")
-    public List<VehiclePresenter> listVehicles(@PathVariable String vehicleId) {
-        return null;
+    public VehiclePresenter getVehiclesById(@PathVariable String vehicleId) {
+        return this.vehicleService.findVehicleById(vehicleId);
     }
 
     @PutMapping("/{vehicleId}")
     public void updateVehicle(@PathVariable String vehicleId, @Valid @RequestBody VehicleDto vehicleDto) {
-
+        this.vehicleService.updateVehicle(vehicleId, vehicleDto);
     }
 
-    @DeleteMapping("/{vehicleId}")
-    public void disableVehicle(@PathVariable String vehicleId) {
+    @PostMapping("/{vehicleId}/enable")
+    public void enableVehicle(@PathVariable String vehicleId) {
+        this.vehicleService.enableVehicle(vehicleId);
+    }
 
+    @DeleteMapping("/{vehicleId}/disable")
+    public void disableVehicle(@PathVariable String vehicleId) {
+        this.vehicleService.disableVehicle(vehicleId);
     }
 
 }

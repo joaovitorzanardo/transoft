@@ -8,7 +8,6 @@ import br.com.transoft.backend.repository.VehicleModelRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class VehicleModelService {
@@ -23,8 +22,7 @@ public class VehicleModelService {
 
     public List<VehicleModelPresenter> listVehicleModelsByAutomaker(String automakerId) {
         Automaker automaker = this.automakerRepository.findById(automakerId).orElseThrow(() -> new ResourceNotFoundException("Automaker not found"));
-        return this.vehicleModelRepository.findAllByAutomaker(automaker).stream().map(v -> new VehicleModelPresenter(v.getVehicleModelId(), automaker.toDto(), v.getModelYear(), v.getModelName())).collect(Collectors.toList());
+        return this.vehicleModelRepository.findAllByAutomaker(automaker).stream().map(v -> new VehicleModelPresenter(v.getVehicleModelId(), v.getModelName(), v.getModelYear(), automaker.toPresenter())).toList();
     }
-
 
 }

@@ -28,7 +28,7 @@ public class Automaker {
         this.name = name;
     }
 
-    public AutomakerPresenter toDto() {
+    public AutomakerPresenter toPresenter() {
         return new AutomakerPresenter(automakerId, name);
     }
 

@@ -1,5 +1,6 @@
 package br.com.transoft.backend.entity;
 
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,5 +33,22 @@ public class Vehicle {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
+
+    public void enable() {
+        this.active = true;
+    }
+
+    public void disable() {
+        this.active = false;
+    }
+
+    public VehiclePresenter toPresenter() {
+        return new VehiclePresenter(
+                vehicleId,
+                plateNumber,
+                active,
+                vehicleModel.toPresenter()
+        );
+    }
 
 }
