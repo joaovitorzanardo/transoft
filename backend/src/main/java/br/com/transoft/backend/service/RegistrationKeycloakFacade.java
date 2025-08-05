@@ -16,8 +16,8 @@ public class RegistrationKeycloakFacade {
     }
 
     public KeycloakRegistrationResponse registerKeycloak(UserAccountDto user, CompanyDto company) {
-        String orgId = keycloakService.createOrganization(company.name());
-        String userId = keycloakService.createUser(user.name(), user.email(), user.password());
+        String orgId = keycloakService.createOrganization(company.getName());
+        String userId = keycloakService.createUser(user.name(), user.email(), user.password(), true);
 
         Response addUserToOrgResponse = keycloakService.addUserToOrganization(userId, orgId);
 

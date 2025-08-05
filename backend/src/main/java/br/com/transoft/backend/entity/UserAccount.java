@@ -25,6 +25,9 @@ public class UserAccount {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active;
+
     @Column(name = "role", nullable = false)
     private String role;
 

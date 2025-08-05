@@ -1,34 +1,35 @@
 package br.com.transoft.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegistrationDto {
 
-    @Email
+    @JsonProperty(namespace = "email")
+    @Email(message = "The email is not in the right format")
     @NotBlank(message = "The email must be informed.")
     private String email;
 
+    @JsonProperty(namespace = "name")
     @NotBlank(message = "The name must be informed.")
     private String name;
 
+    @JsonProperty(namespace = "password")
     @NotBlank(message = "The password must be informed.")
     private String password;
 
-    @NotBlank(message = "The company CNPJ must be informed.")
-    private String companyCnpj;
-
-    @NotBlank(message = "The company name must be informed.")
-    private String companyName;
-
-    public RegistrationDto(String email, String name, String password, String companyCnpj, String companyName) {
-        this.email = email;
-        this.name = name;
-        this.password = password;
-        this.companyCnpj = companyCnpj;
-        this.companyName = companyName;
-    }
+    @JsonProperty(namespace = "company")
+    @NotNull(message = "The company info must be informed.")
+    private CompanyDto company;
 
 }

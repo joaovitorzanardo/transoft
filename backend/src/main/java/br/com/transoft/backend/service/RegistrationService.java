@@ -1,6 +1,5 @@
 package br.com.transoft.backend.service;
 
-import br.com.transoft.backend.dto.CompanyDto;
 import br.com.transoft.backend.dto.KeycloakRegistrationResponse;
 import br.com.transoft.backend.dto.RegistrationDto;
 import br.com.transoft.backend.dto.UserAccountDto;
@@ -31,7 +30,7 @@ public class RegistrationService {
     @Transactional(rollbackOn = {SQLException.class})
     public void register(RegistrationDto registrationDto) {
         boolean isEmailInUse = this.userAccountRepository.findByEmail(registrationDto.getEmail()).isPresent();
-        boolean isCnpjRegistered = this.companyRepository.findByCnpj(registrationDto.getCompanyCnpj()).isPresent();
+        boolean isCnpjRegistered = this.companyRepository.findByCnpj(registrationDto.getCompany().getCnpj()).isPresent();
 
         if (isEmailInUse) {
             throw new ResourceConflictException("Email already in use");
@@ -44,7 +43,7 @@ public class RegistrationService {
         KeycloakRegistrationResponse keycloakRegistrationResponse = registrationKeycloakFacade
                 .registerKeycloak(
                         new UserAccountDto(registrationDto.getName(), registrationDto.getEmail(), registrationDto.getPassword()),
-                        new CompanyDto(registrationDto.getCompanyName(), registrationDto.getCompanyCnpj())
+                        registrationDto.getCompany()
                 );
 
         UserAccount userAccount = UserAccount.builder()
@@ -58,8 +57,9 @@ public class RegistrationService {
 
         Company company = Company.builder()
                 .companyId(keycloakRegistrationResponse.companyId())
-                .name(registrationDto.getCompanyName())
-                .cnpj(registrationDto.getCompanyCnpj())
+                .name(registrationDto.getCompany().getName())
+                .email(registrationDto.getCompany().getEmail())
+                .cnpj(registrationDto.getCompany().getCnpj())
                 .build();
 
         this.companyRepository.save(company);

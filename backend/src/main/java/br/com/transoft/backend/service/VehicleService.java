@@ -29,9 +29,7 @@ public class VehicleService {
         //TODO: Get companyId from the JWT token and set on the vehicle object
         VehicleModel vehicleModel = this.vehicleModelRepository.findById(vehicleDto.getVehicleModelId()).orElseThrow(() -> new ResourceNotFoundException("No vehicle model was found with this id."));
 
-        boolean isPlateNumberRegistered = plateNumberRegistered(vehicleDto.getPlateNumber());
-
-        if (isPlateNumberRegistered) {
+        if (plateNumberRegistered(vehicleDto.getPlateNumber())) {
             throw new ResourceConflictException("PlateNumber already registered");
         }
 

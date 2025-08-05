@@ -22,6 +22,9 @@ public class Company {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "email", nullable = false)
+    private String email;
+
     @Column(name = "cnpj", nullable = false)
     private String cnpj;
 

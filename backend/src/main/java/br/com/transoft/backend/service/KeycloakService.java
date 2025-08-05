@@ -38,13 +38,13 @@ public class KeycloakService {
         return location.substring(location.lastIndexOf('/') + 1);
     }
 
-    public String createUser(String name, String email, String password) {
+    public String createUser(String name, String email, String password, boolean enabled) {
         UserRepresentation user = new UserRepresentation();
 
         user.setUsername(slugify.slugify(name));
         user.setFirstName(name);
         user.setEmail(email);
-        user.setEnabled(true);
+        user.setEnabled(enabled);
 
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
