@@ -1,0 +1,54 @@
+{
+	"info": {
+		"_postman_id": "4383a742-fd95-41b2-97d6-698b0d1d1712",
+		"name": "Automaker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47401101",
+		"_collection_link": "https://joaovitorzanardo-7621796.postman.co/workspace/Jo%C3%A3o-Vitor-Zanardo's-Workspace~be4d7321-c76b-455e-8fe6-e56060dc10f7/collection/47401101-4383a742-fd95-41b2-97d6-698b0d1d1712?action=share&source=collection_link&creator=47401101"
+	},
+	"item": [
+		{
+			"name": "Register Automaker",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Mercedes-Benz\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/automaker",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"automaker"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Automakers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/automaker",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"automaker"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
