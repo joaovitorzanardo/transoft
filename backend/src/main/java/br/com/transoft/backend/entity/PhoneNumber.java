@@ -24,4 +24,8 @@ public class PhoneNumber {
         this.number = phoneNumberDto.getNumber();
     }
 
+    public PhoneNumberDto toDto() {
+        return new PhoneNumberDto(ddd, number);
+    }
+
 }

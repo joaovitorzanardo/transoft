@@ -2,6 +2,7 @@ package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.vehicle.presenter.AutomakerPresenter;
 import br.com.transoft.backend.entity.Automaker;
+import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.repository.AutomakerRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class AutomakerService {
     }
 
     public void registerAutomaker(String name) {
+        if (this.automakerRepository.findByNameIgnoreCase(name).isPresent()) throw new ResourceConflictException("Automaker already exists");
         this.automakerRepository.save(new Automaker(name));
     }
 

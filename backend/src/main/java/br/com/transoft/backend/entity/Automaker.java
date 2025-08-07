@@ -25,7 +25,7 @@ public class Automaker {
 
     public Automaker(String name) {
         this.automakerId = UUID.randomUUID().toString();
-        this.name = name;
+        this.name = name.trim();
     }
 
     public AutomakerPresenter toPresenter() {

@@ -24,7 +24,7 @@ public class VehicleController {
     }
 
     @GetMapping
-    public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "10") int size) {
+    public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
         return this.vehicleService.listVehicles(page, size);
     }
 
@@ -43,7 +43,7 @@ public class VehicleController {
         this.vehicleService.enableVehicle(vehicleId);
     }
 
-    @DeleteMapping("/{vehicleId}/disable")
+    @PostMapping("/{vehicleId}/disable")
     public void disableVehicle(@PathVariable String vehicleId) {
         this.vehicleService.disableVehicle(vehicleId);
     }

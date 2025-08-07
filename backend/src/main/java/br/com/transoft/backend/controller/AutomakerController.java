@@ -1,5 +1,6 @@
 package br.com.transoft.backend.controller;
 
+import br.com.transoft.backend.dto.vehicle.AutomakerDto;
 import br.com.transoft.backend.dto.vehicle.presenter.AutomakerPresenter;
 import br.com.transoft.backend.service.AutomakerService;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,8 @@ public class AutomakerController {
     }
 
     @PostMapping
-    public void registerAutomaker(@RequestBody String name) {
-        automakerService.registerAutomaker(name);
+    public void registerAutomaker(@RequestBody AutomakerDto automakerDto) {
+        automakerService.registerAutomaker(automakerDto.getName());
     }
 
     @GetMapping

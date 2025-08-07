@@ -46,6 +46,7 @@ public class Vehicle {
         return new VehiclePresenter(
                 vehicleId,
                 plateNumber,
+                capacity,
                 active,
                 vehicleModel.toPresenter()
         );

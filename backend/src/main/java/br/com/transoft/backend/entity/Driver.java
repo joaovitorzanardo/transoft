@@ -1,5 +1,6 @@
 package br.com.transoft.backend.entity;
 
+import br.com.transoft.backend.dto.driver.DriverPresenter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -40,5 +41,16 @@ public class Driver {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
+
+    public DriverPresenter toPresenter() {
+        return new DriverPresenter(
+                driverId,
+                name,
+                email,
+                cnhNumber,
+                cnhExpirationDate,
+                phoneNumber.toDto()
+        );
+    }
 
 }
