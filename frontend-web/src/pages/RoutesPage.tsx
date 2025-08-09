@@ -1,8 +1,15 @@
+import { Grid } from "@mui/material";
+import SideMenu from "../components/SideManu";
+
 export default function RoutesPage() {
     return (
-        <div>
-            <h1>Routes Page</h1>
-            <p>This is the Routes page content.</p>
-        </div>
+        <Grid container spacing={6}>
+            <Grid>
+                <SideMenu />
+            </Grid>
+            <Grid>
+                <h1>Rotas</h1>
+            </Grid>
+        </Grid>
     );
 }

@@ -1,8 +1,15 @@
+import { Grid } from "@mui/material";
+import SideMenu from "../components/SideManu";
+
 export default function ItinerariesPage() {
     return (
-        <div>
-            <h1>Itineraries Page</h1>
-            <p>This is the Itineraries page content.</p>
-        </div>
+        <Grid container spacing={6}>
+            <Grid>
+                <SideMenu />
+            </Grid>
+            <Grid>
+                <h1>Itinerários</h1>
+            </Grid>
+        </Grid>
     );
 }

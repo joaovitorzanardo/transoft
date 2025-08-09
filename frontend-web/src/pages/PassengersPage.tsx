@@ -1,8 +1,15 @@
+import { Grid } from "@mui/material";
+import SideMenu from "../components/SideManu";
+
 export default function PassengersPage() {
     return (
-        <div>
-            <h1>Passengers Page</h1>
-            <p>This is the Passengers page content.</p>
-        </div>
+        <Grid container spacing={6}>
+            <Grid>
+                <SideMenu />
+            </Grid>
+            <Grid>
+                <h1>Passageiros</h1>
+            </Grid>
+        </Grid>
     );
 }

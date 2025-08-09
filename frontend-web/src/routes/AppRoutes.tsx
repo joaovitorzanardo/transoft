@@ -6,6 +6,7 @@ import ItinerariesPage from "../pages/ItinerariesPage";
 import ConfigurationPage from "../pages/ConfigurationPage";
 import DashboardPage from "../pages/DashboardPage";
 import ReportsPage from "../pages/ReportsPage";
+import VehiclesPage from "../pages/VehiclesPage";
 
 export default function AppRoutes() {
     return (
@@ -13,6 +14,7 @@ export default function AppRoutes() {
             <Routes>
                 <Route path="/passengers" element={<PassengersPage />} />
                 <Route path="/routes" element={<RoutesPage />} />
+                <Route path="/vehicles" element={<VehiclesPage />} />
                 <Route path="/drivers" element={<DriversPage />} />
                 <Route path="/itineraries" element={<ItinerariesPage />} />
                 <Route path="/configuration" element={<ConfigurationPage />} />

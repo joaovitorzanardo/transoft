@@ -1,8 +1,15 @@
+import { Grid } from "@mui/material";
+import SideMenu from "../components/SideManu";
+
 export default function ConfigurationPage() {
     return (
-        <div>
-            <h1>Configuration Page</h1>
-            <p>This is the Configuration page content.</p>
-        </div>
+        <Grid container spacing={6}>
+            <Grid>
+                <SideMenu />
+            </Grid>
+            <Grid>
+                <h1>Configuração</h1>
+            </Grid>
+        </Grid>
     );
 }

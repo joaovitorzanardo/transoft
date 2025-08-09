@@ -1,8 +1,15 @@
+import { Grid } from "@mui/material";
+import SideMenu from "../components/SideManu";
+
 export default function ReportsPage() {
     return (
-        <div>
-            <h1>Reports Page</h1>
-            <p>This is the Reports page content.</p>
-        </div>
+        <Grid container spacing={6}>
+            <Grid>
+                <SideMenu />
+            </Grid>
+            <Grid>
+                <h1>Relatórios</h1>
+            </Grid>
+        </Grid>
     );
 }

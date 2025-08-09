@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "route")
@@ -24,12 +25,6 @@ public class Route {
     @Column(name = "active", nullable = false)
     private Boolean active;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private LocalTime endTime;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
@@ -38,7 +33,11 @@ public class Route {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Embedded
-    private Address startAddress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id")
+    private Driver defaultDriver;
+
+    @OneToMany
+    private List<Trip> trips;
 
 }
