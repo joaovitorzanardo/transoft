@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper } from "@mui/material";
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
 
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import ForkRightIcon from '@mui/icons-material/ForkRight';
@@ -32,7 +32,7 @@ export default function SideMenu() {
 
     return (
         <Paper elevation={3} sx={{ width: 250, height: '100vh' }}>
-            
+            <Typography variant="h5" sx={{ padding: 2, textAlign: 'center' }}>Transoft</Typography>
             <List>
                 {items.map((menuItem, index) => (
                     <ListItem key={index}>

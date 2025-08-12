@@ -1,5 +1,6 @@
 import { Grid } from "@mui/material";
 import SideMenu from "../components/SideManu";
+import PassengerCard from "../components/PassengerCard";
 
 export default function PassengersPage() {
     return (
@@ -9,6 +10,7 @@ export default function PassengersPage() {
             </Grid>
             <Grid>
                 <h1>Passageiros</h1>
+                <PassengerCard />
             </Grid>
         </Grid>
     );
