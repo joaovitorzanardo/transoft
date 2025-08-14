@@ -3,22 +3,60 @@ import React from "react";
 import BlockIcon from '@mui/icons-material/Block';
 import CloseIcon from '@mui/icons-material/Close';
 
+import { getAutomakers } from "../../services/automaker.service";
+import { getVehicleModelsByAutomaker } from "../../services/vehiclemodel.service";
+
+import type Automaker from "../../types/Automaker";
+import type VehicleModel from "../../types/VehicleModel";
+
 interface VehicleDialogProps {
     open: boolean;
     onClose: () => void;
 }
 
 export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
-    const [automaker, setAutomaker] = React.useState('');
-    const [vehicleModel, setVehicleModel] = React.useState('');
+    const [automakers, setAutomakers] = React.useState<Automaker[]>([]);
+    const [vehicleModels, setVehicleModels] = React.useState<VehicleModel[]>([]);
+    
+    const [selectedAutomaker, setSelectedAutomaker] = React.useState<string>();
+    const [selectedVehicleModel, setSelectedVehicleModel] = React.useState<string>();
 
     const handleChangeAutomaker = (event: SelectChangeEvent) => {
-      setAutomaker(event.target.value as string);
+        setSelectedAutomaker(event.target.value as string);
     };
 
     const handleChangeVehicleModel = (event: SelectChangeEvent) => {
-        setVehicleModel(event.target.value as string);
-      };
+        setSelectedVehicleModel(event.target.value as string);
+    };
+
+    React.useEffect(() => {
+        const fetchAutomakers = async () => {
+            try {
+                const automakersData = await getAutomakers();
+                setAutomakers(automakersData);
+            } catch (error) {
+                console.error('Error fetching automakers:', error);
+            }
+        }
+
+        fetchAutomakers();
+    }, []);
+
+    React.useEffect(() => {
+        const fetchVehicleModels = async () => {
+            if (!selectedAutomaker) return;
+
+            try {
+                const vehicleModelsData = await getVehicleModelsByAutomaker(selectedAutomaker);                
+                setVehicleModels(vehicleModelsData);
+            } catch (error) {
+                console.error('Error fetching automakers:', error);
+            }
+        }
+
+        fetchVehicleModels();
+    }, [selectedAutomaker]);
+
 
     return (
         <Dialog open={open} onClose={onClose} >
@@ -34,18 +72,24 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
                     <TextField label="Placa" variant="outlined" />
                     <Container sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
                         <Select
-                            value={automaker}
+                            value={selectedAutomaker}
                             label="Montadora"
                             onChange={handleChangeAutomaker}>
-                            <MenuItem value={10}>Mercedes-Benz</MenuItem>
-                            <MenuItem value={20}>Volvo</MenuItem>
+                            {automakers.map((automaker) => (
+                                <MenuItem value={automaker.automakerId}>
+                                    {automaker.name}
+                                </MenuItem> 
+                            ))}
                         </Select>
                         <Select
-                            value={vehicleModel}
+                            value={selectedVehicleModel}
                             label="Modelo"
                             onChange={handleChangeVehicleModel}>
-                            <MenuItem value={10}>Sprinter</MenuItem>
-                            <MenuItem value={20}>Modelo 1</MenuItem>
+                            {vehicleModels.map((vehicleModel) => (
+                                <MenuItem value={vehicleModel.modelName}>
+                                    {vehicleModel.modelName}
+                                </MenuItem> 
+                            ))}
                         </Select>
                     </Container>
                     <Container>

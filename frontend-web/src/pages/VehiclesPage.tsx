@@ -1,7 +1,7 @@
 import { Box, Button, Container, Grid, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 import SideMenu from "../components/SideManu";
 import { VehicleTable } from "../components/vehicles/VehicleTable";
-import { VehicleStatsCard } from "../components/vehicles/VehicleStatsCard";
+import { StatsCard } from "../components/StatsCard";
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import React from "react";
@@ -45,16 +45,16 @@ export default function VehiclesPage() {
                     </Container>
                     <Grid container sx={{ marginBottom: 5 }} spacing={3}>
                         <Grid>
-                            <VehicleStatsCard title="Total de Veículos" value={12}/>
+                            <StatsCard title="Total de Veículos" value={12}/>
                         </Grid>
                         <Grid>
-                            <VehicleStatsCard title="Ativos" value={8}/>
+                            <StatsCard title="Ativos" value={8}/>
                         </Grid>
                         <Grid>
-                            <VehicleStatsCard title="Em Manutenção" value={1}/>
+                            <StatsCard title="Em Manutenção" value={1}/>
                         </Grid>
                         <Grid>
-                            <VehicleStatsCard title="Inativos" value={3}/>
+                            <StatsCard title="Inativos" value={3}/>
                         </Grid>
                     </Grid>
                     <Container>

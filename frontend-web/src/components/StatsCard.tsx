@@ -5,7 +5,7 @@ interface Props {
     value?: number;
 }
 
-export function VehicleStatsCard({ title, value }: Props) {
+export function StatsCard({ title, value }: Props) {
     return (
         <Paper sx={{ height: "100px", width: "200px", padding: 2}}>
             <Typography variant="h5" sx={{marginBottom: 1}}>{title}</Typography>
