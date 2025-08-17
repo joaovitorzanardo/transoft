@@ -1,4 +1,4 @@
 package br.com.transoft.backend.dto.itinerary;
 
-public class ItineraryPresenter {
+public record ItineraryPresenter(String itineraryId) {
 }

@@ -1,5 +1,6 @@
-package br.com.transoft.backend.dto;
+package br.com.transoft.backend.dto.school;
 
+import br.com.transoft.backend.dto.address.AddressDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

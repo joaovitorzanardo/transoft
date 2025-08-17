@@ -27,7 +27,7 @@ public class DriverDto {
     private String cnhNumber;
 
     @JsonProperty(namespace = "cnh_expiration_date")
-    @NotBlank(message = "The cnh expiration date must be informed.")
+    @NotNull(message = "The cnh expiration date must be informed.")
     private LocalDate cnhExpirationDate;
 
     @JsonProperty(namespace = "email")

@@ -7,10 +7,12 @@ import br.com.transoft.backend.entity.VehicleModel;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.AutomakerRepository;
 import br.com.transoft.backend.repository.VehicleModelRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class VehicleModelService {
@@ -36,9 +38,17 @@ public class VehicleModelService {
         this.vehicleModelRepository.save(vehicleModel);
     }
 
-    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(String automakerId) {
+    public List<VehicleModelPresenter> listVehicleModels(int page, int size) {
+        return this.vehicleModelRepository.findAll(PageRequest.of(page, size)).stream().map(VehicleModel::toPresenter).collect(Collectors.toList());
+    }
+
+    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(String automakerId, int page, int size) {
         Automaker automaker = this.automakerRepository.findById(automakerId).orElseThrow(() -> new ResourceNotFoundException("Automaker not found"));
-        return this.vehicleModelRepository.findAllByAutomaker(automaker).stream().map(v -> new VehicleModelPresenter(v.getVehicleModelId(), v.getModelName(), v.getModelYear(), automaker.toPresenter())).toList();
+        return this.vehicleModelRepository.findAllByAutomaker(automaker).stream().map(VehicleModel::toPresenter).toList();
+    }
+
+    public VehicleModelPresenter findVehicleModelById(String vehicleModelId) {
+        return this.vehicleModelRepository.findById(vehicleModelId).orElseThrow(() -> new ResourceNotFoundException("Vehicle Model was not found")).toPresenter();
     }
 
 }

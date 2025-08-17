@@ -1,5 +1,6 @@
 package br.com.transoft.backend.entity;
 
+import br.com.transoft.backend.dto.passenger.PassengerPresenter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,5 +40,17 @@ public class Passenger {
 
     @Embedded
     private Address address;
+
+    public PassengerPresenter toPresenter() {
+        return new PassengerPresenter(
+                passengerId,
+                name,
+                email,
+                phoneNumber.toDto(),
+                school.toPresenter(),
+                address.toDto()
+        );
+
+    }
 
 }

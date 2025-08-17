@@ -1,5 +1,6 @@
 package br.com.transoft.backend.entity;
 
+import br.com.transoft.backend.dto.address.AddressDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,5 +29,16 @@ public class Address {
 
     @Embedded
     private Coordinate coordinate;
+
+    public AddressDto toDto() {
+        return AddressDto.builder()
+                .cep(cep)
+                .street(street)
+                .district(district)
+                .number(number)
+                .complement(complement)
+                .coordinate(coordinate.toDto())
+                .build();
+    }
 
 }

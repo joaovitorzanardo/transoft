@@ -1,21 +1,18 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
 import br.com.transoft.backend.entity.Driver;
 import br.com.transoft.backend.entity.PhoneNumber;
 import br.com.transoft.backend.entity.UserAccount;
-import br.com.transoft.backend.entity.Vehicle;
 import br.com.transoft.backend.exception.CnhExpirationException;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.DriverRepository;
 import br.com.transoft.backend.repository.UserAccountRepository;
 import jakarta.transaction.Transactional;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
-import org.passay.Rule;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +54,7 @@ public class DriverService {
         Driver driver = Driver.builder()
                 .driverId(UUID.randomUUID().toString())
                 .name(driverDto.getName())
+                .email(driverDto.getEmail())
                 .cnhNumber(driverDto.getCnhNumber())
                 .cnhExpirationDate(driverDto.getCnhExpirationDate())
                 .phoneNumber(new PhoneNumber(driverDto.getPhoneNumber()))
@@ -64,14 +62,9 @@ public class DriverService {
 
         this.driverRepository.save(driver);
 
-        List<Rule> rules = List.of(
-                new CharacterRule(EnglishCharacterData.UpperCase, 1),
-                new CharacterRule(EnglishCharacterData.LowerCase, 1),
-                new CharacterRule(EnglishCharacterData.Digit, 1),
-                new CharacterRule(EnglishCharacterData.Special, 1)
-        );
+        //String userId = keycloakService.createUser(driverDto.getName(), driverDto.getEmail(), passwordGenerator.generatePassword(PasswordGeneratorUtils.DEFAULT_SIZE, PasswordGeneratorUtils.getDefaultRules()), false, List.of("DRIVER"));
 
-        String userId = keycloakService.createUser(driverDto.getName(), driverDto.getEmail(), passwordGenerator.generatePassword(6, rules), false);
+        String userId = UUID.randomUUID().toString();
 
         UserAccount userAccount = UserAccount.builder()
                 .userAccountId(userId)

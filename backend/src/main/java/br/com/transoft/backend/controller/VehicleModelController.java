@@ -24,8 +24,18 @@ public class VehicleModelController {
     }
 
     @GetMapping
-    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(@RequestParam String automakerId) {
-        return this.vehicleModelService.listVehicleModelsByAutomaker(automakerId);
+    public List<VehicleModelPresenter> listVehicleModels(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
+        return this.vehicleModelService.listVehicleModels(page, size);
+    }
+
+    @GetMapping(path = "/automaker/{automakerId}")
+    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(@PathVariable String automakerId, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
+        return this.vehicleModelService.listVehicleModelsByAutomaker(automakerId, page, size);
+    }
+
+    @GetMapping(path = "/{vehicleModelId}")
+    public VehicleModelPresenter findVehicleModelById(@PathVariable String vehicleModelId) {
+        return this.vehicleModelService.findVehicleModelById(vehicleModelId);
     }
 
 }

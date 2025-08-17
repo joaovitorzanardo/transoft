@@ -57,7 +57,7 @@ public class VehicleService {
 
         if (!vehicleDto.getPlateNumber().equals(vehicle.getPlateNumber())) {
             if (plateNumberRegistered(vehicleDto.getPlateNumber())) {
-                throw new ResourceConflictException("PlateNumber already registered");
+                throw new ResourceConflictException("Plate number already registered");
             }
 
             vehicle.setPlateNumber(vehicleDto.getPlateNumber());

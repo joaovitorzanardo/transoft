@@ -11,6 +11,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class KeycloakService {
@@ -38,13 +39,16 @@ public class KeycloakService {
         return location.substring(location.lastIndexOf('/') + 1);
     }
 
-    public String createUser(String name, String email, String password, boolean enabled) {
+    public String createUser(String name, String email, String password, boolean enabled, List<String> roles) {
         UserRepresentation user = new UserRepresentation();
+
+        Map<String, List<String>> clientRoles = Map.of("roles", roles);
 
         user.setUsername(slugify.slugify(name));
         user.setFirstName(name);
         user.setEmail(email);
         user.setEnabled(enabled);
+        user.setClientRoles(clientRoles);
 
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);

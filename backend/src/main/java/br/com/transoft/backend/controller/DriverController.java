@@ -24,7 +24,7 @@ public class DriverController {
     }
 
     @GetMapping
-    public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "10") int size) {
+    public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
         return this.driverService.listDrivers(page, size);
     }
 

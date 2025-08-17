@@ -1,5 +1,6 @@
 package br.com.transoft.backend.entity;
 
+import br.com.transoft.backend.dto.school.SchoolPresenter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,5 +22,9 @@ public class School {
 
     @Embedded
     private Address address;
+
+    public SchoolPresenter toPresenter() {
+        return new SchoolPresenter(schoolId, name, address.toDto());
+    }
 
 }

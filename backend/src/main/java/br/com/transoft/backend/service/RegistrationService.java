@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Service
 public class RegistrationService {
@@ -42,7 +43,7 @@ public class RegistrationService {
 
         KeycloakRegistrationResponse keycloakRegistrationResponse = registrationKeycloakFacade
                 .registerKeycloak(
-                        new UserAccountDto(registrationDto.getName(), registrationDto.getEmail(), registrationDto.getPassword()),
+                        new UserAccountDto(registrationDto.getName(), registrationDto.getEmail(), registrationDto.getPassword(), List.of("MANAGER")),
                         registrationDto.getCompany()
                 );
 
@@ -50,7 +51,7 @@ public class RegistrationService {
                 .userAccountId(keycloakRegistrationResponse.userId())
                 .name(registrationDto.getName())
                 .email(registrationDto.getEmail())
-                .role("ADMIN")
+                .role("MANAGER")
                 .build();
 
         this.userAccountRepository.save(userAccount);

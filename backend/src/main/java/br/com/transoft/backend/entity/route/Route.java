@@ -1,10 +1,11 @@
-package br.com.transoft.backend.entity;
+package br.com.transoft.backend.entity.route;
 
+import br.com.transoft.backend.dto.route.RoutePresenter;
+import br.com.transoft.backend.entity.Company;
+import br.com.transoft.backend.entity.Driver;
+import br.com.transoft.backend.entity.School;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalTime;
-import java.util.List;
 
 @Entity
 @Table(name = "route")
@@ -37,7 +38,26 @@ public class Route {
     @JoinColumn(name = "driver_id")
     private Driver defaultDriver;
 
-    @OneToMany
-    private List<Trip> trips;
+    @Embedded
+    private DepartureTrip departureTrip;
+
+    @Embedded
+    private ReturnTrip returnTrip;
+
+    @Embedded
+    private DayOfWeek dayOfWeek;
+
+    public RoutePresenter toPresenter() {
+        return new RoutePresenter(
+                routeId,
+                name,
+                active,
+                school.toPresenter(),
+                defaultDriver.toPresenter(),
+                departureTrip.toDto(),
+                returnTrip.toDto(),
+                dayOfWeek.toDto()
+        );
+    }
 
 }

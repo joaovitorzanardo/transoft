@@ -1,4 +1,4 @@
-package br.com.transoft.backend.config;
+package br.com.transoft.backend.utils;
 
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;

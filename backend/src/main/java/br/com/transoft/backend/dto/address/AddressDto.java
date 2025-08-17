@@ -1,4 +1,4 @@
-package br.com.transoft.backend.dto;
+package br.com.transoft.backend.dto.address;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -29,7 +29,6 @@ public class AddressDto {
     private Integer number;
 
     @JsonProperty(namespace = "complement")
-    @NotBlank(message = "Address complement must be informed.")
     private String complement;
 
     @JsonProperty(namespace = "coordinate")
