@@ -3,9 +3,12 @@ package br.com.transoft.backend.entity.route;
 import br.com.transoft.backend.dto.route.RoutePresenter;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.Driver;
+import br.com.transoft.backend.entity.Passenger;
 import br.com.transoft.backend.entity.School;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "route")
@@ -46,6 +49,9 @@ public class Route {
 
     @Embedded
     private DayOfWeek dayOfWeek;
+
+    @OneToMany(mappedBy = "route")
+    private Set<Passenger> passengers;
 
     public RoutePresenter toPresenter() {
         return new RoutePresenter(

@@ -1,8 +1,11 @@
 package br.com.transoft.backend.entity;
 
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
+import br.com.transoft.backend.entity.route.Route;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "passenger")
@@ -40,6 +43,10 @@ public class Passenger {
 
     @Embedded
     private Address address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "route_id")
+    private Route route;
 
     public PassengerPresenter toPresenter() {
         return new PassengerPresenter(

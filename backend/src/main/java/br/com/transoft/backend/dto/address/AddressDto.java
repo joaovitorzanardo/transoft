@@ -28,6 +28,14 @@ public class AddressDto {
     @NotNull(message = "Address number must be informed.")
     private Integer number;
 
+    @JsonProperty(namespace = "city")
+    @NotBlank(message = "Address city must be informed.")
+    private String city;
+
+    @JsonProperty(namespace = "uf")
+    @NotBlank(message = "Address UF must be informed.")
+    private String uf;
+
     @JsonProperty(namespace = "complement")
     private String complement;
 

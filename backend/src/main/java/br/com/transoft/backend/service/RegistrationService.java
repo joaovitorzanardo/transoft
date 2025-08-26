@@ -52,6 +52,7 @@ public class RegistrationService {
                 .name(registrationDto.getName())
                 .email(registrationDto.getEmail())
                 .role("MANAGER")
+                .active(true)
                 .build();
 
         this.userAccountRepository.save(userAccount);

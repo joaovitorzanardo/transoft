@@ -23,4 +23,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 
+    @ExceptionHandler(InvalidItineraryStatusException.class)
+    public ResponseEntity<String> handleInvalidItineraryStatusException(InvalidItineraryStatusException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPassengerItineraryStatusException.class)
+    public ResponseEntity<String> handleInvalidPassengerItineraryStatusException(InvalidPassengerItineraryStatusException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
 }

@@ -1,5 +1,7 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
+import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
 import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
@@ -77,6 +79,14 @@ public class DriverService {
         //TODO: send email to the user with a password
 
         userAccountRepository.save(userAccount);
+    }
+
+    public void updateDriverAccount(DriverAccountDto driverAccountDto) {
+
+    }
+
+    public DriverAccountPresenter getDriverAccount() {
+        return null;
     }
 
     public boolean cnhNumberRegistered(String cnhNumber) {

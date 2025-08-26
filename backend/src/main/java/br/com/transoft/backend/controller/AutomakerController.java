@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/automaker")
+@RequestMapping(path = "/api/automakers")
 public class AutomakerController {
 
     private final AutomakerService automakerService;

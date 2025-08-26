@@ -1,5 +1,6 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.passenger.account.PassengerAccountDto;
 import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import br.com.transoft.backend.dto.passenger.PassengerDto;
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
@@ -8,10 +9,17 @@ import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.PassengerRepository;
 import br.com.transoft.backend.repository.SchoolRepository;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.GeocodingApiRequest;
+import com.google.maps.PendingResult;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.GeocodingResult;
 import org.passay.PasswordGenerator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,12 +31,14 @@ public class PassengerService {
     private final SchoolRepository schoolRepository;
     private final KeycloakService keycloakService;
     private final PasswordGenerator passwordGenerator;
+    private final GeoApiContext geoApiContext;
 
-    public PassengerService(PassengerRepository passengerRepository, SchoolRepository schoolRepository, KeycloakService keycloakService) {
+    public PassengerService(PassengerRepository passengerRepository, SchoolRepository schoolRepository, KeycloakService keycloakService, GeoApiContext geoApiContext) {
         this.passengerRepository = passengerRepository;
         this.schoolRepository = schoolRepository;
         this.keycloakService = keycloakService;
         this.passwordGenerator = new PasswordGenerator();
+        this.geoApiContext = geoApiContext;
     }
 
     public void savePassenger(PassengerDto passengerDto) {
@@ -37,16 +47,30 @@ public class PassengerService {
             throw new ResourceConflictException("This email is already registered for another passenger");
         }
 
-        // TODO: create mapper for this
         Address address = Address.builder()
                 .cep(passengerDto.getAddress().getCep())
                 .street(passengerDto.getAddress().getStreet())
                 .district(passengerDto.getAddress().getDistrict())
                 .number(passengerDto.getAddress().getNumber())
                 .complement(passengerDto.getAddress().getComplement())
-                // TODO: calculate coordinates of the new address if necessary
-                .coordinate(new Coordinate("32423423", "789234789"))
+                .city(passengerDto.getAddress().getCity())
+                .uf(passengerDto.getAddress().getUf())
                 .build();
+
+        GeocodingApiRequest request = GeocodingApi
+                .newRequest(geoApiContext)
+                .address(address.toString());
+
+        try {
+            GeocodingResult result = request.await()[0];
+            Coordinate coordinate = new Coordinate(
+                    result.geometry.location.lat,
+                    result.geometry.location.lng
+            );
+            address.setCoordinate(coordinate);
+        } catch (Exception e) {
+
+        }
 
         String userId = this.keycloakService.createUser(passengerDto.getName(), passengerDto.getEmail(), passwordGenerator.generatePassword(PasswordGeneratorUtils.DEFAULT_SIZE, PasswordGeneratorUtils.getDefaultRules()), false, List.of("PASSENGER"));
 
@@ -73,6 +97,14 @@ public class PassengerService {
         //TODO: send email to the user with a password
 
         this.passengerRepository.save(passenger);
+    }
+
+    public void updatePassengerAccount(PassengerAccountDto passengerAccountDto) {
+
+    }
+
+    public PassengerPresenter getPassengerAccount() {
+        return null;
     }
 
     public List<PassengerPresenter> listPassengers(int page, int size) {
@@ -109,8 +141,6 @@ public class PassengerService {
                 .district(passengerDto.getAddress().getDistrict())
                 .number(passengerDto.getAddress().getNumber())
                 .complement(passengerDto.getAddress().getComplement())
-                // TODO: calculate coordinates of the new address if necessary
-                .coordinate(new Coordinate("32423423", "789234789"))
                 .build();
 
         passenger.setAddress(address);

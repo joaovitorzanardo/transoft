@@ -1,5 +1,6 @@
 package br.com.transoft.backend.controller;
 
+import br.com.transoft.backend.dto.passenger.PassengerPresenter;
 import br.com.transoft.backend.dto.route.RouteDto;
 import br.com.transoft.backend.dto.route.RoutePresenter;
 import br.com.transoft.backend.service.RouteService;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/route")
+@RequestMapping(path = "/api/routes")
 public class RouteController {
 
     private final RouteService routeService;
@@ -31,6 +32,21 @@ public class RouteController {
     @GetMapping(path = "/{routeId}")
     public RoutePresenter listById(@PathVariable String routeId) {
         return this.routeService.listRouteById(routeId);
+    }
+
+    @PostMapping(path = "/{routeId}/passengers/{passengerId}")
+    public void addPassengerToRoute(@PathVariable String routeId, @PathVariable String passengerId) {
+        this.routeService.addPassengerToRoute(passengerId, routeId);
+    }
+
+    @GetMapping(path = "/{routeId}/passengers")
+    public List<PassengerPresenter> listPassengersFromRoute(@PathVariable String routeId) {
+        return routeService.listPassengersFromRoute(routeId);
+    }
+
+    @DeleteMapping(path = "/{routeId}/passengers/{passengerId}")
+    public void removePassengerFromRoute(@PathVariable String routeId, @PathVariable String passengerId) {
+        this.routeService.removePassengerFromRoute(passengerId, routeId);
     }
 
     @PostMapping(path = "/{routeId}/enable")

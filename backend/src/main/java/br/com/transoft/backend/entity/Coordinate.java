@@ -14,10 +14,10 @@ import lombok.*;
 public class Coordinate {
 
     @Column(name = "latitude", nullable = false)
-    private String latitude;
+    private Double latitude;
 
     @Column(name = "longitude", nullable = false)
-    private String longitude;
+    private Double longitude;
 
     public CoordinateDto toDto() {
         return new CoordinateDto(latitude, longitude);

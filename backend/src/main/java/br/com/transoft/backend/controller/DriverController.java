@@ -2,6 +2,8 @@ package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
+import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
+import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
 import br.com.transoft.backend.service.DriverService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/driver")
+@RequestMapping(path = "/api/drivers")
 public class DriverController {
 
     private final DriverService driverService;
@@ -21,6 +23,16 @@ public class DriverController {
     @PostMapping
     public void saveDriver(@Valid @RequestBody DriverDto driverDto) {
         this.driverService.saveDriver(driverDto);
+    }
+
+    @PostMapping(path = "/account")
+    public void updateDriverAccount(@Valid @RequestBody DriverAccountDto driverAccountDto) {
+        this.driverService.updateDriverAccount(driverAccountDto);
+    }
+
+    @GetMapping(path = "/account")
+    public DriverAccountPresenter getDriverAccount() {
+        return this.driverService.getDriverAccount();
     }
 
     @GetMapping

@@ -1,21 +1,26 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.passenger.PassengerPresenter;
 import br.com.transoft.backend.dto.route.RouteDto;
 import br.com.transoft.backend.dto.route.RoutePresenter;
 import br.com.transoft.backend.entity.Driver;
+import br.com.transoft.backend.entity.Passenger;
 import br.com.transoft.backend.entity.School;
 import br.com.transoft.backend.entity.route.DayOfWeek;
 import br.com.transoft.backend.entity.route.DepartureTrip;
 import br.com.transoft.backend.entity.route.ReturnTrip;
 import br.com.transoft.backend.entity.route.Route;
+import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.DriverRepository;
+import br.com.transoft.backend.repository.PassengerRepository;
 import br.com.transoft.backend.repository.RouteRepository;
 import br.com.transoft.backend.repository.SchoolRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,11 +30,13 @@ public class RouteService {
     private final RouteRepository routeRepository;
     private final SchoolRepository schoolRepository;
     private final DriverRepository driverRepository;
+    private final PassengerRepository passengerRepository;
 
-    public RouteService(RouteRepository routeRepository, SchoolRepository schoolRepository, DriverRepository driverRepository) {
+    public RouteService(RouteRepository routeRepository, SchoolRepository schoolRepository, DriverRepository driverRepository, PassengerRepository passengerRepository) {
         this.routeRepository = routeRepository;
         this.schoolRepository = schoolRepository;
         this.driverRepository = driverRepository;
+        this.passengerRepository = passengerRepository;
     }
 
     public void saveRoute(RouteDto routeDto) {
@@ -58,8 +65,33 @@ public class RouteService {
         return this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found")).toPresenter();
     }
 
-    public void updateRoute(String routeId, RouteDto routeDto) {
+    public List<PassengerPresenter> listPassengersFromRoute(String routeId) {
+        Route route = routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        return passengerRepository.findByRoute(route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+    }
 
+    public void addPassengerToRoute(String passengerId, String routeId) {
+        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        Passenger passenger = this.passengerRepository.findById(passengerId).orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
+
+        if (!Objects.isNull(passenger.getRoute())) {
+            throw new ResourceConflictException("Passenger is already in a route");
+        }
+
+        passenger.setRoute(route);
+        this.passengerRepository.save(passenger);
+    }
+
+    public void removePassengerFromRoute(String passengerId, String routeId) {
+        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        Passenger passenger = this.passengerRepository.findById(passengerId).orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
+
+        if (!passenger.getRoute().equals(route)) {
+            throw new ResourceNotFoundException("Passenger is not in this route");
+        }
+
+        passenger.setRoute(null);
+        this.passengerRepository.save(passenger);
     }
 
     public void enableRoute(String routeId) {

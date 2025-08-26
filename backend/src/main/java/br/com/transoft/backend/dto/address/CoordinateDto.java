@@ -1,7 +1,7 @@
 package br.com.transoft.backend.dto.address;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +14,11 @@ import lombok.Setter;
 public class CoordinateDto {
 
     @JsonProperty(namespace = "latitude")
-    @NotBlank(message = "Latitude must be informed.")
-    private String latitude;
+    @NotNull(message = "Latitude must be informed.")
+    private Double latitude;
 
     @JsonProperty(namespace = "longitude")
-    @NotBlank(message = "Longitude must be informed.")
-    private String longitude;
+    @NotNull(message = "Longitude must be informed.")
+    private Double longitude;
 
 }

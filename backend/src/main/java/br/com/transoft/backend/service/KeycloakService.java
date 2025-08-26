@@ -33,7 +33,7 @@ public class KeycloakService {
 
         organization.addDomain(new OrganizationDomainRepresentation("br.com." + organization.getAlias()));
 
-        Response createOrgResponse = keycloak.realm("master").organizations().create(organization);
+        Response createOrgResponse = keycloak.realm("transoft").organizations().create(organization);
 
         String location = createOrgResponse.getLocation().getPath();
         return location.substring(location.lastIndexOf('/') + 1);
@@ -57,14 +57,14 @@ public class KeycloakService {
 
         user.setCredentials(List.of(credential));
 
-        Response createUserResponse = keycloak.realm("master").users().create(user);
+        Response createUserResponse = keycloak.realm("transoft").users().create(user);
 
         String location = createUserResponse.getLocation().getPath();
         return location.substring(location.lastIndexOf('/') + 1);
     }
 
     public Response addUserToOrganization(String userId, String orgId) {
-        OrganizationResource organization = keycloak.realm("master")
+        OrganizationResource organization = keycloak.realm("transoft")
                 .organizations()
                 .get(orgId);
 

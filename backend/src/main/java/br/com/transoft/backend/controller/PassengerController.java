@@ -2,6 +2,7 @@ package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.passenger.PassengerDto;
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
+import br.com.transoft.backend.dto.passenger.account.PassengerAccountDto;
 import br.com.transoft.backend.service.PassengerService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/passenger")
+@RequestMapping(path = "/api/passengers")
 public class PassengerController {
 
     private final PassengerService passengerService;
@@ -21,6 +22,16 @@ public class PassengerController {
     @PostMapping
     public void savePassenger(@Valid @RequestBody PassengerDto passengerDto) {
         this.passengerService.savePassenger(passengerDto);
+    }
+
+    @PostMapping(path = "/account")
+    public void updatePassengerAccount(@Valid @RequestBody PassengerAccountDto passengerAccountDto) {
+        this.passengerService.updatePassengerAccount(passengerAccountDto);
+    }
+
+    @GetMapping(path = "/account")
+    public PassengerPresenter getPassengerAccount() {
+        return this.passengerService.getPassengerAccount();
     }
 
     @GetMapping

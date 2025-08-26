@@ -24,6 +24,12 @@ public class Address {
     @Column(name = "number", nullable = false)
     private Integer number;
 
+    @Column(name = "city", nullable = false)
+    private String city;
+
+    @Column(name = "uf", nullable = false)
+    private String uf;
+
     @Column(name = "complement")
     private String complement;
 
@@ -37,8 +43,14 @@ public class Address {
                 .district(district)
                 .number(number)
                 .complement(complement)
+                .city(city)
+                .uf(uf)
                 .coordinate(coordinate.toDto())
                 .build();
     }
 
+    @Override
+    public String toString() {
+        return street + ", " + number + " - " + district + ", " + city + " - " + uf + ", " + cep + ", Brazil";
+    }
 }

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/company")
+@RequestMapping(path = "/api/companies")
 public class CompanyController {
 
     private final CompanyService companyService;
