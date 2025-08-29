@@ -13,10 +13,10 @@ import lombok.*;
 @Setter
 public class Coordinate {
 
-    @Column(name = "latitude", nullable = false)
+    @Column(name = "latitude")
     private Double latitude;
 
-    @Column(name = "longitude", nullable = false)
+    @Column(name = "longitude")
     private Double longitude;
 
     public CoordinateDto toDto() {

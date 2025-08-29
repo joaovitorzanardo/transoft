@@ -1,10 +1,5 @@
 {
   "BK_POSTGRES_DB": "transoft",
   "BK_POSTGRES_USER": "transoft",
-  "BK_POSTGRES_PASSWORD": "transoft",
-  "KC_ADMIN": "admin",
-  "KC_ADMIN_PASSWORD": "admin",
-  "REALM": "master",
-  "CLIENT_ID": "backend_service",
-  "CLIENT_SERVICE_SECRET": "fE5P5mtHfHzZ9ZrEoK0jEjEWnkEVg9uf"
+  "BK_POSTGRES_PASSWORD": "transoft"
 }

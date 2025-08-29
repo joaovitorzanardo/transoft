@@ -21,42 +21,42 @@ public class PassengerController {
 
     @PostMapping
     public void savePassenger(@Valid @RequestBody PassengerDto passengerDto) {
-        this.passengerService.savePassenger(passengerDto);
+        passengerService.savePassenger(passengerDto);
     }
 
-    @PostMapping(path = "/account")
+    @PutMapping(path = "/account")
     public void updatePassengerAccount(@Valid @RequestBody PassengerAccountDto passengerAccountDto) {
-        this.passengerService.updatePassengerAccount(passengerAccountDto);
+        passengerService.updatePassengerAccount(passengerAccountDto);
     }
 
     @GetMapping(path = "/account")
     public PassengerPresenter getPassengerAccount() {
-        return this.passengerService.getPassengerAccount();
+        return passengerService.getPassengerAccount();
     }
 
     @GetMapping
     public List<PassengerPresenter> listPassengers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.passengerService.listPassengers(page, size);
+        return passengerService.listPassengers(page, size);
     }
 
     @GetMapping(path = "/{passengerId}")
     public PassengerPresenter findPassengerById(@PathVariable String passengerId) {
-        return this.passengerService.findPassengerById(passengerId);
+        return passengerService.findPassengerById(passengerId).toPresenter();
     }
 
     @PutMapping(path = "/{passengerId}")
     public void updatePassenger(@PathVariable String passengerId, PassengerDto passengerDto) {
-        this.passengerService.updatePassenger(passengerId, passengerDto);
+        passengerService.updatePassenger(passengerId, passengerDto);
     }
 
     @PostMapping(path = "/{passengerId}/enable")
     public void enablePassenger(@PathVariable String passengerId) {
-        this.passengerService.enablePassenger(passengerId);
+        passengerService.enablePassenger(passengerId);
     }
 
     @PostMapping(path = "/{passengerId}/disable")
     public void disablePassenger(@PathVariable String passengerId) {
-        this.passengerService.disablePassenger(passengerId);
+        passengerService.disablePassenger(passengerId);
     }
 
 }

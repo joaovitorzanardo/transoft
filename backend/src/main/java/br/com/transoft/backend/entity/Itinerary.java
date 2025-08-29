@@ -2,13 +2,15 @@ package br.com.transoft.backend.entity;
 
 import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
 import br.com.transoft.backend.entity.route.Route;
-import br.com.transoft.backend.utils.ItineraryStatus;
-import br.com.transoft.backend.utils.ItineraryType;
+import br.com.transoft.backend.constants.ItineraryStatus;
+import br.com.transoft.backend.constants.ItineraryType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "itinerary")
@@ -52,6 +54,9 @@ public class Itinerary {
     @JoinColumn(name = "company_id")
     private Company company;
 
+    @OneToMany(mappedBy = "itinerary", fetch = FetchType.LAZY)
+    private Set<PassengerStatus> passengerStatus;
+
     public ItineraryPresenter toPresenter() {
         return new ItineraryPresenter(
                 itineraryId,
@@ -62,7 +67,9 @@ public class Itinerary {
                 endTime,
                 route.toPresenter(),
                 driver.toPresenter(),
-                null
+                passengerStatus.stream()
+                        .map(PassengerStatus::toPresenter)
+                        .collect(Collectors.toSet())
         );
     }
 }

@@ -20,22 +20,22 @@ public class VehicleModelController {
 
     @PostMapping
     public void saveVehicleModel(@Valid @RequestBody VehicleModelDto vehicleModelDto) {
-        this.vehicleModelService.saveVehicleModel(vehicleModelDto);
+        vehicleModelService.saveVehicleModel(vehicleModelDto);
     }
 
     @GetMapping
     public List<VehicleModelPresenter> listVehicleModels(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.vehicleModelService.listVehicleModels(page, size);
+        return vehicleModelService.listVehicleModels(page, size);
     }
 
     @GetMapping(path = "/automaker/{automakerId}")
-    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(@PathVariable String automakerId, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.vehicleModelService.listVehicleModelsByAutomaker(automakerId, page, size);
+    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(@PathVariable String automakerId) {
+        return vehicleModelService.listVehicleModelsByAutomaker(automakerId);
     }
 
     @GetMapping(path = "/{vehicleModelId}")
     public VehicleModelPresenter findVehicleModelById(@PathVariable String vehicleModelId) {
-        return this.vehicleModelService.findVehicleModelById(vehicleModelId);
+        return vehicleModelService.findVehicleModelById(vehicleModelId).toPresenter();
     }
 
 }

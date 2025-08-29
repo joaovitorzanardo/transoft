@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PassengerItineraryRepository extends JpaRepository<PassengerStatus, String> {
+public interface PassengerStatusRepository extends JpaRepository<PassengerStatus, String> {
     Optional<PassengerStatus> findByItineraryAndPassenger(Itinerary itinerary, Passenger passenger);
     List<PassengerStatus> findByItinerary(Itinerary itinerary);
 }

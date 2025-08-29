@@ -6,18 +6,16 @@ import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
 import br.com.transoft.backend.entity.Driver;
 import br.com.transoft.backend.entity.Itinerary;
 import br.com.transoft.backend.entity.Passenger;
-import br.com.transoft.backend.entity.PassengerItinerary;
+import br.com.transoft.backend.entity.PassengerStatus;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.ItineraryRepository;
-import br.com.transoft.backend.repository.PassengerItineraryRepository;
-import br.com.transoft.backend.repository.PassengerRepository;
-import br.com.transoft.backend.repository.RouteRepository;
+import br.com.transoft.backend.repository.PassengerStatusRepository;
 import br.com.transoft.backend.utils.DateUtils;
-import br.com.transoft.backend.utils.ItineraryStatus;
-import br.com.transoft.backend.utils.ItineraryType;
-import br.com.transoft.backend.utils.PassengerItineraryStatus;
+import br.com.transoft.backend.constants.ItineraryStatus;
+import br.com.transoft.backend.constants.ItineraryType;
+import br.com.transoft.backend.constants.PassengerStatusEnum;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -33,20 +31,20 @@ import java.util.UUID;
 public class ItineraryService {
 
     private final ItineraryRepository itineraryRepository;
-    private final PassengerRepository passengerRepository;
-    private final RouteRepository routeRepository;
-    private final PassengerItineraryRepository passengerItineraryRepository;
+    private final PassengerService passengerService;
+    private final RouteService routeService;
+    private final PassengerStatusRepository passengerStatusRepository;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, PassengerRepository passengerRepository, RouteRepository routeRepository, PassengerItineraryRepository passengerItineraryRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, PassengerService passengerService, RouteService routeService, PassengerStatusRepository passengerStatusRepository) {
         this.itineraryRepository = itineraryRepository;
-        this.passengerRepository = passengerRepository;
-        this.routeRepository = routeRepository;
-        this.passengerItineraryRepository = passengerItineraryRepository;
+        this.passengerService = passengerService;
+        this.routeService = routeService;
+        this.passengerStatusRepository = passengerStatusRepository;
     }
 
     @Transactional(rollbackOn = SQLException.class)
     public void generateItinerary(ItineraryDto itineraryDto) {
-        Route route = this.routeRepository.findById(itineraryDto.getRouteId()).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        Route route = routeService.findRouteById(itineraryDto.getRouteId());
         Driver driver = route.getDefaultDriver();
         Set<Passenger> passengers = route.getPassengers();
 
@@ -71,8 +69,7 @@ public class ItineraryService {
                 .driver(driver)
                 .build();
 
-        this.itineraryRepository.save(itinerary);
-
+        itineraryRepository.save(itinerary);
         addPassengersToItinerary(passengers, itinerary);
     }
 
@@ -89,39 +86,37 @@ public class ItineraryService {
                 .driver(driver)
                 .build();
 
-        this.itineraryRepository.save(itinerary);
-
+        itineraryRepository.save(itinerary);
         addPassengersToItinerary(passengers, itinerary);
     }
 
     private void addPassengersToItinerary(Set<Passenger> passengers, Itinerary itinerary) {
-        Set<PassengerItinerary> passengerItineraries = new HashSet<>();
+        Set<PassengerStatus> passengersStatus = new HashSet<>();
 
         for (Passenger passenger : passengers) {
-            PassengerItinerary passengerItinerary = PassengerItinerary.builder()
-                    .passengerItineraryId(UUID.randomUUID().toString())
+            PassengerStatus passengerStatus = PassengerStatus.builder()
                     .passenger(passenger)
                     .itinerary(itinerary)
-                    .passengerItineraryStatus(PassengerItineraryStatus.CONFIRMADO)
+                    .status(PassengerStatusEnum.CONFIRMADO)
                     .build();
 
-            passengerItineraries.add(passengerItinerary);
+            passengersStatus.add(passengerStatus);
         }
 
-        this.passengerItineraryRepository.saveAll(passengerItineraries);
+        passengerStatusRepository.saveAll(passengersStatus);
+    }
+
+    public Itinerary findItineraryById(String itineraryId) {
+        return itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
     }
 
     public List<ItineraryPresenter> listItineraries(int page, int size) {
-        return this.itineraryRepository.findAll(PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
+        return itineraryRepository.findAll(PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
     }
 
-    public ItineraryPresenter listItineraryById(String itineraryId) {
-        return this.itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found")).toPresenter();
-    }
-
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackOn = SQLException.class)
     public String changeItineraryStatus(String itineraryId, String newStatus) {
-        Itinerary itinerary = itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
+        Itinerary itinerary = findItineraryById(itineraryId);
 
         ItineraryStatus newItineraryStatus = ItineraryStatus.fromString(newStatus);
 
@@ -140,35 +135,35 @@ public class ItineraryService {
         return newItineraryStatus.getStatus();
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackOn = SQLException.class)
     public List<PassengerItineraryPresenter> changePassengerStatus(String itineraryId, String passengerId, String newStatus) {
-        PassengerItineraryStatus newPassengerItineraryStatus = PassengerItineraryStatus.fromString(newStatus);
+        PassengerStatusEnum newPassengerStatus = PassengerStatusEnum.fromString(newStatus);
 
-        Itinerary itinerary = itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
-        Passenger passenger = passengerRepository.findById(passengerId).orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
+        Itinerary itinerary = findItineraryById(itineraryId);
+        Passenger passenger = passengerService.findPassengerById(passengerId);
 
-        PassengerItinerary passengerItinerary = passengerItineraryRepository
+        PassengerStatus passengerStatus = passengerStatusRepository
                 .findByItineraryAndPassenger(itinerary, passenger)
                 .orElseThrow(() -> new ResourceNotFoundException("Passenger is not in this itinerary."));
 
-        passengerItinerary.setPassengerItineraryStatus(newPassengerItineraryStatus);
+        passengerStatus.setStatus(newPassengerStatus);
 
-        passengerItineraryRepository.save(passengerItinerary);
+        passengerStatusRepository.save(passengerStatus);
 
         return listItinerariesFromItinerary(itinerary);
     }
 
     public List<PassengerItineraryPresenter> listPassengersFromItinerary(String itineraryId) {
-        Itinerary itinerary = itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
+        Itinerary itinerary = findItineraryById(itineraryId);
         return listItinerariesFromItinerary(itinerary);
     }
 
     private List<PassengerItineraryPresenter> listItinerariesFromItinerary(Itinerary itinerary) {
-        return passengerItineraryRepository.findByItinerary(itinerary)
+        return passengerStatusRepository.findByItinerary(itinerary)
                 .stream()
                 .map(pi -> new PassengerItineraryPresenter(
                         pi.getPassenger().toPresenter(),
-                        pi.getPassengerItineraryStatus().getStatus()
+                        pi.getStatus().getStatus()
                 ))
                 .toList();
     }

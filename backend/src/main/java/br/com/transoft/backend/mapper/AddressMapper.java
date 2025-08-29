@@ -4,9 +4,9 @@ import br.com.transoft.backend.dto.address.AddressDto;
 import br.com.transoft.backend.entity.Address;
 import br.com.transoft.backend.entity.Coordinate;
 
-public class AddressDtoToEntityMapper {
+public class AddressMapper {
 
-    public static Address convert(AddressDto addressDto, Coordinate coordinate) {
+    public static Address toEntity(AddressDto addressDto, Coordinate coordinate) {
         return Address.builder()
                 .cep(addressDto.getCep())
                 .street(addressDto.getStreet())

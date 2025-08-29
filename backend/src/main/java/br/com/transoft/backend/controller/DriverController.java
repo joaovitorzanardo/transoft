@@ -22,12 +22,12 @@ public class DriverController {
 
     @PostMapping
     public void saveDriver(@Valid @RequestBody DriverDto driverDto) {
-        this.driverService.saveDriver(driverDto);
+        driverService.saveDriver(driverDto);
     }
 
     @PostMapping(path = "/account")
     public void updateDriverAccount(@Valid @RequestBody DriverAccountDto driverAccountDto) {
-        this.driverService.updateDriverAccount(driverAccountDto);
+        driverService.updateDriverAccount(driverAccountDto);
     }
 
     @GetMapping(path = "/account")
@@ -37,17 +37,17 @@ public class DriverController {
 
     @GetMapping
     public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.driverService.listDrivers(page, size);
+        return driverService.listDrivers(page, size);
     }
 
     @GetMapping(path = "/{driverId}")
     public DriverPresenter getDriverById(@PathVariable String driverId) {
-        return this.driverService.findDriverById(driverId);
+        return driverService.findDriverById(driverId).toPresenter();
     }
 
     @PutMapping(path = "/{driverId}")
     public void updateDriver(@PathVariable String driverId, @RequestBody DriverDto driverDto) {
-        this.driverService.updateDriver(driverId, driverDto);
+        driverService.updateDriver(driverId, driverDto);
     }
 
 }

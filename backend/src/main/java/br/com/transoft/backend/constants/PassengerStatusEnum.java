@@ -1,29 +1,28 @@
 package br.com.transoft.backend.constants;
 
 import br.com.transoft.backend.exception.InvalidPassengerItineraryStatusException;
+import lombok.Getter;
 
-public enum PassengerStatus {
+@Getter
+public enum PassengerStatusEnum {
+
     CONFIRMADO("CONFIRMADO"),
     NAO_VAI("NAO_VAI");
 
     private String status;
 
-    PassengerStatus(String status) {
+    PassengerStatusEnum(String status) {
         this.status = status;
     }
 
-    public static PassengerStatus fromString(String status) {
-        for (PassengerStatus passengerStatus : PassengerStatus.values()) {
+    public static PassengerStatusEnum fromString(String status) {
+        for (PassengerStatusEnum passengerStatus : PassengerStatusEnum.values()) {
             if (passengerStatus.status.equals(status)) {
                 return passengerStatus;
             }
         }
 
         throw new InvalidPassengerItineraryStatusException("The status " + status + " is not valid");
-    }
-
-    public String getStatus() {
-        return this.status;
     }
 
 }

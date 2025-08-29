@@ -20,7 +20,7 @@ public class RegisterController {
 
     @PostMapping
     public void register(@Valid @RequestBody RegistrationDto registrationDto) {
-        this.registrationService.register(registrationDto);
+        registrationService.register(registrationDto);
     }
 
 }

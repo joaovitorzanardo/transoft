@@ -17,7 +17,7 @@ public class CompanyService {
     }
 
     public void updateCompany(String companyId, CompanyDto companyDto) {
-        Company company = this.companyRepository.findById(companyId).orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+        Company company = companyRepository.findById(companyId).orElseThrow(() -> new ResourceNotFoundException("Company not found"));
 
         company.setName(companyDto.getName());
 
@@ -28,11 +28,11 @@ public class CompanyService {
             company.setEmail(companyDto.getEmail());
         }
 
-        this.companyRepository.save(company);
+        companyRepository.save(company);
     }
 
     private boolean isEmailRegistered(String email) {
-        return this.companyRepository.findByEmail(email).isPresent();
+        return companyRepository.findByEmail(email).isPresent();
     }
 
 }

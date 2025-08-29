@@ -21,17 +21,17 @@ public class ItineraryController {
 
     @PostMapping
     public void generateItinerary(@Valid @RequestBody ItineraryDto itineraryDto) {
-        this.itineraryService.generateItinerary(itineraryDto);
+        itineraryService.generateItinerary(itineraryDto);
     }
 
     @GetMapping
     public List<ItineraryPresenter> listItineraries(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.itineraryService.listItineraries(page, size);
+        return itineraryService.listItineraries(page, size);
     }
 
     @GetMapping("/{itineraryId}")
     public ItineraryPresenter listItineraryById(@PathVariable String itineraryId) {
-        return this.itineraryService.listItineraryById(itineraryId);
+        return itineraryService.findItineraryById(itineraryId).toPresenter();
     }
 
     @GetMapping("/{itineraryId}/passengers")

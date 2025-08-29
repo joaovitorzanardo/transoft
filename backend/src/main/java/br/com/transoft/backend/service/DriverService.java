@@ -2,6 +2,7 @@ package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
 import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
+import br.com.transoft.backend.mapper.UserAccountMapper;
 import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
@@ -16,6 +17,7 @@ import br.com.transoft.backend.repository.UserAccountRepository;
 import jakarta.transaction.Transactional;
 import org.passay.PasswordGenerator;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -28,19 +30,16 @@ public class DriverService {
 
     private final DriverRepository driverRepository;
     private final UserAccountRepository userAccountRepository;
-    private final KeycloakService keycloakService;
-    private final PasswordGenerator passwordGenerator;
+    private final PasswordEncoder passwordEncoder;
 
-    public DriverService(DriverRepository driverRepository, UserAccountRepository userAccountRepository, KeycloakService keycloakService) {
+    public DriverService(DriverRepository driverRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
         this.driverRepository = driverRepository;
         this.userAccountRepository = userAccountRepository;
-        this.keycloakService = keycloakService;
-        this.passwordGenerator = new PasswordGenerator();
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(rollbackOn = {SQLException.class})
     public void saveDriver(DriverDto driverDto) {
-        //TODO: Get companyId from the JWT token and set on the driver object
         if (cnhNumberRegistered(driverDto.getCnhNumber())) {
             throw new ResourceConflictException("CNH number already registered");
         }
@@ -62,21 +61,9 @@ public class DriverService {
                 .phoneNumber(new PhoneNumber(driverDto.getPhoneNumber()))
                 .build();
 
-        this.driverRepository.save(driver);
+        driverRepository.save(driver);
 
-        //String userId = keycloakService.createUser(driverDto.getName(), driverDto.getEmail(), passwordGenerator.generatePassword(PasswordGeneratorUtils.DEFAULT_SIZE, PasswordGeneratorUtils.getDefaultRules()), false, List.of("DRIVER"));
-
-        String userId = UUID.randomUUID().toString();
-
-        UserAccount userAccount = UserAccount.builder()
-                .userAccountId(userId)
-                .name(driverDto.getName())
-                .email(driverDto.getEmail())
-                .role("DRIVER")
-                .active(false)
-                .build();
-
-        //TODO: send email to the user with a password
+        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder);
 
         userAccountRepository.save(userAccount);
     }
@@ -90,27 +77,23 @@ public class DriverService {
     }
 
     public boolean cnhNumberRegistered(String cnhNumber) {
-        return this.driverRepository.findByCnhNumber(cnhNumber).isPresent();
+        return driverRepository.findByCnhNumber(cnhNumber).isPresent();
     }
 
     public boolean driverEmailRegistered(String email) {
         return this.driverRepository.findByEmail(email).isPresent();
     }
 
-    private boolean isCnhExpired(LocalDate cnhExpirationDate) {
-        return LocalDate.now().isEqual(cnhExpirationDate) || LocalDate.now().isAfter(cnhExpirationDate);
-    }
-
     public List<DriverPresenter> listDrivers(int page, int size) {
-        return this.driverRepository.findAll(PageRequest.of(page, size)).stream().map(Driver::toPresenter).toList();
+        return driverRepository.findAll(PageRequest.of(page, size)).stream().map(Driver::toPresenter).toList();
     }
 
-    public DriverPresenter findDriverById(String driverId) {
-        return this.driverRepository.findById(driverId).orElseThrow(() -> new ResourceNotFoundException("Driver not found")).toPresenter();
+    public Driver findDriverById(String driverId) {
+        return driverRepository.findById(driverId).orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
     }
 
     public void updateDriver(String driverId, DriverDto driverDto) {
-        Driver driver = this.driverRepository.findById(driverId).orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
+        Driver driver = findDriverById(driverId);
 
         driver.setName(driverDto.getName());
 
@@ -135,9 +118,13 @@ public class DriverService {
         }
 
         driver.setCnhExpirationDate(driverDto.getCnhExpirationDate());
-        driver.setPhoneNumber(new PhoneNumber(driverDto.getPhoneNumber().getDdd(), driverDto.getPhoneNumber().getNumber()));
+        driver.setPhoneNumber(driverDto.getPhoneNumber().toEntity());
 
-        this.driverRepository.save(driver);
+        driverRepository.save(driver);
+    }
+
+    private boolean isCnhExpired(LocalDate cnhExpirationDate) {
+        return LocalDate.now().isEqual(cnhExpirationDate) || LocalDate.now().isAfter(cnhExpirationDate);
     }
 
 }

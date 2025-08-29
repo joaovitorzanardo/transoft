@@ -18,7 +18,7 @@ public class CompanyController {
     @PutMapping(path = "/{companyId}")
     @ResponseStatus(HttpStatus.CREATED)
     public void updateCompany(@PathVariable String companyId, CompanyDto companyDto) {
-        this.companyService.updateCompany(companyId, companyDto);
+        companyService.updateCompany(companyId, companyDto);
     }
 
 }

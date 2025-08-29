@@ -15,13 +15,9 @@ public class UserAccountService {
     }
 
     public void activateUser(String userId) {
-        UserAccount userAccount = this.userAccountRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User id not found"));
-
+        UserAccount userAccount = userAccountRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User id not found"));
         userAccount.setActive(true);
-
-        //TODO: enable user keycloak
-
-        this.userAccountRepository.save(userAccount);
+        userAccountRepository.save(userAccount);
     }
 
 }

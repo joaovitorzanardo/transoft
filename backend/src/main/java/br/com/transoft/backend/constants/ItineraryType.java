@@ -1,4 +1,4 @@
-package br.com.transoft.backend.utils;
+package br.com.transoft.backend.constants;
 
 public enum ItineraryType {
     IDA, VOLTA

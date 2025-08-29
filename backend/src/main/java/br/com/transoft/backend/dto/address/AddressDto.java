@@ -1,5 +1,6 @@
 package br.com.transoft.backend.dto.address;
 
+import br.com.transoft.backend.entity.Address;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,4 +43,13 @@ public class AddressDto {
     @JsonProperty(namespace = "coordinate")
     private CoordinateDto coordinate;
 
+    @Override
+    public String toString() {
+        return street + ", "
+                + number + " - "
+                + district + ", "
+                + city + " - "
+                + uf + ", "
+                + cep;
+    }
 }

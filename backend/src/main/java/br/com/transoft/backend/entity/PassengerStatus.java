@@ -1,20 +1,21 @@
 package br.com.transoft.backend.entity;
 
-import br.com.transoft.backend.constants.PassengerItineraryStatus;
+import br.com.transoft.backend.constants.PassengerStatusEnum;
+import br.com.transoft.backend.dto.itinerary.ItineraryPassengerPresenter;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "passenger_itinerary")
+@Table(name = "passenger_status")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
-public class PassengerItinerary {
+public class PassengerStatus {
 
     @EmbeddedId
-    PassengerStatusKey passengerItineraryId;
+    PassengerStatusKey passengerStatusId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("passengerId")
@@ -28,6 +29,14 @@ public class PassengerItinerary {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private PassengerItineraryStatus passengerItineraryStatus;
+    private PassengerStatusEnum status;
+
+    public ItineraryPassengerPresenter toPresenter() {
+        return new ItineraryPassengerPresenter(
+                passenger.getPassengerId(),
+                passenger.getName(),
+                status.getStatus()
+        );
+    }
 
 }

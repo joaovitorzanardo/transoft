@@ -20,32 +20,32 @@ public class VehicleController {
 
     @PostMapping
     public void registerVehicle(@RequestBody @Valid VehicleDto vehicleDto) {
-        this.vehicleService.saveVehicle(vehicleDto);
+        vehicleService.saveVehicle(vehicleDto);
     }
 
     @GetMapping
     public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.vehicleService.listVehicles(page, size);
+        return vehicleService.listVehicles(page, size);
     }
 
     @GetMapping("/{vehicleId}")
     public VehiclePresenter getVehiclesById(@PathVariable String vehicleId) {
-        return this.vehicleService.findVehicleById(vehicleId);
+        return vehicleService.findVehicleById(vehicleId).toPresenter();
     }
 
     @PutMapping("/{vehicleId}")
     public void updateVehicle(@PathVariable String vehicleId, @Valid @RequestBody VehicleDto vehicleDto) {
-        this.vehicleService.updateVehicle(vehicleId, vehicleDto);
+        vehicleService.updateVehicle(vehicleId, vehicleDto);
     }
 
     @PostMapping("/{vehicleId}/enable")
     public void enableVehicle(@PathVariable String vehicleId) {
-        this.vehicleService.enableVehicle(vehicleId);
+        vehicleService.enableVehicle(vehicleId);
     }
 
     @PostMapping("/{vehicleId}/disable")
     public void disableVehicle(@PathVariable String vehicleId) {
-        this.vehicleService.disableVehicle(vehicleId);
+        vehicleService.disableVehicle(vehicleId);
     }
 
 }

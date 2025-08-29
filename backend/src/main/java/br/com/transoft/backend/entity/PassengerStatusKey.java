@@ -13,7 +13,7 @@ import java.util.Objects;
 @Builder
 @Getter
 @Setter
-public class PassengerItineraryKey implements Serializable {
+public class PassengerStatusKey implements Serializable {
 
     @Column(name = "passenger_id")
     private String passengerId;
@@ -24,7 +24,7 @@ public class PassengerItineraryKey implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        PassengerItineraryKey that = (PassengerItineraryKey) o;
+        PassengerStatusKey that = (PassengerStatusKey) o;
         return Objects.equals(passengerId, that.passengerId) && Objects.equals(itineraryId, that.itineraryId);
     }
 

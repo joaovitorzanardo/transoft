@@ -1,8 +1,11 @@
-package br.com.transoft.backend.utils;
+package br.com.transoft.backend.constants;
 
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
+import lombok.Getter;
 
+@Getter
 public enum ItineraryStatus {
+
     AGENDADO("AGENDADO"),
     EM_ANDAMENTO("EM_ANDAMENTO"),
     CONCLUIDO("CONCLUIDO");
@@ -14,16 +17,13 @@ public enum ItineraryStatus {
     }
 
     public static ItineraryStatus fromString(String status) {
-        return switch (status) {
-            case "AGENDADO" -> ItineraryStatus.AGENDADO;
-            case "EM_ANDAMENTO" -> ItineraryStatus.EM_ANDAMENTO;
-            case "CONCLUIDO" -> ItineraryStatus.CONCLUIDO;
-            default -> throw new InvalidItineraryStatusException("The status " + status + " is not valid");
-        };
-    }
+        for (ItineraryStatus itineraryStatus : ItineraryStatus.values()) {
+            if (itineraryStatus.status.equals(status)) {
+                return itineraryStatus;
+            }
+        }
 
-    public String getStatus() {
-        return this.status;
+        throw new InvalidItineraryStatusException("The status " + status + " is not valid");
     }
 
 }

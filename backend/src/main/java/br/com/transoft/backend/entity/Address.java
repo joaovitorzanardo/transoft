@@ -51,6 +51,11 @@ public class Address {
 
     @Override
     public String toString() {
-        return street + ", " + number + " - " + district + ", " + city + " - " + uf + ", " + cep + ", Brazil";
+        return street + ", "
+                + number + " - "
+                + district + ", "
+                + city + " - "
+                + uf + ", "
+                + cep;
     }
 }

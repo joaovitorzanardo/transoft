@@ -6,7 +6,6 @@ import br.com.transoft.backend.entity.Vehicle;
 import br.com.transoft.backend.entity.VehicleModel;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
-import br.com.transoft.backend.repository.VehicleModelRepository;
 import br.com.transoft.backend.repository.VehicleRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,16 +17,15 @@ import java.util.UUID;
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-    private final VehicleModelRepository vehicleModelRepository;
+    private final VehicleModelService vehicleModelService;
 
-    public VehicleService(VehicleRepository vehicleRepository, VehicleModelRepository vehicleModelRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, VehicleModelService vehicleModelService) {
         this.vehicleRepository = vehicleRepository;
-        this.vehicleModelRepository = vehicleModelRepository;
+        this.vehicleModelService = vehicleModelService;
     }
 
     public void saveVehicle(VehicleDto vehicleDto) {
-        //TODO: Get companyId from the JWT token and set on the vehicle object
-        VehicleModel vehicleModel = this.vehicleModelRepository.findById(vehicleDto.getVehicleModelId()).orElseThrow(() -> new ResourceNotFoundException("No vehicle model was found with this id."));
+        VehicleModel vehicleModel = vehicleModelService.findVehicleModelById(vehicleDto.getVehicleModelId());
 
         if (plateNumberRegistered(vehicleDto.getPlateNumber())) {
             throw new ResourceConflictException("PlateNumber already registered");
@@ -41,19 +39,19 @@ public class VehicleService {
                 .active(true)
                 .build();
 
-        this.vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
     public List<VehiclePresenter> listVehicles(int page, int size) {
-        return this.vehicleRepository.findAll(PageRequest.of(page, size)).stream().map(Vehicle::toPresenter).toList();
+        return vehicleRepository.findAll(PageRequest.of(page, size)).stream().map(Vehicle::toPresenter).toList();
     }
 
-    public VehiclePresenter findVehicleById(String vehicleId) {
-        return this.vehicleRepository.findById(vehicleId).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found")).toPresenter();
+    public Vehicle findVehicleById(String vehicleId) {
+        return vehicleRepository.findById(vehicleId).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
     }
 
     public void updateVehicle(String vehicleId, VehicleDto vehicleDto) {
-        Vehicle vehicle = this.vehicleRepository.findById(vehicleId).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
+        Vehicle vehicle = findVehicleById(vehicleId);
 
         if (!vehicleDto.getPlateNumber().equals(vehicle.getPlateNumber())) {
             if (plateNumberRegistered(vehicleDto.getPlateNumber())) {
@@ -65,24 +63,23 @@ public class VehicleService {
 
         vehicle.setCapacity(vehicleDto.getCapacity());
 
-        this.vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
     public boolean plateNumberRegistered(String plateNumber) {
-        return this.vehicleRepository.findByPlateNumber(plateNumber).isPresent();
+        return vehicleRepository.findByPlateNumber(plateNumber).isPresent();
     }
 
     public void enableVehicle(String vehicleId) {
-        Vehicle vehicle = this.vehicleRepository.findById(vehicleId).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
+        Vehicle vehicle = findVehicleById(vehicleId);
         vehicle.enable();
-        this.vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
     public void disableVehicle(String vehicleId) {
-        Vehicle vehicle = this.vehicleRepository.findById(vehicleId).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
+        Vehicle vehicle = findVehicleById(vehicleId);
         vehicle.disable();
-        this.vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
-
 
 }

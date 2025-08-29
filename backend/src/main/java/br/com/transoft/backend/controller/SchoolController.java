@@ -20,17 +20,17 @@ public class SchoolController {
 
     @PostMapping
     public void saveSchool(@Valid @RequestBody SchoolDto schoolDto) {
-        this.schoolService.saveSchool(schoolDto);
+        schoolService.saveSchool(schoolDto);
     }
 
     @GetMapping
     public List<SchoolPresenter> listSchools(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return this.schoolService.listSchools(page, size);
+        return schoolService.listSchools(page, size);
     }
 
     @GetMapping(path = "/{schoolId}")
     public SchoolPresenter findSchoolById(@PathVariable String schoolId) {
-        return this.schoolService.findSchoolById(schoolId);
+        return schoolService.findSchoolById(schoolId).toPresenter();
     }
 
 }

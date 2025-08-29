@@ -5,7 +5,6 @@ import br.com.transoft.backend.dto.vehicle.presenter.VehicleModelPresenter;
 import br.com.transoft.backend.entity.Automaker;
 import br.com.transoft.backend.entity.VehicleModel;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
-import br.com.transoft.backend.repository.AutomakerRepository;
 import br.com.transoft.backend.repository.VehicleModelRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,16 +16,16 @@ import java.util.stream.Collectors;
 @Service
 public class VehicleModelService {
 
-    private final AutomakerRepository automakerRepository;
     private final VehicleModelRepository vehicleModelRepository;
+    private final AutomakerService automakerService;
 
-    public VehicleModelService(AutomakerRepository automakerRepository, VehicleModelRepository vehicleModelRepository) {
-        this.automakerRepository = automakerRepository;
+    public VehicleModelService(VehicleModelRepository vehicleModelRepository, AutomakerService automakerService) {
         this.vehicleModelRepository = vehicleModelRepository;
+        this.automakerService = automakerService;
     }
 
     public void saveVehicleModel(VehicleModelDto vehicleModelDto) {
-        Automaker automaker = this.automakerRepository.findById(vehicleModelDto.getAutomakerId()).orElseThrow(() -> new ResourceNotFoundException("Automaker was no found."));
+        Automaker automaker = automakerService.findByAutomakerById(vehicleModelDto.getAutomakerId());
 
         VehicleModel vehicleModel = VehicleModel.builder()
                 .vehicleModelId(UUID.randomUUID().toString())
@@ -35,20 +34,20 @@ public class VehicleModelService {
                 .automaker(automaker)
                 .build();
 
-        this.vehicleModelRepository.save(vehicleModel);
+        vehicleModelRepository.save(vehicleModel);
+    }
+
+    public VehicleModel findVehicleModelById(String vehicleModelId) {
+        return vehicleModelRepository.findById(vehicleModelId).orElseThrow(() -> new ResourceNotFoundException("Vehicle Model was not found"));
     }
 
     public List<VehicleModelPresenter> listVehicleModels(int page, int size) {
-        return this.vehicleModelRepository.findAll(PageRequest.of(page, size)).stream().map(VehicleModel::toPresenter).collect(Collectors.toList());
+        return vehicleModelRepository.findAll(PageRequest.of(page, size)).stream().map(VehicleModel::toPresenter).collect(Collectors.toList());
     }
 
-    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(String automakerId, int page, int size) {
-        Automaker automaker = this.automakerRepository.findById(automakerId).orElseThrow(() -> new ResourceNotFoundException("Automaker not found"));
-        return this.vehicleModelRepository.findAllByAutomaker(automaker).stream().map(VehicleModel::toPresenter).toList();
-    }
-
-    public VehicleModelPresenter findVehicleModelById(String vehicleModelId) {
-        return this.vehicleModelRepository.findById(vehicleModelId).orElseThrow(() -> new ResourceNotFoundException("Vehicle Model was not found")).toPresenter();
+    public List<VehicleModelPresenter> listVehicleModelsByAutomaker(String automakerId) {
+        Automaker automaker = automakerService.findByAutomakerById(automakerId);
+        return vehicleModelRepository.findAllByAutomaker(automaker).stream().map(VehicleModel::toPresenter).toList();
     }
 
 }

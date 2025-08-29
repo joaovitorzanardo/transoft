@@ -10,19 +10,6 @@ services:
     volumes:
         - backend_data:/var/lib/postgresql/data
 
-  keycloak:
-    image: keycloak/keycloak:26.3
-    command: start-dev
-    environment:
-        KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN}
-        KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
-        KC_HTTP_ENABLED: true
-        KC_HOSTNAME_STRICT: false
-        KC_HOSTNAME_STRICT_HTTPS: false
-    ports:
-        - "8282:8080"
-    restart: always
-
 volumes:
   backend_data:
     driver: local

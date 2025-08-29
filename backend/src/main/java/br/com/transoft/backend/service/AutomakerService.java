@@ -3,11 +3,11 @@ package br.com.transoft.backend.service;
 import br.com.transoft.backend.dto.vehicle.presenter.AutomakerPresenter;
 import br.com.transoft.backend.entity.Automaker;
 import br.com.transoft.backend.exception.ResourceConflictException;
+import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.AutomakerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,13 +19,24 @@ public class AutomakerService {
         this.automakerRepository = automakerRepository;
     }
 
+    public Automaker findByAutomakerById(String automakerId) {
+        return automakerRepository.findById(automakerId).orElseThrow(() -> new ResourceNotFoundException("Automaker was no found."));
+    }
+
     public void registerAutomaker(String name) {
-        if (this.automakerRepository.findByNameIgnoreCase(name).isPresent()) throw new ResourceConflictException("Automaker already exists");
-        this.automakerRepository.save(new Automaker(name));
+        if (automakerExists(name)) {
+            throw new ResourceConflictException("Automaker already exists");
+        }
+
+        automakerRepository.save(new Automaker(name));
+    }
+
+    private boolean automakerExists(String name) {
+        return automakerRepository.findByNameIgnoreCase(name).isPresent();
     }
 
     public List<AutomakerPresenter> listAutomakers() {
-        return this.automakerRepository.findAll().stream().map(auto -> new AutomakerPresenter(auto.getAutomakerId(), auto.getName())).collect(Collectors.toList());
+        return automakerRepository.findAll().stream().map(auto -> new AutomakerPresenter(auto.getAutomakerId(), auto.getName())).collect(Collectors.toList());
     }
 
 }

@@ -28,20 +28,22 @@ import java.util.stream.Collectors;
 public class RouteService {
 
     private final RouteRepository routeRepository;
-    private final SchoolRepository schoolRepository;
-    private final DriverRepository driverRepository;
     private final PassengerRepository passengerRepository;
+    private final SchoolService schoolService;
+    private final DriverService driverService;
+    private final PassengerService passengerService;
 
-    public RouteService(RouteRepository routeRepository, SchoolRepository schoolRepository, DriverRepository driverRepository, PassengerRepository passengerRepository) {
+    public RouteService(RouteRepository routeRepository, PassengerRepository passengerRepository, SchoolService schoolService, DriverService driverService, PassengerService passengerService) {
         this.routeRepository = routeRepository;
-        this.schoolRepository = schoolRepository;
-        this.driverRepository = driverRepository;
         this.passengerRepository = passengerRepository;
+        this.schoolService = schoolService;
+        this.driverService = driverService;
+        this.passengerService = passengerService;
     }
 
     public void saveRoute(RouteDto routeDto) {
-        School school = this.schoolRepository.findById(routeDto.getSchoolId()).orElseThrow(() -> new ResourceNotFoundException("School not found"));
-        Driver driver = this.driverRepository.findById(routeDto.getDefaultDriverId()).orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
+        School school = schoolService.findSchoolById(routeDto.getSchoolId());
+        Driver driver = driverService.findDriverById(routeDto.getDefaultDriverId());
 
         Route route = Route.builder()
                 .routeId(UUID.randomUUID().toString())
@@ -54,56 +56,55 @@ public class RouteService {
                 .dayOfWeek(new DayOfWeek(routeDto.getDaysOfWeek().isMonday(), routeDto.getDaysOfWeek().isTuesday(), routeDto.getDaysOfWeek().isWednesday(), routeDto.getDaysOfWeek().isThursday(), routeDto.getDaysOfWeek().isFriday()))
                 .build();
 
-        this.routeRepository.save(route);
+        routeRepository.save(route);
+    }
+
+    public Route findRouteById(String routeId) {
+        return routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
     }
 
     public List<RoutePresenter> listRoutes(int page, int size) {
-        return this.routeRepository.findAll(PageRequest.of(page, size)).stream().map(Route::toPresenter).collect(Collectors.toList());
+        return routeRepository.findAll(PageRequest.of(page, size)).stream().map(Route::toPresenter).collect(Collectors.toList());
     }
 
     public RoutePresenter listRouteById(String routeId) {
-        return this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found")).toPresenter();
-    }
-
-    public List<PassengerPresenter> listPassengersFromRoute(String routeId) {
-        Route route = routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
-        return passengerRepository.findByRoute(route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+        return routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found")).toPresenter();
     }
 
     public void addPassengerToRoute(String passengerId, String routeId) {
-        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
-        Passenger passenger = this.passengerRepository.findById(passengerId).orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
+        Route route = findRouteById(routeId);
+        Passenger passenger = passengerService.findPassengerById(passengerId);
 
         if (!Objects.isNull(passenger.getRoute())) {
             throw new ResourceConflictException("Passenger is already in a route");
         }
 
         passenger.setRoute(route);
-        this.passengerRepository.save(passenger);
+        passengerRepository.save(passenger);
     }
 
     public void removePassengerFromRoute(String passengerId, String routeId) {
-        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
-        Passenger passenger = this.passengerRepository.findById(passengerId).orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
+        Route route = findRouteById(routeId);
+        Passenger passenger = passengerService.findPassengerById(passengerId);
 
         if (!passenger.getRoute().equals(route)) {
             throw new ResourceNotFoundException("Passenger is not in this route");
         }
 
         passenger.setRoute(null);
-        this.passengerRepository.save(passenger);
+        passengerRepository.save(passenger);
     }
 
     public void enableRoute(String routeId) {
-        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        Route route = findRouteById(routeId);
         route.setActive(true);
-        this.routeRepository.save(route);
+        routeRepository.save(route);
     }
 
     public void disableRoute(String routeId) {
-        Route route = this.routeRepository.findById(routeId).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
+        Route route = findRouteById(routeId);
         route.setActive(false);
-        this.routeRepository.save(route);
+        routeRepository.save(route);
     }
 
 }
