@@ -1,5 +1,6 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.PassengerItineraryPresenter;
 import br.com.transoft.backend.dto.itinerary.ItineraryDto;
 import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
@@ -43,8 +44,8 @@ public class ItineraryService {
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    public void generateItinerary(ItineraryDto itineraryDto) {
-        Route route = routeService.findRouteById(itineraryDto.getRouteId());
+    public void generateItinerary(ItineraryDto itineraryDto, LoggedUserAccount loggedUserAccount) {
+        Route route = routeService.findRouteById(itineraryDto.getRouteId(), loggedUserAccount);
         Driver driver = route.getDefaultDriver();
         Set<Passenger> passengers = route.getPassengers();
 
@@ -106,17 +107,17 @@ public class ItineraryService {
         passengerStatusRepository.saveAll(passengersStatus);
     }
 
-    public Itinerary findItineraryById(String itineraryId) {
-        return itineraryRepository.findById(itineraryId).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
+    public Itinerary findItineraryById(String itineraryId, LoggedUserAccount loggedUserAccount) {
+        return itineraryRepository.findItineraryByItineraryIdAndCompany_CompanyId(itineraryId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
     }
 
-    public List<ItineraryPresenter> listItineraries(int page, int size) {
-        return itineraryRepository.findAll(PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
+    public List<ItineraryPresenter> listItineraries(int page, int size, LoggedUserAccount loggedUserAccount) {
+        return itineraryRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    public String changeItineraryStatus(String itineraryId, String newStatus) {
-        Itinerary itinerary = findItineraryById(itineraryId);
+    public String changeItineraryStatus(String itineraryId, String newStatus, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
 
         ItineraryStatus newItineraryStatus = ItineraryStatus.fromString(newStatus);
 
@@ -136,11 +137,11 @@ public class ItineraryService {
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    public List<PassengerItineraryPresenter> changePassengerStatus(String itineraryId, String passengerId, String newStatus) {
+    public List<PassengerItineraryPresenter> changePassengerStatus(String itineraryId, String passengerId, String newStatus, LoggedUserAccount loggedUserAccount) {
         PassengerStatusEnum newPassengerStatus = PassengerStatusEnum.fromString(newStatus);
 
-        Itinerary itinerary = findItineraryById(itineraryId);
-        Passenger passenger = passengerService.findPassengerById(passengerId);
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
+        Passenger passenger = passengerService.findPassengerById(passengerId, loggedUserAccount);
 
         PassengerStatus passengerStatus = passengerStatusRepository
                 .findByItineraryAndPassenger(itinerary, passenger)
@@ -153,8 +154,8 @@ public class ItineraryService {
         return listItinerariesFromItinerary(itinerary);
     }
 
-    public List<PassengerItineraryPresenter> listPassengersFromItinerary(String itineraryId) {
-        Itinerary itinerary = findItineraryById(itineraryId);
+    public List<PassengerItineraryPresenter> listPassengersFromItinerary(String itineraryId, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
         return listItinerariesFromItinerary(itinerary);
     }
 

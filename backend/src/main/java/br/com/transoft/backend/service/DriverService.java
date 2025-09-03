@@ -1,9 +1,10 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
 import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
+import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.mapper.UserAccountMapper;
-import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
 import br.com.transoft.backend.entity.Driver;
@@ -15,7 +16,6 @@ import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.DriverRepository;
 import br.com.transoft.backend.repository.UserAccountRepository;
 import jakarta.transaction.Transactional;
-import org.passay.PasswordGenerator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,9 +38,9 @@ public class DriverService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional(rollbackOn = {SQLException.class})
-    public void saveDriver(DriverDto driverDto) {
-        if (cnhNumberRegistered(driverDto.getCnhNumber())) {
+    @Transactional(rollbackOn = SQLException.class)
+    public void saveDriver(DriverDto driverDto, LoggedUserAccount loggedUserAccount) {
+        if (cnhNumberRegistered(driverDto.getCnhNumber(), loggedUserAccount.companyId())) {
             throw new ResourceConflictException("CNH number already registered");
         }
 
@@ -59,11 +59,12 @@ public class DriverService {
                 .cnhNumber(driverDto.getCnhNumber())
                 .cnhExpirationDate(driverDto.getCnhExpirationDate())
                 .phoneNumber(new PhoneNumber(driverDto.getPhoneNumber()))
+                .company(new Company(loggedUserAccount.companyId()))
                 .build();
 
         driverRepository.save(driver);
 
-        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder);
+        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder, new Company(loggedUserAccount.companyId()));
 
         userAccountRepository.save(userAccount);
     }
@@ -76,29 +77,32 @@ public class DriverService {
         return null;
     }
 
-    public boolean cnhNumberRegistered(String cnhNumber) {
-        return driverRepository.findByCnhNumber(cnhNumber).isPresent();
+    public boolean cnhNumberRegistered(String cnhNumber, String companyId) {
+        return driverRepository.findByCnhNumberAndCompany_CompanyId(cnhNumber, companyId).isPresent();
     }
 
     public boolean driverEmailRegistered(String email) {
-        return this.driverRepository.findByEmail(email).isPresent();
+        return driverRepository.findByEmail(email).isPresent();
     }
 
-    public List<DriverPresenter> listDrivers(int page, int size) {
-        return driverRepository.findAll(PageRequest.of(page, size)).stream().map(Driver::toPresenter).toList();
+    public List<DriverPresenter> listDrivers(int page, int size, LoggedUserAccount loggedUserAccount) {
+        return driverRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size))
+                .stream()
+                .map(Driver::toPresenter).toList();
     }
 
-    public Driver findDriverById(String driverId) {
-        return driverRepository.findById(driverId).orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
+    public Driver findDriverById(String driverId, LoggedUserAccount loggedUserAccount) {
+        return driverRepository.findByDriverIdAndCompany_CompanyId(driverId, loggedUserAccount.companyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
     }
 
-    public void updateDriver(String driverId, DriverDto driverDto) {
-        Driver driver = findDriverById(driverId);
+    public void updateDriver(String driverId, DriverDto driverDto, LoggedUserAccount loggedUserAccount) {
+        Driver driver = findDriverById(driverId, loggedUserAccount);
 
         driver.setName(driverDto.getName());
 
         if (!driver.getCnhNumber().equals(driverDto.getCnhNumber())) {
-            if (cnhNumberRegistered(driverDto.getCnhNumber())) {
+            if (cnhNumberRegistered(driverDto.getCnhNumber(), loggedUserAccount.companyId())) {
                 throw new ResourceConflictException("CNH number already registered");
             }
 

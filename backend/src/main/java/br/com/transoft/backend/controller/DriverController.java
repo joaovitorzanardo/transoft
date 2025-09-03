@@ -1,11 +1,13 @@
 package br.com.transoft.backend.controller;
 
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
 import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
 import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
 import br.com.transoft.backend.service.DriverService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +23,8 @@ public class DriverController {
     }
 
     @PostMapping
-    public void saveDriver(@Valid @RequestBody DriverDto driverDto) {
-        driverService.saveDriver(driverDto);
+    public void saveDriver(@Valid @RequestBody DriverDto driverDto, Authentication authentication) {
+        driverService.saveDriver(driverDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping(path = "/account")
@@ -36,18 +38,18 @@ public class DriverController {
     }
 
     @GetMapping
-    public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return driverService.listDrivers(page, size);
+    public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+        return driverService.listDrivers(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{driverId}")
-    public DriverPresenter getDriverById(@PathVariable String driverId) {
-        return driverService.findDriverById(driverId).toPresenter();
+    public DriverPresenter getDriverById(@PathVariable String driverId, Authentication authentication) {
+        return driverService.findDriverById(driverId, (LoggedUserAccount) authentication.getPrincipal()).toPresenter();
     }
 
     @PutMapping(path = "/{driverId}")
-    public void updateDriver(@PathVariable String driverId, @RequestBody DriverDto driverDto) {
-        driverService.updateDriver(driverId, driverDto);
+    public void updateDriver(@PathVariable String driverId, @RequestBody DriverDto driverDto, Authentication authentication) {
+        driverService.updateDriver(driverId, driverDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
 }

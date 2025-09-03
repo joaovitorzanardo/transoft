@@ -1,5 +1,6 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.passenger.account.PassengerAccountDto;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.mapper.AddressMapper;
@@ -38,7 +39,7 @@ public class PassengerService {
     }
 
     @Transactional(rollbackOn = {SQLException.class})
-    public void savePassenger(PassengerDto passengerDto) {
+    public void savePassenger(PassengerDto passengerDto, LoggedUserAccount loggedUserAccount) {
         if (isEmailRegistered(passengerDto.getEmail())) {
             throw new ResourceConflictException("This email is already registered for another passenger");
         }
@@ -48,17 +49,17 @@ public class PassengerService {
                 coordinateService.findCoordinateByAddress(passengerDto.getAddress().toString())
         );
 
-        UserAccount userAccount = UserAccountMapper.toPassengerAccount(passengerDto, passwordEncoder);
+        UserAccount userAccount = UserAccountMapper.toPassengerAccount(passengerDto, passwordEncoder, new Company(loggedUserAccount.companyId()));
 
         School school = schoolService.findSchoolById(passengerDto.getSchoolId());
 
-        passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, school, userAccount));
+        passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, school, userAccount, new Company(loggedUserAccount.companyId())));
 
         //TODO: send email to the user with a password
     }
 
-    public List<PassengerPresenter> listPassengersFromRoute(String routeId) {
-        Route route = routeService.findRouteById(routeId);
+    public List<PassengerPresenter> listPassengersFromRoute(String routeId, LoggedUserAccount loggedUserAccount) {
+        Route route = routeService.findRouteById(routeId, loggedUserAccount);
         return passengerRepository.findByRoute(route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
     }
 
@@ -70,17 +71,17 @@ public class PassengerService {
         return null;
     }
 
-    public List<PassengerPresenter> listPassengers(int page, int size) {
-        return passengerRepository.findAll(PageRequest.of(page, size)).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+    public List<PassengerPresenter> listPassengers(int page, int size, LoggedUserAccount loggedUserAccount) {
+        return passengerRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Passenger::toPresenter).collect(Collectors.toList());
     }
 
-    public Passenger findPassengerById(String passengerId) {
-        return passengerRepository.findById(passengerId)
+    public Passenger findPassengerById(String passengerId, LoggedUserAccount loggedUserAccount) {
+        return passengerRepository.findByPassengerIdAndCompany_CompanyId(passengerId, loggedUserAccount.companyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Passenger was not found."));
     }
 
-    public void updatePassenger(String passengerId, PassengerDto passengerDto) {
-        Passenger passenger = findPassengerById(passengerId);
+    public void updatePassenger(String passengerId, PassengerDto passengerDto, LoggedUserAccount loggedUserAccount) {
+        Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
 
         passenger.setName(passengerDto.getName());
 

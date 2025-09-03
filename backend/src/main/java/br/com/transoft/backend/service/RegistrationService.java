@@ -40,10 +40,6 @@ public class RegistrationService {
             throw new ResourceConflictException("A company with this CNPJ is already registered");
         }
 
-        UserAccount userAccount = UserAccountMapper.toManagerAccount(registrationDto, passwordEncoder);
-
-        userAccountRepository.save(userAccount);
-
         Company company = Company.builder()
                 .companyId(UUID.randomUUID().toString())
                 .name(registrationDto.getCompany().getName())
@@ -52,6 +48,11 @@ public class RegistrationService {
                 .build();
 
         companyRepository.save(company);
+
+        UserAccount userAccount = UserAccountMapper.toManagerAccount(registrationDto, passwordEncoder, company);
+
+        userAccountRepository.save(userAccount);
+
     }
 
 }

@@ -48,14 +48,4 @@ public class Address {
                 .coordinate(coordinate.toDto())
                 .build();
     }
-
-    @Override
-    public String toString() {
-        return street + ", "
-                + number + " - "
-                + district + ", "
-                + city + " - "
-                + uf + ", "
-                + cep;
-    }
 }

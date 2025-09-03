@@ -4,8 +4,6 @@ import br.com.transoft.backend.constants.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Entity
 @Table(name = "user_account")
 @AllArgsConstructor
@@ -30,6 +28,10 @@ public class UserAccount {
 
     @Column(name = "active", nullable = false)
     private Boolean active;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)

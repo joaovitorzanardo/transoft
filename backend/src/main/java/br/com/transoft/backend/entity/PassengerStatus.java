@@ -15,7 +15,7 @@ import lombok.*;
 public class PassengerStatus {
 
     @EmbeddedId
-    PassengerStatusKey passengerStatusId;
+    PassengerStatusKey passengerStatusKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("passengerId")

@@ -28,4 +28,7 @@ public class Company {
     @Column(name = "cnpj", nullable = false)
     private String cnpj;
 
+    public Company(String companyId) {
+        this.companyId = companyId;
+    }
 }

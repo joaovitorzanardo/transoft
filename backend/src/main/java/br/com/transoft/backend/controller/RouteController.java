@@ -1,11 +1,13 @@
 package br.com.transoft.backend.controller;
 
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
 import br.com.transoft.backend.dto.route.RouteDto;
 import br.com.transoft.backend.dto.route.RoutePresenter;
 import br.com.transoft.backend.service.PassengerService;
 import br.com.transoft.backend.service.RouteService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,43 +25,43 @@ public class RouteController {
     }
 
     @PostMapping
-    public void saveRoute(@Valid @RequestBody RouteDto routeDto) {
-        routeService.saveRoute(routeDto);
+    public void saveRoute(@Valid @RequestBody RouteDto routeDto, Authentication authentication) {
+        routeService.saveRoute(routeDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping
-    public List<RoutePresenter> listRoutes(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size) {
-        return routeService.listRoutes(page, size);
+    public List<RoutePresenter> listRoutes(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+        return routeService.listRoutes(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{routeId}")
-    public RoutePresenter listById(@PathVariable String routeId) {
-        return routeService.listRouteById(routeId);
+    public RoutePresenter listById(@PathVariable String routeId, Authentication authentication) {
+        return routeService.listRouteById(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping(path = "/{routeId}/passengers/{passengerId}")
-    public void addPassengerToRoute(@PathVariable String routeId, @PathVariable String passengerId) {
-        routeService.addPassengerToRoute(passengerId, routeId);
+    public void addPassengerToRoute(@PathVariable String routeId, @PathVariable String passengerId, Authentication authentication) {
+        routeService.addPassengerToRoute(passengerId, routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{routeId}/passengers")
-    public List<PassengerPresenter> listPassengersFromRoute(@PathVariable String routeId) {
-        return passengerService.listPassengersFromRoute(routeId);
+    public List<PassengerPresenter> listPassengersFromRoute(@PathVariable String routeId, Authentication authentication) {
+        return passengerService.listPassengersFromRoute(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @DeleteMapping(path = "/{routeId}/passengers/{passengerId}")
-    public void removePassengerFromRoute(@PathVariable String routeId, @PathVariable String passengerId) {
-        routeService.removePassengerFromRoute(passengerId, routeId);
+    public void removePassengerFromRoute(@PathVariable String routeId, @PathVariable String passengerId, Authentication authentication) {
+        routeService.removePassengerFromRoute(passengerId, routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping(path = "/{routeId}/enable")
-    public void enableRoute(@PathVariable String routeId) {
-        routeService.enableRoute(routeId);
+    public void enableRoute(@PathVariable String routeId, Authentication authentication) {
+        routeService.enableRoute(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping(path = "/{routeId}/disable")
-    public void disableRoute(@PathVariable String routeId) {
-        routeService.disableRoute(routeId);
+    public void disableRoute(@PathVariable String routeId, Authentication authentication) {
+        routeService.disableRoute(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
 }
