@@ -12,6 +12,7 @@ import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.PassengerRepository;
+import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,13 +30,15 @@ public class PassengerService {
     private final CoordinateService coordinateService;
     private final RouteService routeService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public PassengerService(PassengerRepository passengerRepository, SchoolService schoolService, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder) {
+    public PassengerService(PassengerRepository passengerRepository, SchoolService schoolService, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.passengerRepository = passengerRepository;
         this.schoolService = schoolService;
         this.coordinateService = coordinateService;
         this.routeService = routeService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Transactional(rollbackOn = {SQLException.class})
@@ -49,13 +52,15 @@ public class PassengerService {
                 coordinateService.findCoordinateByAddress(passengerDto.getAddress().toString())
         );
 
-        UserAccount userAccount = UserAccountMapper.toPassengerAccount(passengerDto, passwordEncoder, new Company(loggedUserAccount.companyId()));
+        String password = PasswordGeneratorUtils.generatePassword();
+
+        UserAccount userAccount = UserAccountMapper.toPassengerAccount(passengerDto, passwordEncoder.encode(password), new Company(loggedUserAccount.companyId()));
 
         School school = schoolService.findSchoolById(passengerDto.getSchoolId());
 
         passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, school, userAccount, new Company(loggedUserAccount.companyId())));
 
-        //TODO: send email to the user with a password
+        emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
 
     public List<PassengerPresenter> listPassengersFromRoute(String routeId, LoggedUserAccount loggedUserAccount) {

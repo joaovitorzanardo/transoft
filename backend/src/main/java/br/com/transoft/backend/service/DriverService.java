@@ -15,6 +15,7 @@ import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.DriverRepository;
 import br.com.transoft.backend.repository.UserAccountRepository;
+import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,11 +32,13 @@ public class DriverService {
     private final DriverRepository driverRepository;
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public DriverService(DriverRepository driverRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
+    public DriverService(DriverRepository driverRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.driverRepository = driverRepository;
         this.userAccountRepository = userAccountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Transactional(rollbackOn = SQLException.class)
@@ -64,9 +67,13 @@ public class DriverService {
 
         driverRepository.save(driver);
 
-        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder, new Company(loggedUserAccount.companyId()));
+        String password = PasswordGeneratorUtils.generatePassword();
+
+        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder.encode(password), new Company(loggedUserAccount.companyId()));
 
         userAccountRepository.save(userAccount);
+
+        emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
 
     public void updateDriverAccount(DriverAccountDto driverAccountDto) {
@@ -103,7 +110,7 @@ public class DriverService {
 
         if (!driver.getCnhNumber().equals(driverDto.getCnhNumber())) {
             if (cnhNumberRegistered(driverDto.getCnhNumber(), loggedUserAccount.companyId())) {
-                throw new ResourceConflictException("CNH number already registered");
+                throw new ResourceConflictException("The CNH number informed is already registered for another vehicle.");
             }
 
             driver.setCnhNumber(driverDto.getCnhNumber());
@@ -111,7 +118,7 @@ public class DriverService {
 
         if (!driver.getEmail().equals(driverDto.getEmail())) {
             if (driverEmailRegistered(driverDto.getEmail())) {
-                throw new ResourceConflictException("Email already registered");
+                throw new ResourceConflictException("The informed email is already registered for another user.");
             }
 
             driver.setEmail(driverDto.getEmail());

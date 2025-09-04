@@ -7,6 +7,5 @@ public record VehiclePresenter(
         @JsonProperty("plate_number") String plateNumber,
         @JsonProperty("capacity") Integer capacity,
         @JsonProperty("isActive") Boolean isActive,
-        @JsonProperty("vehicle_model") VehicleModelPresenter vehicleModel
-) {
-}
+        @JsonProperty("vehicle_model") VehicleModelPresenter vehicleModel)
+{}

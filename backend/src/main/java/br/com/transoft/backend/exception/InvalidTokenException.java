@@ -2,6 +2,6 @@ package br.com.transoft.backend.exception;
 
 public class InvalidTokenException extends RuntimeException {
     public InvalidTokenException() {
-        super("Invalid token.");
+        super("The informed token is not valid.");
     }
 }

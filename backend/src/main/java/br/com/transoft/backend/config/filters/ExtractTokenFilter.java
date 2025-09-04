@@ -3,7 +3,6 @@ package br.com.transoft.backend.config.filters;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.service.CustomUserDetailsService;
 import br.com.transoft.backend.dto.TokenInfo;
-import br.com.transoft.backend.exception.InvalidTokenException;
 import br.com.transoft.backend.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,12 +19,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class CustomFilter extends OncePerRequestFilter {
+public class ExtractTokenFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenService tokenService;
 
-    public CustomFilter(CustomUserDetailsService customUserDetailsService, TokenService tokenService) {
+    public ExtractTokenFilter(CustomUserDetailsService customUserDetailsService, TokenService tokenService) {
         this.customUserDetailsService = customUserDetailsService;
         this.tokenService = tokenService;
     }

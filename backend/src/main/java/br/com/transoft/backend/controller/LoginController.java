@@ -1,13 +1,11 @@
 package br.com.transoft.backend.controller;
 
-import br.com.transoft.backend.dto.LoginDto;
-import br.com.transoft.backend.dto.LoginResponse;
+import br.com.transoft.backend.dto.login.LoginDto;
+import br.com.transoft.backend.dto.login.LoginResponse;
 import br.com.transoft.backend.service.LoginService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/login")
@@ -20,6 +18,7 @@ public class LoginController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.OK)
     public LoginResponse login(@Valid @RequestBody LoginDto loginDto) {
         return loginService.login(loginDto);
     }

@@ -23,7 +23,7 @@ public class CompanyService {
 
         if (!company.getEmail().equals(companyDto.getEmail())) {
             if (isEmailRegistered(companyDto.getEmail())) {
-                throw new ResourceConflictException("Email already registered");
+                throw new ResourceConflictException("Email already registered for another company.");
             }
             company.setEmail(companyDto.getEmail());
         }

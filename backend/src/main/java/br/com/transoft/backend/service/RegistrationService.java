@@ -1,8 +1,10 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.dto.RegistrationAdminDto;
 import br.com.transoft.backend.dto.RegistrationDto;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.UserAccount;
+import br.com.transoft.backend.exception.EmailNotFromEmployeeException;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.mapper.UserAccountMapper;
 import br.com.transoft.backend.repository.CompanyRepository;
@@ -11,8 +13,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class RegistrationService {
@@ -29,10 +33,9 @@ public class RegistrationService {
 
     @Transactional(rollbackOn = {SQLException.class})
     public void register(RegistrationDto registrationDto) {
-        boolean isEmailInUse = userAccountRepository.findByEmail(registrationDto.getEmail()).isPresent();
         boolean isCnpjRegistered = companyRepository.findByCnpj(registrationDto.getCompany().getCnpj()).isPresent();
 
-        if (isEmailInUse) {
+        if (isEmailInUse(registrationDto.getEmail())) {
             throw new ResourceConflictException("Email already in use");
         }
 
@@ -53,6 +56,30 @@ public class RegistrationService {
 
         userAccountRepository.save(userAccount);
 
+    }
+
+    @Transactional(rollbackOn = SQLException.class)
+    public void registerAdmin(RegistrationAdminDto registrationAdminDto) {
+        if (isEmailInUse(registrationAdminDto.getEmail())) {
+            throw new ResourceConflictException("Email already in use");
+        }
+
+        if (!isEmailFromEmployee(registrationAdminDto.getEmail())) {
+            throw new EmailNotFromEmployeeException(registrationAdminDto.getEmail());
+        }
+
+        UserAccount userAccount = UserAccountMapper.toSysAdminAccount(registrationAdminDto, passwordEncoder);
+
+        userAccountRepository.save(userAccount);
+    }
+
+    private boolean isEmailInUse(String email) {
+        return userAccountRepository.findByEmail(email).isPresent();
+    }
+
+    private boolean isEmailFromEmployee(String email) {
+        Pattern pattern = Pattern.compile("^[^@\\s]+@transoft\\.com$");
+        return pattern.matcher(email).matches();
     }
 
 }

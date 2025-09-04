@@ -1,6 +1,7 @@
 package br.com.transoft.backend.mapper;
 
 import br.com.transoft.backend.constants.Role;
+import br.com.transoft.backend.dto.RegistrationAdminDto;
 import br.com.transoft.backend.dto.RegistrationDto;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.passenger.PassengerDto;
@@ -13,24 +14,24 @@ import java.util.UUID;
 
 public class UserAccountMapper {
 
-    public static UserAccount toPassengerAccount(PassengerDto passengerDto, PasswordEncoder passwordEncoder, Company company) {
+    public static UserAccount toPassengerAccount(PassengerDto passengerDto, String password, Company company) {
         return UserAccount.builder()
                 .userAccountId(UUID.randomUUID().toString())
                 .name(passengerDto.getName())
                 .email(passengerDto.getEmail())
-                .password(passwordEncoder.encode(PasswordGeneratorUtils.generatePassword()))
+                .password(password)
                 .role(Role.PASSENGER)
                 .company(company)
                 .active(false)
                 .build();
     }
 
-    public static UserAccount toDriverAccount(DriverDto driverDto, PasswordEncoder passwordEncoder, Company company) {
+    public static UserAccount toDriverAccount(DriverDto driverDto, String password, Company company) {
         return UserAccount.builder()
                 .userAccountId(UUID.randomUUID().toString())
                 .name(driverDto.getName())
                 .email(driverDto.getEmail())
-                .password(passwordEncoder.encode(PasswordGeneratorUtils.generatePassword()))
+                .password(password)
                 .role(Role.DRIVER)
                 .company(company)
                 .active(false)
@@ -45,6 +46,17 @@ public class UserAccountMapper {
                 .password(passwordEncoder.encode(registrationDto.getPassword()))
                 .role(Role.MANAGER)
                 .company(company)
+                .active(true)
+                .build();
+    }
+
+    public static UserAccount toSysAdminAccount(RegistrationAdminDto registrationAdminDto, PasswordEncoder passwordEncoder) {
+        return UserAccount.builder()
+                .userAccountId(UUID.randomUUID().toString())
+                .name(registrationAdminDto.getName())
+                .email(registrationAdminDto.getEmail())
+                .password(passwordEncoder.encode(registrationAdminDto.getPassword()))
+                .role(Role.SYS_ADMIN)
                 .active(true)
                 .build();
     }

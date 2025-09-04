@@ -1,7 +1,7 @@
 package br.com.transoft.backend.service;
 
-import br.com.transoft.backend.dto.LoginDto;
-import br.com.transoft.backend.dto.LoginResponse;
+import br.com.transoft.backend.dto.login.LoginDto;
+import br.com.transoft.backend.dto.login.LoginResponse;
 import br.com.transoft.backend.entity.UserAccount;
 import br.com.transoft.backend.exception.IncorrectPasswordException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;

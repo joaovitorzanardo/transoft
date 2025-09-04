@@ -25,7 +25,7 @@ public class AutomakerService {
 
     public void registerAutomaker(String name) {
         if (automakerExists(name)) {
-            throw new ResourceConflictException("Automaker already exists");
+            throw new ResourceConflictException("Automaker already exists.");
         }
 
         automakerRepository.save(new Automaker(name));

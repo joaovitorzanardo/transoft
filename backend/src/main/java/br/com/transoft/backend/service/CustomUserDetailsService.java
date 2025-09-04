@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         UserAccount userAccount = userAccountRepository.findById(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No user with the provided id was found"));
+                .orElseThrow(() -> new UsernameNotFoundException("No user with the provided id was found."));
 
         authorities.add(new SimpleGrantedAuthority("ROLE_" + userAccount.getRole().getRole()));
 

@@ -1,6 +1,5 @@
 package br.com.transoft.backend.dto.itinerary;
 
-import br.com.transoft.backend.dto.DateIntervalDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

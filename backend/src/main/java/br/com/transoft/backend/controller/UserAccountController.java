@@ -1,10 +1,8 @@
 package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.service.UserAccountService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/users")
@@ -17,6 +15,7 @@ public class UserAccountController {
     }
 
     @PostMapping(path = "/{userId}/activate")
+    @ResponseStatus(HttpStatus.OK)
     public void activateUser(@PathVariable String userId) {
         userAccountService.activateUser(userId);
     }

@@ -12,12 +12,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDto {
+public class RegistrationAdminDto {
 
     @JsonProperty(namespace = "email")
     @Email(message = "The email is not in the right format")
     @NotBlank(message = "The email must be informed.")
     private String email;
+
+    @JsonProperty(namespace = "name")
+    @NotBlank(message = "The name must be informed.")
+    private String name;
 
     @JsonProperty(namespace = "password")
     @NotBlank(message = "The password must be informed.")

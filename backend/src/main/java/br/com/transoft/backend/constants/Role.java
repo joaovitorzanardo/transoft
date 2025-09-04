@@ -7,7 +7,8 @@ public enum Role {
 
     DRIVER("DRIVER"),
     PASSENGER("PASSENGER"),
-    MANAGER("MANAGER");
+    MANAGER("MANAGER"),
+    SYS_ADMIN("SYS_ADMIN");
 
     private String role;
 

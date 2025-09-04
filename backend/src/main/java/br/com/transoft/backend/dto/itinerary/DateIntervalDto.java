@@ -1,4 +1,4 @@
-package br.com.transoft.backend.dto;
+package br.com.transoft.backend.dto.itinerary;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;

@@ -5,6 +5,9 @@ import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
 import br.com.transoft.backend.service.VehicleService;
 import jakarta.validation.Valid;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,31 +24,49 @@ public class VehicleController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.CREATED)
     public void registerVehicle(@RequestBody @Valid VehicleDto vehicleDto, Authentication authentication) {
         vehicleService.saveVehicle(vehicleDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
     public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return vehicleService.listVehicles(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping("/{vehicleId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
     public VehiclePresenter getVehiclesById(@PathVariable String vehicleId, Authentication authentication) {
         return vehicleService.findVehicleById(vehicleId, (LoggedUserAccount) authentication.getPrincipal()).toPresenter();
     }
 
     @PutMapping("/{vehicleId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
     public void updateVehicle(@PathVariable String vehicleId, @Valid @RequestBody VehicleDto vehicleDto, Authentication authentication) {
         vehicleService.updateVehicle(vehicleId, vehicleDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping("/{vehicleId}/enable")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
     public void enableVehicle(@PathVariable String vehicleId, Authentication authentication) {
         vehicleService.enableVehicle(vehicleId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PostMapping("/{vehicleId}/disable")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
     public void disableVehicle(@PathVariable String vehicleId, Authentication authentication) {
         vehicleService.disableVehicle(vehicleId, (LoggedUserAccount) authentication.getPrincipal());
     }

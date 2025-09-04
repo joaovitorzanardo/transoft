@@ -1,6 +1,6 @@
 package br.com.transoft.backend.config;
 
-import br.com.transoft.backend.config.filters.CustomFilter;
+import br.com.transoft.backend.config.filters.ExtractTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -20,11 +20,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final CorsConfigurationSource corsConfigurationSource;
-    private final CustomFilter customFilter;
+    private final ExtractTokenFilter extractTokenFilter;
 
-    public SecurityConfig(CorsConfigurationSource corsConfigurationSource, CustomFilter customFilter) {
+    public SecurityConfig(CorsConfigurationSource corsConfigurationSource, ExtractTokenFilter extractTokenFilter) {
         this.corsConfigurationSource = corsConfigurationSource;
-        this.customFilter = customFilter;
+        this.extractTokenFilter = extractTokenFilter;
     }
 
     @Bean
@@ -34,11 +34,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/register").permitAll()
+                        .requestMatchers("/api/register/admin").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(extractTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
