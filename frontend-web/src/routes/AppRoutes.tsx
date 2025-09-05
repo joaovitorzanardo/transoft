@@ -7,11 +7,15 @@ import ConfigurationPage from "../pages/ConfigurationPage";
 import DashboardPage from "../pages/DashboardPage";
 import ReportsPage from "../pages/ReportsPage";
 import VehiclesPage from "../pages/VehiclesPage";
+import { LoginPage } from "../pages/LoginPage";
+import RegisterPage from "../pages/register/RegisterPage";
 
 export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
                 <Route path="/passengers" element={<PassengersPage />} />
                 <Route path="/routes" element={<RoutesPage />} />
                 <Route path="/vehicles" element={<VehiclesPage />} />
