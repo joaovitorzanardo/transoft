@@ -1,133 +1,142 @@
-import { Button, Card, Divider, Step, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import { Alert, Button, Card, Collapse, Divider, FormControl, IconButton, TextField, Typography } from "@mui/material";
 import React from "react";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { register } from "../../services/register.service";
+import type RegisterDto from "../../models/RegisterDto";
+import type CompanyDto from "../../models/CompanyDto";
+import CloseIcon from '@mui/icons-material/Close';
+import PasswordInput from "../../components/ui/PasswordInput";
 
-interface IFormInputs {
-    UserName: string
-    UserEmail: string
-    UserPass: string
-    UserConfimPass: string
-    CompanyName: string
-    CompanyEmail: string
-    CNPJ: string
-  }
+const RegistrationForm = z.object({
+    userName: z.string().nonempty({message: "O nome deve ser informado"}),
+    userEmail: z.email({message: "Formato do email inválido"}),
+    password: z.string().nonempty({message: "A senha deve ser informada"}),
+    confirmPassword: z.string(),
+    companyName: z.string().nonempty({message: "O nome da empresa deve ser informado"}),
+    companyEmail: z.email({message: "Formato do email inválido"}),
+    cnpj: z.string()
+        .nonempty({message: "O cnpj deve ter ser informado"})
+        .length(14, {message: "O cnpj deve ter 14 caracteres"})
+        .regex(/^\d+$/, {message: "O cnpj deve conter apenas números"})
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"]
+});
+
+type IFormInputs = z.infer<typeof RegistrationForm>
 
 export default function RegisterPage() {
-    const navidate = useNavigate();
+    const navigate = useNavigate();
+    const [hasError, setHasError] = React.useState(false);
+    const [errorMessage, setErrorMessage] = React.useState('');
 
-    const { handleSubmit, control, trigger } = useForm<IFormInputs>({
+    const { handleSubmit, control, formState: {isValid} } = useForm<IFormInputs>({
         defaultValues: {
-            UserName: '',
-            UserEmail: '',
-            UserPass: '',
-            UserConfimPass: '',
-            CompanyName: '',
-            CompanyEmail: '',
-            CNPJ: ''
+            userName: '',
+            userEmail: '',
+            password: '',
+            confirmPassword: '',
+            companyName: '',
+            companyEmail: '',
+            cnpj: ''
         },
+        resolver: zodResolver(RegistrationForm),
     });
 
-    const [activeStep, setActiveStep] = React.useState(0);
-
-    const handleNext = () => {
-        if (activeStep === 0) {
-            trigger(['UserName', 'UserEmail', 'UserPass', 'UserConfimPass'])
-            .then(isValid => {
-                if (isValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            });
+    const onSubmit: SubmitHandler<IFormInputs> = (data) => {        
+        if (!isValid) {
+            return;
         }
-    }
 
-    const handlePrevious = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    }
+        const companyDto: CompanyDto = {
+            name: data.companyName,
+            email: data.companyEmail,
+            cnpj: data.cnpj
+        }
 
-    const registerAccount = () => {
-        navidate('/dashboard');
-    }
+        const registerDto: RegisterDto = {
+            name: data.userName,
+            email: data.userEmail,
+            password: data.password,
+            company: companyDto,
+        }
 
-    const onSubmit: SubmitHandler<IFormInputs> = (data) => console.log(data)
+        const response = register(registerDto);
+
+        response.then((response) => {
+            if (response.status !== 201) { 
+                setHasError(true);
+                setErrorMessage('Erro ao registrar usuário. Erro:' + response.data?.message)
+                return;
+            }
+
+            navigate('/dashboard');
+        }).catch((error) => {
+            setHasError(true);
+            setErrorMessage('Erro ao registrar usuário. Erro:' + error.message)
+        });
+    }
 
     return (
-        <Card variant="outlined" style={{display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', maxWidth: '400px', margin: 'auto', marginTop: '100px'}}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {activeStep === 0 ? (
-                    <>
-                        <Typography variant="h5" component="h2" align="center">Criar Conta</Typography>
-                        <Typography variant="subtitle2" align="center">Preencha os dados para começar</Typography>
-                        <Stepper activeStep={activeStep}>
-                            <Step key="usuario">
-                                <StepLabel>Usuário</StepLabel>
-                            </Step>
-                            <Step key="empresa">
-                                <StepLabel>Empresa</StepLabel>
-                            </Step>
-                        </Stepper>
-                        <Controller 
-                            name="UserName"
-                            control={control}
-                            rules={{ required: "O nome deve ser informado" }}
-                            render={({ field, fieldState }) => <TextField label="Nome" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
-                        />
-                        <Controller 
-                            name="UserEmail"
-                            control={control}
-                            rules={{ required: "O email deve ser informado" }}
-                            render={({ field, fieldState }) => <TextField label="Email" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
-                        />
-                        <Controller 
-                            name="UserPass"
-                            control={control}
-                            rules={{ required: "A senha deve ser informada" }}
-                            render={({ field, fieldState }) => <TextField label="Senha" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" type="password" {...field}/>}
-                        />
-                        <Controller 
-                            name="UserConfimPass"
-                            control={control}
-                            rules={{ required: "A senha deve ser confirmada" }}
-                            render={({ field, fieldState }) => <TextField label="Confirmar Senha" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" type="password" {...field}/>}
-                        />
-                        <Button variant="contained" onClick={handleNext}>Continuar</Button>
-                    </>
-                ) : (
-                    <>
-                        <Typography variant="h5" component="h2" align="center">Registrar Empresa</Typography>
-                        <Typography variant="subtitle2" align="center">Preencha os dados da sua emrpesa para continuar</Typography>
-                        <Stepper activeStep={activeStep}>
-                            <Step key="usuario">
-                                <StepLabel>Usuário</StepLabel>
-                            </Step>
-                            <Step key="empresa">
-                                <StepLabel>Empresa</StepLabel>
-                            </Step>
-                        </Stepper>
-                        <Controller 
-                            name="CompanyName"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field, fieldState }) => <TextField label="Nome" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
-                        />
-                        <Controller 
-                            name="CompanyEmail"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field, fieldState }) => <TextField label="Email" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
-                        />
-                        <Controller 
-                            name="CNPJ"
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field, fieldState }) => <TextField label="CNPJ" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
-                        />
-                        <Button variant="contained" onClick={registerAccount} type="submit">Finalizar Cadastro</Button>
-                        <Button variant="outlined" onClick={handlePrevious}>Voltar</Button>
-                    </>
-                )}
-            </form>
-            <Divider />
-            <Link to="/login" style={{textAlign: 'center'}}>Já possui uma conta? Entre aqui</Link>
-        </Card>
-        
+        <>
+            <Card variant="outlined" style={{display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', maxWidth: '400px', margin: 'auto', marginTop: '100px'}}>
+                <FormControl onSubmit={handleSubmit(onSubmit)} style={{display: 'flex', flexDirection: 'column', gap: '16px'}} component="form">
+                    <Typography variant="h5" component="h2" align="center">Criar Conta</Typography>
+                    <Typography variant="subtitle2" align="center">Preencha os dados para começar</Typography>
+                    <Controller
+                        name="userName"
+                        control={control}
+                        render={({ field, fieldState }) => <TextField label="Nome" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                    />
+                    <Controller 
+                        name="userEmail"
+                        control={control}
+                        render={({ field, fieldState }) => <TextField label="Email" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                    />
+                    <Controller 
+                        name="password"
+                        control={control}
+                        render={({ field, fieldState }) => 
+                        <PasswordInput label="Senha" error={!!fieldState.error} helperText={fieldState.error?.message} field={field}/>}
+                    />
+                    <Controller 
+                        name="confirmPassword"
+                        control={control}
+                        render={({ field, fieldState }) => 
+                            <PasswordInput label="Confirmar Senha" error={!!fieldState.error} helperText={fieldState.error?.message} field={field}/>}
+                    />
+                    <Controller 
+                        name="companyName"
+                        control={control}
+                        render={({ field, fieldState }) => <TextField label="Nome da Empresa" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                    />
+                    <Controller 
+                        name="companyEmail"
+                        control={control}
+                        render={({ field, fieldState }) => <TextField label="Email da Empresa" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                    />
+                    <Controller 
+                        name="cnpj"
+                        control={control}
+                        render={({ field, fieldState }) => <TextField label="CNPJ" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                    />
+                    <Button variant="contained" type="submit">Realizar Cadastro</Button>
+                </FormControl>
+                <Divider />
+                <Link to="/login" style={{textAlign: 'center'}}>Já possui uma conta? Entre aqui</Link>
+            </Card>
+            <Collapse in={hasError}>
+                <Alert severity="error" action={
+                    <IconButton aria-label="close" color="inherit" size="small" onClick={() => { setHasError(false) }}>
+                        <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                }>
+                    {errorMessage}
+                </Alert>
+            </Collapse>
+        </>
     );
 }

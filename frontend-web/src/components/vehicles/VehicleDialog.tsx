@@ -1,13 +1,13 @@
 import { Box, Button, Container, Dialog, Divider, IconButton, MenuItem, Select, TextField, Typography, type SelectChangeEvent } from "@mui/material";
 import React from "react";
 import BlockIcon from '@mui/icons-material/Block';
-import CloseIcon from '@mui/icons-material/Close';
 
 import { getAutomakers } from "../../services/automaker.service";
 import { getVehicleModelsByAutomaker } from "../../services/vehiclemodel.service";
 
-import type Automaker from "../../types/Automaker";
-import type VehicleModel from "../../types/VehicleModel";
+import type Automaker from "../../models/Automaker";
+import type VehicleModel from "../../models/VehicleModel";
+import DialogHeader from "../ui/DialogHeader";
 
 interface VehicleDialogProps {
     open: boolean;
@@ -61,13 +61,7 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
     return (
         <Dialog open={open} onClose={onClose} >
             <Container sx={{ padding: 3 }}>
-                <Container sx={{ display: 'flex', justifyContent: 'space-between'}}>
-                    <Typography variant="h5" sx={{ marginBottom: 2 }}>Cadastrar Veículo</Typography>
-                    <IconButton>
-                        <CloseIcon onClick={onClose} />
-                    </IconButton>
-                </Container>
-                <Divider sx={{marginTop: "20px", marginBottom: "20px"}}/>
+                <DialogHeader title="Cadastrar veículo" onClose={onClose} />
                 <Container >
                     <TextField label="Placa" variant="outlined" />
                     <Container sx={{ display: 'flex', gap: 2, marginTop: 2 }}>

@@ -1,11 +1,10 @@
 import { axiosInstance } from './axios-instance';
-import type VehicleModel from '../types/VehicleModel';
+import type { AxiosResponse } from 'axios';
 
-export async function getVehicleModelsByAutomaker(automakerId: string): Promise<VehicleModel[]> {
-    return axiosInstance.get(`/vehicle-model/automaker/${automakerId}`).then(response => {
-        return response.data as VehicleModel[];
-    }).catch(error => {
-        console.error('Error fetching vehicle models:', error);
-        throw error;
+export function getVehicleModelsByAutomaker(automakerId: string): Promise<AxiosResponse> {
+    return axiosInstance.get(`/vehicle-models/automaker/${automakerId}`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem("apiToken")}`
+        }
     });
 }
