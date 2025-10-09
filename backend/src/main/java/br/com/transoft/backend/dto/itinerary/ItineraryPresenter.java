@@ -4,6 +4,7 @@ import br.com.transoft.backend.dto.driver.DriverPresenter;
 import br.com.transoft.backend.dto.route.RoutePresenter;
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.constants.ItineraryType;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,5 +19,6 @@ public record ItineraryPresenter(
         LocalTime endTime,
         RoutePresenter route,
         DriverPresenter driver,
+        VehiclePresenter vehicle,
         Set<ItineraryPassengerPresenter> passengers
 ) {}

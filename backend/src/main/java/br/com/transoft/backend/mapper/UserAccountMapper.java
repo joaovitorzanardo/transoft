@@ -1,13 +1,12 @@
 package br.com.transoft.backend.mapper;
 
 import br.com.transoft.backend.constants.Role;
-import br.com.transoft.backend.dto.RegistrationAdminDto;
-import br.com.transoft.backend.dto.RegistrationDto;
+import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
+import br.com.transoft.backend.dto.registration.RegistrationDto;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.passenger.PassengerDto;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.UserAccount;
-import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;

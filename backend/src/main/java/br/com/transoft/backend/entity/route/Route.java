@@ -1,10 +1,7 @@
 package br.com.transoft.backend.entity.route;
 
 import br.com.transoft.backend.dto.route.RoutePresenter;
-import br.com.transoft.backend.entity.Company;
-import br.com.transoft.backend.entity.Driver;
-import br.com.transoft.backend.entity.Passenger;
-import br.com.transoft.backend.entity.School;
+import br.com.transoft.backend.entity.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,6 +38,10 @@ public class Route {
     @JoinColumn(name = "driver_id")
     private Driver defaultDriver;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle defaultVehicle;
+
     @Embedded
     private DepartureTrip departureTrip;
 
@@ -60,6 +61,7 @@ public class Route {
                 active,
                 school.toPresenter(),
                 defaultDriver.toPresenter(),
+                defaultVehicle.toPresenter(),
                 departureTrip.toDto(),
                 returnTrip.toDto(),
                 dayOfWeek.toDto()

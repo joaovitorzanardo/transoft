@@ -1,7 +1,7 @@
 package br.com.transoft.backend.controller;
 
-import br.com.transoft.backend.dto.RegistrationAdminDto;
-import br.com.transoft.backend.dto.RegistrationDto;
+import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
+import br.com.transoft.backend.dto.registration.RegistrationDto;
 import br.com.transoft.backend.service.RegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

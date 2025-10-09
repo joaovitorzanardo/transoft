@@ -3,6 +3,7 @@ package br.com.transoft.backend.service;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclesStatsPresenter;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.Vehicle;
 import br.com.transoft.backend.entity.VehicleModel;
@@ -51,6 +52,14 @@ public class VehicleService {
 
     public Vehicle findVehicleById(String vehicleId, LoggedUserAccount loggedUserAccount) {
         return vehicleRepository.findByVehicleIdAndCompany_CompanyId(vehicleId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
+    }
+
+    public VehiclesStatsPresenter getVehiclesStats(LoggedUserAccount loggedUserAccount) {
+        int total = vehicleRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        int active = vehicleRepository.countAllByCompany_CompanyIdAndActive(loggedUserAccount.companyId(), true);
+        int inactive = vehicleRepository.countAllByCompany_CompanyIdAndActive(loggedUserAccount.companyId(), false);
+
+        return new VehiclesStatsPresenter(total, active, inactive);
     }
 
     public void updateVehicle(String vehicleId, VehicleDto vehicleDto, LoggedUserAccount loggedUserAccount) {

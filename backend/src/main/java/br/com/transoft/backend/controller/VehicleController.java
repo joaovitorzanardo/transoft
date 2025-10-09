@@ -3,6 +3,7 @@ package br.com.transoft.backend.controller;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclesStatsPresenter;
 import br.com.transoft.backend.service.VehicleService;
 import jakarta.validation.Valid;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -39,6 +40,14 @@ public class VehicleController {
         return vehicleService.listVehicles(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public VehiclesStatsPresenter getVehiclesStats(Authentication authentication) {
+        return vehicleService.getVehiclesStats((LoggedUserAccount) authentication.getPrincipal());
+    }
+
     @GetMapping("/{vehicleId}")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
@@ -55,7 +64,7 @@ public class VehicleController {
         vehicleService.updateVehicle(vehicleId, vehicleDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping("/{vehicleId}/enable")
+    @PatchMapping("/{vehicleId}/enable")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
@@ -63,7 +72,7 @@ public class VehicleController {
         vehicleService.enableVehicle(vehicleId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping("/{vehicleId}/disable")
+    @DeleteMapping("/{vehicleId}/disable")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)

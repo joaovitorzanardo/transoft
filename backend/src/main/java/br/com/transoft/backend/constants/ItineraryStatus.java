@@ -8,7 +8,8 @@ public enum ItineraryStatus {
 
     AGENDADO("AGENDADO"),
     EM_ANDAMENTO("EM_ANDAMENTO"),
-    CONCLUIDO("CONCLUIDO");
+    CONCLUIDO("CONCLUIDO"),
+    CANCELADO("CANCELADO");
 
     private final String status;
 

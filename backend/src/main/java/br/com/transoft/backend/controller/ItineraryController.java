@@ -1,7 +1,7 @@
 package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.PassengerItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.PassengerItineraryPresenter;
 import br.com.transoft.backend.dto.itinerary.ItineraryDto;
 import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
 import br.com.transoft.backend.service.ItineraryService;

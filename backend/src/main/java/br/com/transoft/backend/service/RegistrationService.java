@@ -1,7 +1,7 @@
 package br.com.transoft.backend.service;
 
-import br.com.transoft.backend.dto.RegistrationAdminDto;
-import br.com.transoft.backend.dto.RegistrationDto;
+import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
+import br.com.transoft.backend.dto.registration.RegistrationDto;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.UserAccount;
 import br.com.transoft.backend.exception.EmailNotFromEmployeeException;
@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.regex.Pattern;

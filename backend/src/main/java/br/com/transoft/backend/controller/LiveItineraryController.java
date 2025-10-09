@@ -1,7 +1,7 @@
 package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.PassengerItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.PassengerItineraryPresenter;
 import br.com.transoft.backend.service.ItineraryService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;

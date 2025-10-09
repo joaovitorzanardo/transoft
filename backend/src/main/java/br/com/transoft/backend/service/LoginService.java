@@ -2,6 +2,7 @@ package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.login.LoginDto;
 import br.com.transoft.backend.dto.login.LoginResponse;
+import br.com.transoft.backend.dto.login.UserAccountDto;
 import br.com.transoft.backend.entity.UserAccount;
 import br.com.transoft.backend.exception.IncorrectPasswordException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
@@ -30,7 +31,9 @@ public class LoginService {
             throw new IncorrectPasswordException();
         }
 
-        return new LoginResponse(tokenService.generateToken(userAccount));
+        UserAccountDto user = new UserAccountDto(userAccount.getName(), userAccount.getEmail(), userAccount.getActive(), userAccount.getRole().getRole());
+
+        return new LoginResponse(user, tokenService.generateToken(userAccount));
     }
 
 }

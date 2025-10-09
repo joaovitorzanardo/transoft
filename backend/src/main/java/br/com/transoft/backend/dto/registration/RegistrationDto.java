@@ -1,5 +1,6 @@
-package br.com.transoft.backend.dto;
+package br.com.transoft.backend.dto.registration;
 
+import br.com.transoft.backend.dto.CompanyDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -51,6 +51,10 @@ public class Itinerary {
     private Driver driver;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
@@ -67,6 +71,7 @@ public class Itinerary {
                 endTime,
                 route.toPresenter(),
                 driver.toPresenter(),
+                vehicle.toPresenter(),
                 passengerStatus.stream()
                         .map(PassengerStatus::toPresenter)
                         .collect(Collectors.toSet())

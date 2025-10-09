@@ -33,7 +33,7 @@ public class AutomakerController {
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
     public List<AutomakerPresenter> listAutomaker() {
-        return automakerService.listAutomakers();
+        return automakerService.listAutomakers(); 
     }
 
 }

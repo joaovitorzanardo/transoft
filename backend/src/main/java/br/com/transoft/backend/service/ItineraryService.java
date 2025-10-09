@@ -1,13 +1,10 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.PassengerItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.PassengerItineraryPresenter;
 import br.com.transoft.backend.dto.itinerary.ItineraryDto;
 import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
-import br.com.transoft.backend.entity.Driver;
-import br.com.transoft.backend.entity.Itinerary;
-import br.com.transoft.backend.entity.Passenger;
-import br.com.transoft.backend.entity.PassengerStatus;
+import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
@@ -47,18 +44,19 @@ public class ItineraryService {
     public void generateItinerary(ItineraryDto itineraryDto, LoggedUserAccount loggedUserAccount) {
         Route route = routeService.findRouteById(itineraryDto.getRouteId(), loggedUserAccount);
         Driver driver = route.getDefaultDriver();
+        Vehicle vehicle = route.getDefaultVehicle();
         Set<Passenger> passengers = route.getPassengers();
 
         List<LocalDate> dates = DateUtils.getDatesBetween(itineraryDto.getDateInterval().getStartDate(), itineraryDto.getDateInterval().getEndDate());
 
         for (LocalDate date : dates) {
-            createDepartureTrip(date, route, driver, passengers);
-            createReturnTrip(date, route, driver, passengers);
+            createDepartureTrip(date, route, driver, vehicle, passengers);
+            createReturnTrip(date, route, driver, vehicle, passengers);
         }
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    protected void createDepartureTrip(LocalDate date, Route route, Driver driver, Set<Passenger> passengers) {
+    protected void createDepartureTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers) {
         Itinerary itinerary = Itinerary.builder()
                 .itineraryId(UUID.randomUUID().toString())
                 .type(ItineraryType.IDA)
@@ -68,6 +66,7 @@ public class ItineraryService {
                 .endTime(route.getDepartureTrip().getEndTime())
                 .route(route)
                 .driver(driver)
+                .vehicle(vehicle)
                 .build();
 
         itineraryRepository.save(itinerary);
@@ -75,7 +74,7 @@ public class ItineraryService {
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    protected void createReturnTrip(LocalDate date, Route route, Driver driver, Set<Passenger> passengers) {
+    protected void createReturnTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers) {
         Itinerary itinerary = Itinerary.builder()
                 .itineraryId(UUID.randomUUID().toString())
                 .type(ItineraryType.VOLTA)
@@ -85,6 +84,7 @@ public class ItineraryService {
                 .endTime(route.getDepartureTrip().getEndTime())
                 .route(route)
                 .driver(driver)
+                .vehicle(vehicle)
                 .build();
 
         itineraryRepository.save(itinerary);
