@@ -10,8 +10,8 @@ export function saveVehicle(VehicleDto: VehicleDto): Promise<AxiosResponse> {
     });
 }
 
-export function getVehicles(): Promise<AxiosResponse> {
-    return axiosInstance.get('/vehicles', {
+export function getVehicles(page: number, size: number): Promise<AxiosResponse> {
+    return axiosInstance.get(`/vehicles?page=${page}&size=${size}`, {
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem("apiToken")}`
         }

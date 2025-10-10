@@ -4,7 +4,6 @@ import { VehicleTable } from "../../components/vehicles/VehicleTable";
 import { StatsCard } from "../../components/StatsCard";
 import AddIcon from '@mui/icons-material/Add';
 import PageTitle from "../../components/ui/PageTitle";
-import { SearchInput } from "../../components/ui/SearchInput";
 import { useNavigate } from "react-router";
 import React from "react";
 import { getVehiclesStats } from "../../services/vehicle.service";
@@ -17,6 +16,7 @@ interface StatsVehicles {
 
 export default function VehiclesPage() {
     const [stats, setStats] = React.useState<StatsVehicles>({total: 0, active: 0, inactive: 0});
+    const [loading, setLoading] = React.useState<boolean>(false);
 
     const navigate = useNavigate();
 
@@ -26,7 +26,9 @@ export default function VehiclesPage() {
 
     React.useEffect(() => {
         async function getStats() {
+            setLoading(true);
             const response = await getVehiclesStats();
+            setLoading(false);
 
             if (response.status !== 200) {
                 return;
@@ -45,14 +47,13 @@ export default function VehiclesPage() {
                 <Stack direction="row" sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
                     <PageTitle title="Veículos" description="Gerencie os veículos da frota" />
                     <Stack direction="row" spacing={2}>
-                        <SearchInput title="Buscar veículos..."/>
                         <Button variant="outlined" color="primary" startIcon={<AddIcon/>} onClick={navigateToVehicleInfo}>Adicionar Veículo</Button>
                     </Stack>
                 </Stack>
                 <Stack direction="row" spacing={5} sx={{ marginBottom: 5, marginTop: 5 }}>
-                    <StatsCard title="Total" value={stats.total}/>
-                    <StatsCard title="Ativos" value={stats.active}/>
-                    <StatsCard title="Inativos" value={stats.inactive}/>
+                    <StatsCard title="Total" value={stats.total} loading={loading}/>
+                    <StatsCard title="Ativos" value={stats.active} loading={loading}/>
+                    <StatsCard title="Inativos" value={stats.inactive} loading={loading}/>
                 </Stack>
                 <VehicleTable />
             </Stack>

@@ -15,6 +15,7 @@ import { disableVehicle, enableVehicle, getVehicleById, saveVehicle } from "../.
 import { useParams } from "react-router";
 import MessageAlert from "../../components/ui/MessageAlert";
 import CheckIcon from '@mui/icons-material/Check';
+import { IMaskMixin } from 'react-imask';
 
 const VehicleForm = z.object({
     plateNumber: z.string().nonempty({message: "A placa do veículo deve ser informada."}),
@@ -47,6 +48,10 @@ interface VehiclePresenter {
 
 type DialogType = 'save' | 'disable' | 'enable' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
+
+const MaskedTextField = IMaskMixin(({ inputRef, ...props }) => (
+    <TextField {...props} inputRef={inputRef} />
+));
 
 export default function VehicleInfoPage() {
     const { vehicleId } = useParams();
@@ -235,17 +240,19 @@ export default function VehicleInfoPage() {
                             <Controller
                                 name="plateNumber"
                                 control={control}
-                                render={({ field, fieldState }) => 
-                                    <TextField 
+                                render={({ field, fieldState }) => (
+                                    <MaskedTextField 
+                                        mask="aaa-0a00"
+                                        placeholder="BRA-0S19"
+                                        {...field}
                                         label="Placa" 
                                         type="text" 
                                         error={!!fieldState.error} 
-                                        helperText={fieldState.error?.message} 
+                                        helperText={fieldState.error?.message}
                                         variant="outlined" 
-                                        {...field} 
                                         sx={{width: '100%'}}
                                     />
-                                }
+                                )}
                             />
                         </Stack>
                         <Grid container spacing={2} sx={{marginTop: 3}}>
@@ -353,7 +360,6 @@ export default function VehicleInfoPage() {
                             )                                
                         }
                     </Stack>
-
                     {config && (
                         <ConfirmationDialog
                             title={config.title}
@@ -363,8 +369,6 @@ export default function VehicleInfoPage() {
                             onConfirm={config.onConfirm}
                         />
                     )}
-                    
-
                     {alert && (
                         <MessageAlert 
                             open={alert.open}

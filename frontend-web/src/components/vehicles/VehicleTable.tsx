@@ -39,6 +39,13 @@ export function VehicleTable() {
     const navigate = useNavigate();
 
     const [data, setData] = React.useState<VehicleData[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [rowCount, setRowCount] = React.useState<number>(0);
+
+    const [paginationModel, setPaginationModel] = React.useState({
+        pageSize: 5,
+        page: 0,
+    });
 
     const navigateToVehicleInfo = (id: GridRowId) => () => {
         console.log(id)
@@ -47,13 +54,16 @@ export function VehicleTable() {
 
     React.useEffect(() => {
         async function getAllVehicles() {
-            const response = await getVehicles()
+            setLoading(true);
+            const response = await getVehicles(paginationModel.page, paginationModel.pageSize)
+            setLoading(false);
 
             if (response.status !== 200) {
                 return;
             }
 
-            setData(response.data.map((vehicle: VehiclePresenter) => {
+            setRowCount(response.data.count);
+            setData(response.data.vehicles.map((vehicle: VehiclePresenter) => {
                 return {
                     id: vehicle.vehicleId,
                     plateNumber: vehicle.plateNumber,
@@ -67,7 +77,7 @@ export function VehicleTable() {
         }
 
         getAllVehicles();
-    }, [])
+    }, [paginationModel])
 
     const columns: GridColDef[] = [
         { field: 'plateNumber', headerName: 'Placa', width: 90 },
@@ -121,7 +131,16 @@ export function VehicleTable() {
 
     return (
         <Container>
-            <DataGrid columns={columns} rows={data}/>
+            <DataGrid 
+                columns={columns} 
+                rows={data} 
+                loading={loading}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[5, 15, 50]}
+                rowCount={rowCount}
+                paginationMode="server"
+            />
         </Container>
     )
 }
