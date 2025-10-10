@@ -3,8 +3,11 @@ package br.com.transoft.backend.controller;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.driver.DriverPresenter;
+import br.com.transoft.backend.dto.driver.DriverPresenterList;
+import br.com.transoft.backend.dto.driver.DriverStatsPresenter;
 import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
 import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclesStatsPresenter;
 import br.com.transoft.backend.service.DriverService;
 import jakarta.validation.Valid;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -53,8 +56,16 @@ public class DriverController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<DriverPresenter> listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+    public DriverPresenterList listDrivers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return driverService.listDrivers(page, size, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public DriverStatsPresenter getVehiclesStats(Authentication authentication) {
+        return driverService.getDriverStats((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{driverId}")

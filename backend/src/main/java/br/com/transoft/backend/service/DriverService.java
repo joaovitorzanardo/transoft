@@ -1,6 +1,8 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
+import br.com.transoft.backend.dto.driver.DriverPresenterList;
+import br.com.transoft.backend.dto.driver.DriverStatsPresenter;
 import br.com.transoft.backend.dto.driver.account.DriverAccountDto;
 import br.com.transoft.backend.dto.driver.account.DriverAccountPresenter;
 import br.com.transoft.backend.entity.Company;
@@ -84,6 +86,14 @@ public class DriverService {
         return null;
     }
 
+    public DriverStatsPresenter getDriverStats(LoggedUserAccount loggedUserAccount) {
+        int total = driverRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        int active = driverRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), true);
+        int inactive = driverRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), false);
+
+        return new DriverStatsPresenter(total, active, inactive, 0);
+    }
+
     public boolean cnhNumberRegistered(String cnhNumber, String companyId) {
         return driverRepository.findByCnhNumberAndCompany_CompanyId(cnhNumber, companyId).isPresent();
     }
@@ -92,10 +102,13 @@ public class DriverService {
         return driverRepository.findByEmail(email).isPresent();
     }
 
-    public List<DriverPresenter> listDrivers(int page, int size, LoggedUserAccount loggedUserAccount) {
-        return driverRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size))
+    public DriverPresenterList listDrivers(int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<DriverPresenter> drivers = driverRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size))
                 .stream()
                 .map(Driver::toPresenter).toList();
+
+        int count = driverRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        return new DriverPresenterList(count, drivers);
     }
 
     public Driver findDriverById(String driverId, LoggedUserAccount loggedUserAccount) {

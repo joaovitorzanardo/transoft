@@ -30,6 +30,9 @@ public class UserAccount {
     @Column(name = "active", nullable = false)
     private Boolean active;
 
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;

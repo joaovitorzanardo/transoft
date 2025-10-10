@@ -22,6 +22,7 @@ public class UserAccountMapper {
                 .role(Role.PASSENGER)
                 .company(company)
                 .active(false)
+                .enabled(true)
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class UserAccountMapper {
                 .role(Role.DRIVER)
                 .company(company)
                 .active(false)
+                .enabled(true)
                 .build();
     }
 
@@ -46,6 +48,7 @@ public class UserAccountMapper {
                 .role(Role.MANAGER)
                 .company(company)
                 .active(true)
+                .enabled(true)
                 .build();
     }
 
@@ -57,6 +60,7 @@ public class UserAccountMapper {
                 .password(passwordEncoder.encode(registrationAdminDto.getPassword()))
                 .role(Role.SYS_ADMIN)
                 .active(true)
+                .enabled(true)
                 .build();
     }
 

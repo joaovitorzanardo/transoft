@@ -3,6 +3,7 @@ package br.com.transoft.backend.controller;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenterList;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclesStatsPresenter;
 import br.com.transoft.backend.service.VehicleService;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class VehicleController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<VehiclePresenter> listVehicles(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+    public VehiclePresenterList listVehicles(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return vehicleService.listVehicles(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 

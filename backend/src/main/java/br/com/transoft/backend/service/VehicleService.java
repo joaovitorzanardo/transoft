@@ -3,6 +3,7 @@ package br.com.transoft.backend.service;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.vehicle.VehicleDto;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
+import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenterList;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclesStatsPresenter;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.Vehicle;
@@ -46,8 +47,10 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
     }
 
-    public List<VehiclePresenter> listVehicles(int page, int size, LoggedUserAccount loggedUserAccount) {
-        return vehicleRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Vehicle::toPresenter).toList();
+    public VehiclePresenterList listVehicles(int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<VehiclePresenter> vehicles = vehicleRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Vehicle::toPresenter).toList();
+        int count = vehicleRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        return new VehiclePresenterList(count, vehicles);
     }
 
     public Vehicle findVehicleById(String vehicleId, LoggedUserAccount loggedUserAccount) {

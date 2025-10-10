@@ -49,7 +49,9 @@ public class Driver {
                 email,
                 cnhNumber,
                 cnhExpirationDate,
-                phoneNumber.toDto()
+                phoneNumber.toDto(),
+                userAccount.getActive(),
+                userAccount.getEnabled()
         );
     }
 
