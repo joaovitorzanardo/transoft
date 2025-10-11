@@ -1,6 +1,5 @@
-import { Button, InputAdornment, Stack, TextField } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import SideMenu from "../../components/SideManu";
-import { GridSearchIcon } from "@mui/x-data-grid";
 import AddIcon from '@mui/icons-material/Add';
 import { StatsCard } from "../../components/StatsCard";
 import DriversTable from "../../components/drivers/DriversTable";
@@ -53,7 +52,7 @@ export default function DriversPage() {
                 </Stack>
                 <Stack direction="row" spacing={5} sx={{ marginBottom: 5, marginTop: 5 }}>
                     <StatsCard title="Total" value={stats.total} loading={loading}/>
-                    <StatsCard title="Ativos" value={stats.pending} loading={loading}/>
+                    <StatsCard title="Ativos" value={stats.active} loading={loading}/>
                     <StatsCard title="Inativos" value={stats.inactive} loading={loading}/>
                     <StatsCard title="Pendentes" value={stats.pending} loading={loading}/>
                 </Stack>

@@ -1,12 +1,12 @@
-import { Box, Button, Container, Dialog, Divider, IconButton, MenuItem, Select, TextField, Typography, type SelectChangeEvent } from "@mui/material";
+import { Box, Button, Container, Dialog, Divider, MenuItem, Select, TextField, type SelectChangeEvent } from "@mui/material";
 import React from "react";
 import BlockIcon from '@mui/icons-material/Block';
 
 import { getAutomakers } from "../../services/automaker.service";
 import { getVehicleModelsByAutomaker } from "../../services/vehiclemodel.service";
 
-import type Automaker from "../../models/Automaker";
-import type VehicleModel from "../../models/VehicleModel";
+import type Automaker from "../../models/vehicle/AutomakerPresenter";
+import type VehicleModel from "../../models/vehicle/VehicleModel";
 import DialogHeader from "../ui/DialogHeader";
 
 interface VehicleDialogProps {

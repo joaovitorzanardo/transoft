@@ -31,7 +31,7 @@ export default function AppRoutes() {
                     <Route path="/vehicles" element={<VehiclesPage />} />
                     <Route path="/vehicles/:vehicleId" element={<VehicleInfoPage />} />
                     <Route path="/drivers" element={<DriversPage />} />
-                    <Route path="/drivers/edit" element={<DriverInfoPage />} />
+                    <Route path="/drivers/:driverId" element={<DriverInfoPage />} />
                     <Route path="/itineraries" element={<ItinerariesPage />} />
                     <Route path="/itineraries/generate" element={<GenerateItineraryPage />} />
                     <Route path="/itineraries/edit" element={<ItineraryInfoPage />} />

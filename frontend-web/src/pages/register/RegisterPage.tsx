@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { register } from "../../services/register.service";
-import type RegisterDto from "../../models/RegisterDto";
+import type RegisterDto from "../../models/auth/RegisterDto";
 import type CompanyDto from "../../models/CompanyDto";
 import CloseIcon from '@mui/icons-material/Close';
 import PasswordInput from "../../components/ui/PasswordInput";

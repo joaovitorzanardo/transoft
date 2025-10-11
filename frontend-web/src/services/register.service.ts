@@ -1,5 +1,5 @@
 import { axiosInstance } from './axios-instance';
-import type RegisterDto from "../models/RegisterDto";
+import type RegisterDto from "../models/auth/RegisterDto";
 import type { AxiosResponse } from 'axios';
 
 export function register(registerDto: RegisterDto): Promise<AxiosResponse> {

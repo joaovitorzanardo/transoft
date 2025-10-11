@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import { getDrivers } from "../../services/driver.service";
+import type DriverPresenter from "../../models/driver/DriverPresenter";
 
 type Status = 'ativo' | 'inativo' | 'pendente';
 
@@ -15,22 +16,6 @@ interface DriverData {
     cnhExpirationDate: string;
     phoneNumber: string;
     status: Status;
-}
-  
-interface DriverPresenter {
-    driverId: string;
-    name: string;
-    email: string;
-    cnhNumber: string;
-    cnhExpirationDate: string;
-    phoneNumber: PhoneNumberDto;
-    enabled: boolean;
-    active: boolean;
-}
-  
-interface PhoneNumberDto {
-    ddd: string;
-    number: string;
 }
 
 export default function DriversTable() {

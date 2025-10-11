@@ -1,5 +1,5 @@
 import React, { createContext, useContext, type PropsWithChildren } from "react";
-import type LoginDto from "../models/LoginDto";
+import type LoginDto from "../models/auth/LoginDto";
 import { login } from "../services/login.service";
 
 interface AuthContext {
@@ -15,23 +15,23 @@ type AuthProviderProps = PropsWithChildren;
 export default function AuthProvider({ children } : AuthProviderProps) {
     const [token, setToken] = React.useState<string | null>();
     async function handleLogin(email: string, password: string) {
-        try {
-          const loginDto: LoginDto = {
-            email: email,
-            password: password
-          }
-
-          const response = await login(loginDto);
-    
-          const { token } = response.data;
-    
-          setToken(token);
-          sessionStorage.setItem("apiToken", token);
-        } catch {
-          sessionStorage.removeItem("apiToken");
-          setToken(null);          
+      try {
+        const loginDto: LoginDto = {
+          email: email,
+          password: password
         }
+
+        const response = await login(loginDto);
+  
+        const { token } = response.data;
+  
+        setToken(token);
+        sessionStorage.setItem("apiToken", token);
+      } catch {
+        sessionStorage.removeItem("apiToken");
+        setToken(null);          
       }
+    }
 
     function handleLogout() {
         sessionStorage.removeItem("apiToken");

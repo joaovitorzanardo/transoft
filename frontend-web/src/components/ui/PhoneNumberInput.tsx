@@ -1,9 +1,14 @@
 import { Paper, Stack, TextField, Typography } from "@mui/material";
 import { Controller, type Control } from "react-hook-form";
+import { IMaskMixin } from "react-imask";
 
 interface PhoneNumberInputProps {
     control: Control<any>;
 }
+
+const MaskedTextField = IMaskMixin(({ inputRef, ...props }) => (
+    <TextField {...props} inputRef={inputRef} />
+));
 
 export default function PhoneNumberInput({control}: PhoneNumberInputProps) {
     return (
@@ -19,7 +24,19 @@ export default function PhoneNumberInput({control}: PhoneNumberInputProps) {
                 <Controller
                     name="number"
                     control={control}
-                    render={({ field, fieldState }) => <TextField label="Número" type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} />}
+                    render={({ field, fieldState }) => (
+                        <MaskedTextField 
+                            mask="90000-0000"
+                            placeholder="99999-9999"
+                            {...field}
+                            label="Número" 
+                            type="text" 
+                            error={!!fieldState.error} 
+                            helperText={fieldState.error?.message}
+                            variant="outlined" 
+                            sx={{width: '100%'}}
+                        />
+                    )}
                 />
             </Stack>
         </Paper>

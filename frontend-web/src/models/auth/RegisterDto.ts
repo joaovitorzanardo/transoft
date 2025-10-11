@@ -1,4 +1,4 @@
-import type CompanyDto from "./CompanyDto";
+import type CompanyDto from "../CompanyDto";
 
 export default interface RegisterDto {
     name: string;

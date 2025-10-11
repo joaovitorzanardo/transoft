@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import type User from "../models/User";
+import type User from "../models/auth/User";
 import { Navigate, Outlet } from "react-router";
 import { getLoggedUser } from "../services/user.service";
 

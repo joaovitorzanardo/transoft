@@ -1,21 +1,22 @@
 import { Box, Breadcrumbs, Button, FormControl, Grid, InputLabel, Link, MenuItem, Paper, Select, Stack, TextField, Typography, type SelectChangeEvent } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import React from "react";
-import type Automaker from "../../models/Automaker";
+import type Automaker from "../../models/vehicle/AutomakerPresenter";
 import BlockIcon from '@mui/icons-material/Block';
 import { getAutomakers } from "../../services/automaker.service";
 import { getVehicleModelsByAutomaker } from "../../services/vehiclemodel.service";
-import type VehicleModel from "../../models/VehicleModel";
+import type VehicleModel from "../../models/vehicle/VehicleModel";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import z from "zod";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type VehicleDto from "../../models/VehicleDto";
+import type VehicleDto from "../../models/vehicle/VehicleDto";
 import { disableVehicle, enableVehicle, getVehicleById, saveVehicle } from "../../services/vehicle.service";
 import { useParams } from "react-router";
 import MessageAlert from "../../components/ui/MessageAlert";
 import CheckIcon from '@mui/icons-material/Check';
 import { IMaskMixin } from 'react-imask';
+import type VehiclePresenter from "../../models/vehicle/VehiclePresenter";
 
 const VehicleForm = z.object({
     plateNumber: z.string().nonempty({message: "A placa do veículo deve ser informada."}),
@@ -25,26 +26,6 @@ const VehicleForm = z.object({
 });
 
 type IFormInputs = z.infer<typeof VehicleForm>
-
-interface AutomakerPresenter {
-    automakerId: string;
-    name: string;
-}
-
-interface VehicleModelPresenter {
-    vehicleModelId: string;
-    modelName: string;
-    modelYear: number;
-    automaker: AutomakerPresenter;
-}
-
-interface VehiclePresenter {
-    vehicleId: string;
-    plateNumber: string;
-    capacity: number;
-    isActive: boolean;
-    vehicleModel: VehicleModelPresenter;
-}
 
 type DialogType = 'save' | 'disable' | 'enable' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
@@ -64,7 +45,7 @@ export default function VehicleInfoPage() {
     const [loading, setLoading] = React.useState(false);
     const [active, setActive] = React.useState(false);
 
-    const { handleSubmit, control, trigger, setValue, watch } = useForm<IFormInputs>({
+    const { handleSubmit, control, trigger, setValue, watch, reset } = useForm<IFormInputs>({
         defaultValues: {
             plateNumber: '',
             capacity: '',
@@ -146,6 +127,7 @@ export default function VehicleInfoPage() {
             setAlert({ open: true, message: 'Erro ao salvar veículo!', severity: 'error' });
         } finally {
             setLoading(false);
+            reset();
         }
     };
 

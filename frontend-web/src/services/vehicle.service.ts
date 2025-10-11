@@ -1,4 +1,4 @@
-import type VehicleDto from '../models/VehicleDto';
+import type VehicleDto from '../models/vehicle/VehicleDto';
 import { axiosInstance } from './axios-instance';
 import type { AxiosResponse } from 'axios';
 

@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import { getVehicles } from "../../services/vehicle.service";
+import type VehiclePresenter from "../../models/vehicle/VehiclePresenter";
 
 interface VehicleData {
     id: number;
@@ -13,26 +14,6 @@ interface VehicleData {
     modelYear: number;
     capacity: number;
     isActive: boolean;
-}
-
-interface AutomakerPresenter {
-    automakerId: string;
-    name: string;
-}
-
-interface VehicleModelPresenter {
-    vehicleModelId: string;
-    modelName: string;
-    modelYear: number;
-    automaker: AutomakerPresenter;
-}
-
-interface VehiclePresenter {
-    vehicleId: string;
-    plateNumber: string;
-    capacity: number;
-    isActive: boolean;
-    vehicleModel: VehicleModelPresenter;
 }
 
 export function VehicleTable() {
