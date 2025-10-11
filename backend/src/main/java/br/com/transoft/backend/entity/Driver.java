@@ -35,7 +35,7 @@ public class Driver {
     private PhoneNumber phoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_account_id")
+    @JoinColumn(name = "user_account_id", nullable = false)
     private UserAccount userAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)

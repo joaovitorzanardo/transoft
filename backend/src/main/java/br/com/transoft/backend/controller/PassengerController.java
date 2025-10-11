@@ -3,6 +3,8 @@ package br.com.transoft.backend.controller;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.passenger.PassengerDto;
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
+import br.com.transoft.backend.dto.passenger.PassengerPresenterList;
+import br.com.transoft.backend.dto.passenger.PassengerStatsPresenter;
 import br.com.transoft.backend.dto.passenger.account.PassengerAccountDto;
 import br.com.transoft.backend.service.PassengerService;
 import jakarta.validation.Valid;
@@ -52,8 +54,16 @@ public class PassengerController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<PassengerPresenter> listPassengers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+    public PassengerPresenterList listPassengers(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return passengerService.listPassengers(page, size, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/stats")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public PassengerStatsPresenter getPassengersStats(Authentication authentication) {
+        return passengerService.getPassengersStats((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{passengerId}")
@@ -72,20 +82,20 @@ public class PassengerController {
         passengerService.updatePassenger(passengerId, passengerDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping(path = "/{passengerId}/enable")
-    @PreAuthorize("hasRole('PASSENGER')")
-    @SecurityRequirement(name = "Authorization")
-    @ResponseStatus(HttpStatus.OK)
-    public void enablePassenger(@PathVariable String passengerId) {
-        passengerService.enablePassenger(passengerId);
-    }
-
-    @PostMapping(path = "/{passengerId}/disable")
+    @PatchMapping(path = "/{passengerId}/enable")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public void disablePassenger(@PathVariable String passengerId) {
-        passengerService.disablePassenger(passengerId);
+    public void enablePassenger(@PathVariable String passengerId, Authentication authentication) {
+        passengerService.enablePassenger(passengerId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping(path = "/{passengerId}/disable")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void disablePassenger(@PathVariable String passengerId, Authentication authentication) {
+        passengerService.disablePassenger(passengerId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
 }

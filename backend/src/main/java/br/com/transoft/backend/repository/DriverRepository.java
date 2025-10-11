@@ -15,5 +15,7 @@ public interface DriverRepository extends JpaRepository<Driver, String> {
     Page<Driver> findAllByCompany_CompanyId(String companyId, Pageable pageable);
     Optional<Driver> findByEmail(String email);
     int countAllByCompany_CompanyId(String companyId);
-    int countAllByCompany_CompanyIdAndUserAccount_Active(String companyId, boolean active);
+
+    int countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(String companyCompanyId, Boolean active, Boolean enabled);
+    int countAllByCompany_CompanyIdAndUserAccount_Active(String companyCompanyId, Boolean active);
 }

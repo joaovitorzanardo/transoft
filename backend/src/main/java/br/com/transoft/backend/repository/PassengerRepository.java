@@ -16,4 +16,7 @@ public interface PassengerRepository extends JpaRepository<Passenger, String> {
     List<Passenger> findByRoute(Route route);
     Optional<Passenger> findByPassengerIdAndCompany_CompanyId(String passengerId, String companyId);
     Page<Passenger> findAllByCompany_CompanyId(String companyId, Pageable pageable);
+    int countAllByCompany_CompanyId(String companyId);
+    int countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(String companyId, boolean active, boolean enabled);
+    int countAllByCompany_CompanyIdAndUserAccount_Active(String companyId, boolean active);
 }

@@ -64,7 +64,7 @@ public class DriverController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public DriverStatsPresenter getVehiclesStats(Authentication authentication) {
+    public DriverStatsPresenter getDriversStats(Authentication authentication) {
         return driverService.getDriverStats((LoggedUserAccount) authentication.getPrincipal());
     }
 
@@ -74,6 +74,22 @@ public class DriverController {
     @ResponseStatus(HttpStatus.OK)
     public DriverPresenter getDriverById(@PathVariable String driverId, Authentication authentication) {
         return driverService.findDriverById(driverId, (LoggedUserAccount) authentication.getPrincipal()).toPresenter();
+    }
+
+    @PatchMapping(path = "/{driverId}/enable")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void enableDriver(@PathVariable String driverId, Authentication authentication) {
+        driverService.enableDriver(driverId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping(path = "/{driverId}/disable")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void disableDriver(@PathVariable String driverId, Authentication authentication) {
+        driverService.disableDriver(driverId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @PutMapping(path = "/{driverId}")

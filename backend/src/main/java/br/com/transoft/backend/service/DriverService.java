@@ -57,6 +57,10 @@ public class DriverService {
             throw new CnhExpirationException();
         }
 
+        String password = PasswordGeneratorUtils.generatePassword();
+
+        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder.encode(password), new Company(loggedUserAccount.companyId()));
+
         Driver driver = Driver.builder()
                 .driverId(UUID.randomUUID().toString())
                 .name(driverDto.getName())
@@ -65,16 +69,10 @@ public class DriverService {
                 .cnhExpirationDate(driverDto.getCnhExpirationDate())
                 .phoneNumber(new PhoneNumber(driverDto.getPhoneNumber()))
                 .company(new Company(loggedUserAccount.companyId()))
+                .userAccount(userAccount)
                 .build();
 
         driverRepository.save(driver);
-
-        String password = PasswordGeneratorUtils.generatePassword();
-
-        UserAccount userAccount = UserAccountMapper.toDriverAccount(driverDto, passwordEncoder.encode(password), new Company(loggedUserAccount.companyId()));
-
-        userAccountRepository.save(userAccount);
-
         emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
 
@@ -86,12 +84,27 @@ public class DriverService {
         return null;
     }
 
+    public void enableDriver(String driverId, LoggedUserAccount loggedUserAccount) {
+        Driver driver = findDriverById(driverId, loggedUserAccount);
+        UserAccount userAccount = driver.getUserAccount();
+        userAccount.setEnabled(true);
+        userAccountRepository.save(userAccount);
+    }
+
+    public void disableDriver(String driverId, LoggedUserAccount loggedUserAccount) {
+        Driver driver = findDriverById(driverId, loggedUserAccount);
+        UserAccount userAccount = driver.getUserAccount();
+        userAccount.setEnabled(false);
+        userAccountRepository.save(userAccount);
+    }
+
     public DriverStatsPresenter getDriverStats(LoggedUserAccount loggedUserAccount) {
         int total = driverRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
-        int active = driverRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), true);
-        int inactive = driverRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), false);
+        int active = driverRepository.countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(loggedUserAccount.companyId(), true, true);
+        int inactive = driverRepository.countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(loggedUserAccount.companyId(), true, false);
+        int pending = driverRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), false);
 
-        return new DriverStatsPresenter(total, active, inactive, 0);
+        return new DriverStatsPresenter(total, active, inactive, pending);
     }
 
     public boolean cnhNumberRegistered(String cnhNumber, String companyId) {

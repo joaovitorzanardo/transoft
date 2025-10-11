@@ -1,6 +1,8 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
+import br.com.transoft.backend.dto.passenger.PassengerPresenterList;
+import br.com.transoft.backend.dto.passenger.PassengerStatsPresenter;
 import br.com.transoft.backend.dto.passenger.account.PassengerAccountDto;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.mapper.AddressMapper;
@@ -76,8 +78,20 @@ public class PassengerService {
         return null;
     }
 
-    public List<PassengerPresenter> listPassengers(int page, int size, LoggedUserAccount loggedUserAccount) {
-        return passengerRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+    public PassengerPresenterList listPassengers(int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<PassengerPresenter> passengers = passengerRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+        int count = passengerRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+
+        return new PassengerPresenterList(count, passengers);
+    }
+
+    public PassengerStatsPresenter getPassengersStats(LoggedUserAccount loggedUserAccount) {
+        int total = passengerRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        int active = passengerRepository.countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(loggedUserAccount.companyId(), true, true);
+        int inactive = passengerRepository.countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(loggedUserAccount.companyId(), true, false);
+        int pending = passengerRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), false);
+
+        return new PassengerStatsPresenter(total, active, inactive, pending);
     }
 
     public Passenger findPassengerById(String passengerId, LoggedUserAccount loggedUserAccount) {
@@ -113,12 +127,16 @@ public class PassengerService {
         passengerRepository.save(passenger);
     }
 
-    public void enablePassenger(String passengerId) {
-
+    public void enablePassenger(String passengerId, LoggedUserAccount loggedUserAccount) {
+        Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
+        passenger.getUserAccount().setEnabled(true);
+        passengerRepository.save(passenger);
     }
 
-    public void disablePassenger(String passengerId) {
-
+    public void disablePassenger(String passengerId, LoggedUserAccount loggedUserAccount) {
+        Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
+        passenger.getUserAccount().setEnabled(false);
+        passengerRepository.save(passenger);
     }
 
     private boolean isEmailRegistered(String email) {
