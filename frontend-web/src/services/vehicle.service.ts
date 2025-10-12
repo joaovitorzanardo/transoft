@@ -18,6 +18,14 @@ export function getVehicles(page: number, size: number): Promise<AxiosResponse> 
     });
 }
 
+export function getAllVehicles(): Promise<AxiosResponse> {
+    return axiosInstance.get(`/vehicles/all`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem("apiToken")}`
+        }
+    });
+}
+
 export function disableVehicle(vehicleId: string): Promise<AxiosResponse> {
     return axiosInstance.delete(`/vehicles/${vehicleId}/disable`, {
         headers: {

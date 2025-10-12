@@ -1,13 +1,10 @@
 import type AddressDto from "./address/AddressDto";
 import type PhoneNumberDto from "./PhoneNumberDto";
 
-export default interface PassengerPresenter {
-    passengerId: string;
+export default interface PassengerDto {
     name: string;
     email: string;
     phoneNumber: PhoneNumberDto;
-    routeName: string;
+    routeId: string;
     address: AddressDto;
-    active: boolean;
-    enabled: boolean;
 }

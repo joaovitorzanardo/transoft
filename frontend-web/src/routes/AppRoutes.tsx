@@ -25,16 +25,16 @@ export default function AppRoutes() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route element={<ProtectedRoute allowedRoles="MANAGER"/>}>
                     <Route path="/passengers" element={<PassengersPage />} />
-                    <Route path="/passengers/edit" element={<PassengerInfoPage />} />
+                    <Route path="/passengers/:passengerId" element={<PassengerInfoPage />} />
                     <Route path="/routes" element={<RoutesPage />} />
-                    <Route path="/routes/edit" element={<RouteInfoPage />} />
+                    <Route path="/routes/:routeId" element={<RouteInfoPage />} />
                     <Route path="/vehicles" element={<VehiclesPage />} />
                     <Route path="/vehicles/:vehicleId" element={<VehicleInfoPage />} />
                     <Route path="/drivers" element={<DriversPage />} />
                     <Route path="/drivers/:driverId" element={<DriverInfoPage />} />
                     <Route path="/itineraries" element={<ItinerariesPage />} />
                     <Route path="/itineraries/generate" element={<GenerateItineraryPage />} />
-                    <Route path="/itineraries/edit" element={<ItineraryInfoPage />} />
+                    <Route path="/itineraries/:itineraryId" element={<ItineraryInfoPage />} />
                     <Route path="/configuration" element={<ConfigurationPage />} />
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/reports" element={<ReportsPage />} />

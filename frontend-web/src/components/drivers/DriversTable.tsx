@@ -5,8 +5,7 @@ import { useNavigate } from "react-router";
 import React from "react";
 import { getDrivers } from "../../services/driver.service";
 import type DriverPresenter from "../../models/driver/DriverPresenter";
-
-type Status = 'ativo' | 'inativo' | 'pendente';
+import type { Status } from "../../models/Status";
 
 interface DriverData {
     id: string;

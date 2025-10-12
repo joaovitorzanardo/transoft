@@ -1,26 +1,30 @@
-import { Chip, Container, IconButton, Tooltip } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { Chip, Container } from "@mui/material";
+import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId } from "@mui/x-data-grid";
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import RouteDialog from "./RouteDialog";
+import { getRoutes } from "../../services/route.service";
+import type RoutePresenter from "../../models/route/RoutePresenter";
 
 interface RouteData {
     id: string;
-    nome: string;
-    escola: string;
-    motorista: string;
-    veiculo: string;
-    status: React.ReactNode;
+    name: string;
+    schoolName: string;
+    defaultDriverName: string;
+    defaultVechileName: string;
+    isActive: boolean;
 }
 
 export default function RouteTable() {
+    const [selectedRouteId, setSelectedRouteId] = React.useState<string>('');
     const [openRouteDialog, setOpenRouteDialog] = React.useState(false);
 
-    const handleOpenRouteDialog = () => {
+    const handleOpenRouteDialog = (id: GridRowId) => () => {
+        setSelectedRouteId(id.toString());
         setOpenRouteDialog(true)
-    }
+    };
 
     const handleCloseRouteDialog = () => {
         setOpenRouteDialog(false)
@@ -28,29 +32,61 @@ export default function RouteTable() {
 
     const navigate = useNavigate();
 
-    const navigateToRouteEditPage = () => {
-        navigate('/routes/edit');
+    const navigateToRouteEditPage = (id: GridRowId)=> () => {
+        navigate(`/routes/${id}`);
     };
 
+    const [data, setData] = React.useState<RouteData[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [rowCount, setRowCount] = React.useState<number>(0);
+
+    const [paginationModel, setPaginationModel] = React.useState({
+        pageSize: 5,
+        page: 0,
+    });
+
+    React.useEffect(() => {
+        async function getAllRoutes() {
+            setLoading(true);
+            const response = await getRoutes(paginationModel.page, paginationModel.pageSize)
+            setLoading(false);
+
+            if (response.status !== 200) {
+                return;
+            }
+
+            setRowCount(response.data.count);
+            setData(response.data.routes.map((route: RoutePresenter) => {
+                return {
+                    id: route.routeId,
+                    name: route.name,
+                    schoolName: route.school.name,
+                    defaultDriverName: route.defaultDriver.name,
+                    defaultVechileName: route.defaultVehicle.vehicleModel.modelName,
+                    isActive: route.active,
+                }
+            }))
+        }
+
+        getAllRoutes();
+    }, [paginationModel])
+
     const columns: GridColDef[] = [
-        { field: 'nome', headerName: 'Nome', width: 90 },
-        { field: 'escola', headerName: 'Escola', width: 150 },
-        { field: 'motorista', headerName: 'Motorista', width: 150 },
-        { field: 'veiculo', headerName: 'Veículo', width: 150 },
+        { field: 'name', headerName: 'Nome', width: 90 },
+        { field: 'schoolName', headerName: 'Escola', width: 150 },
+        { field: 'defaultDriverName', headerName: 'Motorista', width: 150 },
+        { field: 'defaultVechileName', headerName: 'Veículo', width: 150 },
         {
-            field: 'status',
+            field: 'isActive',
             headerName: 'Status',
             width: 120,
             renderCell: (params) => {
-                const getChipProps = (status: string) => {
-                    switch (status) {
-                        case 'ativo':
-                            return { color: 'success' as const, label: 'Ativo' };
-                        case 'inativo':
-                            return { color: 'error' as const, label: 'Inativo' };
-                        default:
-                            return { color: 'default' as const, label: 'Desconhecido' };
+                const getChipProps = (isActive: boolean) => {
+                    if (isActive) {
+                        return { color: 'success' as const, label: 'Ativo' };
                     }
+
+                    return { color: 'error' as const, label: 'Inativo' };
                 };
 
                 const chipProps = getChipProps(params.value);
@@ -67,38 +103,42 @@ export default function RouteTable() {
         }, 
         {
             field: 'actions',
+            type: 'actions',
             headerName: 'Ações',
             width: 120,
-            renderCell: () => {
-                return (
-                    <>
-                        <Tooltip title="Ver Detalhes">
-                            <IconButton>
-                                <FindInPageIcon onClick={handleOpenRouteDialog}/>
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar">
-                            <IconButton>
-                                <EditIcon onClick={navigateToRouteEditPage}/>
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<FindInPageIcon />}
+                        label="Ver Detalhes"
+                        className="textPrimary"
+                        onClick={handleOpenRouteDialog(id)}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={navigateToRouteEditPage(id)}
+                        color="inherit"
+                    />
+                ]
             }
         }
     ];
 
-    const data: RouteData[] = [
-        { id: "1", nome: 'Rota URI I', escola: 'Uri Erechim - Campus I', motorista: 'João Zich', veiculo: 'Sprinter', status: "ativo" },
-        { id: "2", nome: 'Rota URI II', escola: 'Uri Erechim - Campus II', motorista: 'João Zich', veiculo: 'Sprinter', status: "ativo" },
-        { id: "3", nome: 'Rota Mantovani - Noturno', escola: 'Mantovani', motorista: 'João Zich', veiculo: 'Sprinter', status: "inativo" },
-        { id: "4", nome: 'Rota JB - Noturno', escola: 'JB', motorista: 'João Zich', veiculo: 'Sprinter', status: "ativo" },
-    ]
-
     return (
         <Container>
-            <DataGrid columns={columns} rows={data}/>
-            <RouteDialog open={openRouteDialog} onClose={handleCloseRouteDialog} />
+            <DataGrid columns={columns} 
+                rows={data}
+                loading={loading}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[5, 15, 50]}
+                rowCount={rowCount}
+                paginationMode="server"
+            />
+            <RouteDialog open={openRouteDialog} onClose={handleCloseRouteDialog} routeId={selectedRouteId}/>
         </Container>
     );
 }

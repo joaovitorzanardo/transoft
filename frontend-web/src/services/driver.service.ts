@@ -10,6 +10,14 @@ export function getDrivers(page: number, size: number): Promise<AxiosResponse> {
     });
 }
 
+export function getAllDrivers(): Promise<AxiosResponse> {
+    return axiosInstance.get(`/drivers/all`, {
+        headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem("apiToken")}`
+        }
+    });
+}
+
 export function getDriverById(driverId: string): Promise<AxiosResponse> {
     return axiosInstance.get(`/drivers/${driverId}`, {
         headers: {

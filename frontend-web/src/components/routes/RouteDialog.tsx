@@ -1,21 +1,46 @@
 import { Box, Chip, Container, Dialog, Stack, Typography } from "@mui/material";
 import DialogHeader from "../ui/DialogHeader";
+import { getRouteById } from "../../services/route.service";
+import React from "react";
+import type RoutePresenter from "../../models/route/RoutePresenter";
 
 interface RouteDialogProps {
     open: boolean;
     onClose: () => void;
+    routeId: string;
 }
 
-export default function RouteDialog({open, onClose}: RouteDialogProps) {
+export default function RouteDialog({open, onClose, routeId}: RouteDialogProps) {
+    const [routeData, setRouteData] = React.useState<RoutePresenter>(null);
+    
+    React.useEffect(() => {
+        async function getById() {
+            if (routeId === undefined || routeId === 'edit') {
+                return;
+            }
+
+            const response = await getRouteById(routeId);
+
+            if (response.status !== 200) {
+                return;
+            }
+
+            setRouteData(response.data);
+        }
+
+        getById();
+    }, [routeId]);
+
     return (
+        routeData && 
         <Dialog open={open} onClose={onClose} >
             <Container sx={{ padding: 3 }}>
                 <DialogHeader title="Rota" onClose={onClose} />
                 <Box sx={{height: 10}}/>
-                <Typography variant="body1" >Rota: Rota URI - Campus I</Typography>
-                <Typography variant="body1" >Escola: URI Erechim</Typography>
-                <Typography variant="body1" >Motorista: Joao Zich</Typography>
-                <Typography variant="body1" >Veiculo: Sprinter</Typography>
+                <Typography variant="body1" >Rota: {routeData.name}</Typography>
+                <Typography variant="body1" >Escola: {routeData.school.name}</Typography>
+                <Typography variant="body1" >Motorista: {routeData.defaultDriver.name}</Typography>
+                <Typography variant="body1" >Veiculo: {routeData.defaultVehicle.plateNumber}</Typography>
                 <Stack direction="row">
                     <Typography variant="body1" >Status:</Typography>
                     <Box sx={{width: 5}}/>

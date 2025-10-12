@@ -1,47 +1,91 @@
-import { Chip, Container, IconButton, Tooltip } from "@mui/material";
-import { DataGrid, type GridColDef  } from '@mui/x-data-grid';
+import { Chip, Container } from "@mui/material";
+import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId  } from '@mui/x-data-grid';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
+import React from "react";
+import type { Status } from "../../models/Status";
+import { getPassengers } from "../../services/passenger.service";
+import type PassengerPresenter from "../../models/PassengerPresenter";
 
 interface PassengerData {
     id: number;
     nome: string;
     email: string;
-    telefone: string;
-    escola: string;
-    endereco: string;
+    phoneNumber: string;
+    routeName: string;
+    address: string;
     status: React.ReactNode;
 }
 
 export default function PassengersTable() {
     const navigate = useNavigate();
 
-    const navigateToPassengerInfo = () => {
-        navigate('/passengers/edit');
+    const navigateToPassengerInfo = (id: GridRowId) => () => {
+        navigate(`/passengers/${id}`);
+    };
+
+    const [data, setData] = React.useState<PassengerData[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [rowCount, setRowCount] = React.useState<number>(0);
+
+    const [paginationModel, setPaginationModel] = React.useState({
+        pageSize: 5,
+        page: 0,
+    });
+
+    function getStatus(active: boolean, enabled: boolean): Status {
+        if (!active) return 'pendente';
+        if (enabled) return 'ativo';
+        return 'inativo';
     }
 
+    React.useEffect(() => {
+        async function getAll() {
+            setLoading(true);
+            const response = await getPassengers(paginationModel.page, paginationModel.pageSize)
+            setLoading(false);
+
+            if (response.status !== 200) {
+                return;
+            }
+
+            setRowCount(response.data.count);
+            setData(response.data.passengers.map((passenger: PassengerPresenter) => {
+                return {
+                    id: passenger.passengerId,
+                    name: passenger.name,
+                    email: passenger.email,
+                    phoneNumber: `(${passenger.phoneNumber.ddd}) ${passenger.phoneNumber.number}`,
+                    routeName: passenger.routeName,
+                    address: `${passenger.address.street}, ${passenger.address.city}, ${passenger.address.uf}, ${passenger.address.cep}, Brasil`,
+                    status: getStatus(passenger.active, passenger.enabled)
+                }
+            }))
+        }
+
+        getAll();
+    }, [paginationModel])
+
     const columns: GridColDef[] = [
-        { field: 'nome', headerName: 'Nome', width: 90 },
+        { field: 'name', headerName: 'Nome', width: 90 },
         { field: 'email', headerName: 'Email', width: 150 },
-        { field: 'telefone', headerName: 'Telefone', width: 150 },
-        { field: 'escola', headerName: 'Escola', width: 150 },
-        { field: 'endereco', headerName: 'Endereço', width: 120 },
+        { field: 'phoneNumber', headerName: 'Telefone', width: 150 },
+        { field: 'routeName', headerName: 'Rota', width: 150 },
+        { field: 'address', headerName: 'Endereço', width: 120 },
         {
             field: 'status',
             headerName: 'Status',
             width: 120,
             renderCell: (params) => {
-                const getChipProps = (status: string) => {
-                    switch (status) {
+                const getChipProps = (status: Status) => {
+                    switch(status) {
                         case 'ativo':
                             return { color: 'success' as const, label: 'Ativo' };
                         case 'inativo':
                             return { color: 'error' as const, label: 'Inativo' };
                         case 'pendente':
-                            return { color: 'warning' as const, label: 'Pendente' };
-                        default:
-                            return { color: 'default' as const, label: 'Desconhecido' };
+                            return { color: 'warning' as const, label: 'Pendente' }
                     }
                 };
 
@@ -56,41 +100,44 @@ export default function PassengersTable() {
                     />
                 );
             }
-        }, 
+        },
         {
             field: 'actions',
+            type: 'actions',
             headerName: 'Ações',
             width: 120,
-            renderCell: () => {
-                return (
-                    <>
-                        <Tooltip title="Ver Detalhes">
-                            <IconButton>
-                                <FindInPageIcon />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar">
-                            <IconButton>
-                                <EditIcon onClick={navigateToPassengerInfo}/>
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={navigateToPassengerInfo(id)}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<FindInPageIcon />}
+                        label="Ver Detalhes"
+                        className="textPrimary"
+                        onClick={navigateToPassengerInfo(id)}
+                        color="inherit"
+                    />
+                ]
             }
         }
     ];
 
-    const data: PassengerData[] = [
-        { id: 1, nome: 'João Vitor', email: 'joao.zanardo@gmail.com', telefone: '(54) 99203-1028', escola: 'URI Erechim - Campus II', endereco: 'Av. Germano Hoffman', status: "ativo" },
-        { id: 2, nome: 'Lucas Batista', email: 'lucas.batisa@gmail.com', telefone: '(54) 99203-1028', escola: 'URI Erechim - Campus II', endereco: 'Av. Germano Hoffman', status: "ativo" },
-        { id: 3, nome: 'Pedro Henrique', email: 'pedro.piet@gmail.com', telefone: '(54) 99203-1028', escola: 'URI Erechim - Campus II', endereco: 'Av. Germano Hoffman', status: "inativo" },
-        { id: 4, nome: 'Jair Bolsonaro', email: 'jair.bolso@gmail.com', telefone: '(54) 99203-1028', escola: 'URI Erechim - Campus II', endereco: 'Av. Germano Hoffman', status: "ativo" },
-        { id: 5, nome: 'João Zich', email: 'joao.zich@gmail.com', telefone: '(54) 99203-1028', escola: 'URI Erechim - Campus II', endereco: 'Av. Germano Hoffman', status: "pendente" }
-    ]
-
     return (
         <Container>
-            <DataGrid columns={columns} rows={data}/>
+            <DataGrid columns={columns} 
+                rows={data}
+                loading={loading}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[5, 15, 50]}
+                rowCount={rowCount}
+                paginationMode="server"
+            />
         </Container>
     )
 }

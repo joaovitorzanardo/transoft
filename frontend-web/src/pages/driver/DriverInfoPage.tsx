@@ -115,6 +115,7 @@ export default function DriverInfoPage() {
             const response = await saveDriver(driverDto);
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Motorista salvo com sucesso!', severity: 'success' });
+                reset();
             } else {
                 setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
             }
@@ -123,7 +124,6 @@ export default function DriverInfoPage() {
             setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
         } finally {
             setLoading(false);
-            reset();
         }
     }
 
@@ -145,14 +145,14 @@ export default function DriverInfoPage() {
             onConfirm: () => handleSubmit(onSubmit)()
         },
         disable: {
-            title: 'Confirmar Desabilitar Veículo',
+            title: 'Confirmar Desabilitar Motorista',
             message: 'Tem certeza que deseja desabilitar esse motorista?',
             onConfirm: () => console.log('Motorista Desabilitado')
         },
         enable: {
-            title: 'Confirmar Habilitar Veículo',
+            title: 'Confirmar Habilitar Motorista',
             message: 'Tem certeza que deseja habilitar esse motorista?',
-            onConfirm: () => console.log('Motorista Desabilitado')
+            onConfirm: () => console.log('Motorista Habilitado')
         }
     };
 
