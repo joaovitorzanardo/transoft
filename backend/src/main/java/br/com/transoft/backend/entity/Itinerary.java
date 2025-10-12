@@ -71,10 +71,7 @@ public class Itinerary {
                 endTime,
                 route.toPresenter(),
                 driver.toPresenter(),
-                vehicle.toPresenter(),
-                passengerStatus.stream()
-                        .map(PassengerStatus::toPresenter)
-                        .collect(Collectors.toSet())
+                vehicle.toPresenter()
         );
     }
 }

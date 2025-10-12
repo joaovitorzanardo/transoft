@@ -8,7 +8,6 @@ import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
 
 public record ItineraryPresenter(
         String itineraryId,
@@ -19,6 +18,5 @@ public record ItineraryPresenter(
         LocalTime endTime,
         RoutePresenter route,
         DriverPresenter driver,
-        VehiclePresenter vehicle,
-        Set<ItineraryPassengerPresenter> passengers
+        VehiclePresenter vehicle
 ) {}

@@ -1,9 +1,7 @@
 package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.itinerary.PassengerItineraryPresenter;
-import br.com.transoft.backend.dto.itinerary.ItineraryDto;
-import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.*;
 import br.com.transoft.backend.service.ItineraryService;
 import jakarta.validation.Valid;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
@@ -36,8 +34,16 @@ public class ItineraryController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<ItineraryPresenter> listItineraries(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+    public ItineraryPresenterList listItineraries(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return itineraryService.listItineraries(page, size, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/stats")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public ItineraryStatsPresenter getItinerariesStats(Authentication authentication) {
+        return itineraryService.getItinerariesStats((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping("/{itineraryId}")

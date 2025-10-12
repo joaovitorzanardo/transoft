@@ -14,11 +14,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ItineraryDto {
 
-    @JsonProperty(namespace = "route_id")
+    @JsonProperty(namespace = "routeId")
     @NotBlank(message = "The route id must be informed.")
     private String routeId;
 
-    @JsonProperty(namespace = "date_interval")
+    @JsonProperty(namespace = "dateInterval")
     @NotNull(message = "The date interval must be informed.")
     private DateIntervalDto dateInterval;
 

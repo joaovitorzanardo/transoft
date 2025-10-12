@@ -1,9 +1,7 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.itinerary.PassengerItineraryPresenter;
-import br.com.transoft.backend.dto.itinerary.ItineraryDto;
-import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.*;
 import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
@@ -50,15 +48,16 @@ public class ItineraryService {
         List<LocalDate> dates = DateUtils.getDatesBetween(itineraryDto.getDateInterval().getStartDate(), itineraryDto.getDateInterval().getEndDate());
 
         for (LocalDate date : dates) {
-            createDepartureTrip(date, route, driver, vehicle, passengers);
-            createReturnTrip(date, route, driver, vehicle, passengers);
+            createDepartureTrip(date, route, driver, vehicle, passengers, loggedUserAccount.companyId());
+            createReturnTrip(date, route, driver, vehicle, passengers, loggedUserAccount.companyId());
         }
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    protected void createDepartureTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers) {
+    protected void createDepartureTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers, String companyId) {
         Itinerary itinerary = Itinerary.builder()
                 .itineraryId(UUID.randomUUID().toString())
+                .company(new Company(companyId))
                 .type(ItineraryType.IDA)
                 .status(ItineraryStatus.AGENDADO)
                 .date(date)
@@ -74,9 +73,10 @@ public class ItineraryService {
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    protected void createReturnTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers) {
+    protected void createReturnTrip(LocalDate date, Route route, Driver driver, Vehicle vehicle, Set<Passenger> passengers, String companyId) {
         Itinerary itinerary = Itinerary.builder()
                 .itineraryId(UUID.randomUUID().toString())
+                .company(new Company(companyId))
                 .type(ItineraryType.VOLTA)
                 .status(ItineraryStatus.AGENDADO)
                 .date(date)
@@ -95,7 +95,13 @@ public class ItineraryService {
         Set<PassengerStatus> passengersStatus = new HashSet<>();
 
         for (Passenger passenger : passengers) {
+            PassengerStatusKey passengerStatusKey = PassengerStatusKey.builder()
+                    .passengerId(passenger.getPassengerId())
+                    .itineraryId(itinerary.getItineraryId())
+                    .build();
+
             PassengerStatus passengerStatus = PassengerStatus.builder()
+                    .passengerStatusKey(passengerStatusKey)
                     .passenger(passenger)
                     .itinerary(itinerary)
                     .status(PassengerStatusEnum.CONFIRMADO)
@@ -111,8 +117,20 @@ public class ItineraryService {
         return itineraryRepository.findItineraryByItineraryIdAndCompany_CompanyId(itineraryId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
     }
 
-    public List<ItineraryPresenter> listItineraries(int page, int size, LoggedUserAccount loggedUserAccount) {
-        return itineraryRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
+    public ItineraryPresenterList listItineraries(int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<ItineraryPresenter> itineraries = itineraryRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Itinerary::toPresenter).toList();
+        int count = itineraryRepository.countItineraryByCompany_CompanyId(loggedUserAccount.companyId());
+
+        return new ItineraryPresenterList(count, itineraries);
+    }
+
+    public ItineraryStatsPresenter getItinerariesStats(LoggedUserAccount loggedUserAccount) {
+        int total = itineraryRepository.countItineraryByCompany_CompanyId(loggedUserAccount.companyId());
+        int scheduled = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.AGENDADO);
+        int finished = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.CONCLUIDO);
+        int canceled = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.CANCELADO);
+
+        return new ItineraryStatsPresenter(total, scheduled, finished, canceled);
     }
 
     @Transactional(rollbackOn = SQLException.class)
