@@ -50,7 +50,7 @@ export default function PassengerInfoPage() {
 
     const [routes, setRoutes] = React.useState<RouteSelectPresenter[]>([]);
 
-    const { handleSubmit, control, setValue, trigger, reset, watch } = useForm<IFormInputs>({
+    const { handleSubmit, control, setValue, trigger, reset } = useForm<IFormInputs>({
         defaultValues: {
             name: '',
             email: '',
