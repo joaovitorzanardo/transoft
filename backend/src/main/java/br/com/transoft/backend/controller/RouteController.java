@@ -2,8 +2,7 @@ package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.passenger.PassengerPresenter;
-import br.com.transoft.backend.dto.route.RouteDto;
-import br.com.transoft.backend.dto.route.RoutePresenter;
+import br.com.transoft.backend.dto.route.*;
 import br.com.transoft.backend.service.PassengerService;
 import br.com.transoft.backend.service.RouteService;
 import jakarta.validation.Valid;
@@ -39,8 +38,24 @@ public class RouteController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<RoutePresenter> listRoutes(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+    public RoutePresenterList listRoutes(@RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
         return routeService.listRoutes(page, size, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/all")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<RouteSelectPresenter> listRoutes(Authentication authentication) {
+        return routeService.listAllRoutes((LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/stats")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public RoutesStatsPresenter getRoutesStats(Authentication authentication) {
+        return routeService.getRoutesStats((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/{routeId}")

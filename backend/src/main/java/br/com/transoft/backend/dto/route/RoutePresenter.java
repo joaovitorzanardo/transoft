@@ -10,7 +10,7 @@ public record RoutePresenter(
         Boolean active,
         SchoolPresenter school,
         DriverPresenter defaultDriver,
-        VehiclePresenter vehiclePresenter,
+        VehiclePresenter defaultVehicle,
         DepartureTripDto departureTrip,
         ReturnTripDto returnTrip,
         DaysOfWeekDto daysOfWeek

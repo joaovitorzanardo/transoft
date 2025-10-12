@@ -53,6 +53,10 @@ public class VehicleService {
         return new VehiclePresenterList(count, vehicles);
     }
 
+    public List<VehiclePresenter> listVehicles(LoggedUserAccount loggedUserAccount) {
+        return vehicleRepository.findAllByCompany_CompanyIdAndActiveTrue(loggedUserAccount.companyId()).stream().map(Vehicle::toPresenter).toList();
+    }
+
     public Vehicle findVehicleById(String vehicleId, LoggedUserAccount loggedUserAccount) {
         return vehicleRepository.findByVehicleIdAndCompany_CompanyId(vehicleId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Vehicle id was not found"));
     }

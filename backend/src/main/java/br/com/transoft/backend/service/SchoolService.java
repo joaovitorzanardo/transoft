@@ -44,6 +44,10 @@ public class SchoolService {
         return schoolRepository.findAll(PageRequest.of(page, size)).stream().map(School::toPresenter).collect(Collectors.toList());
     }
 
+    public List<SchoolPresenter> listSchools() {
+        return schoolRepository.findAll().stream().map(School::toPresenter).collect(Collectors.toList());
+    }
+
     public School findSchoolById(String schoolId) {
         return schoolRepository.findById(schoolId).orElseThrow(() -> new ResourceNotFoundException("School id was not found."));
     }

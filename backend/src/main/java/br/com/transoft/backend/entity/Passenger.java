@@ -33,20 +33,16 @@ public class Passenger {
     @JoinColumn(name = "user_account_id")
     private UserAccount userAccount;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
-    private School school;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Embedded
-    private Address address;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id")
     private Route route;
+
+    @Embedded
+    private Address address;
 
     public PassengerPresenter toPresenter() {
         return new PassengerPresenter(
@@ -54,10 +50,12 @@ public class Passenger {
                 name,
                 email,
                 phoneNumber.toDto(),
-                school.toPresenter(),
-                address.toDto()
+                route.getRouteId(),
+                route.getName(),
+                address.toDto(),
+                userAccount.getActive(),
+                userAccount.getEnabled()
         );
-
     }
 
 }

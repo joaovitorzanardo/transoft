@@ -37,6 +37,14 @@ public class SchoolController {
         return schoolService.listSchools(page, size);
     }
 
+    @GetMapping(path = "/all")
+    @PreAuthorize("hasAnyRole('SYS_ADMIN', 'MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SchoolPresenter> listSchools() {
+        return schoolService.listSchools();
+    }
+
     @GetMapping(path = "/{schoolId}")
     @PreAuthorize("hasAnyRole('SYS_ADMIN', 'MANAGER')")
     @SecurityRequirement(name = "Authorization")

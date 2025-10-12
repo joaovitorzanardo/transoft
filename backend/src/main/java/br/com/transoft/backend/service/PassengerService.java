@@ -28,15 +28,13 @@ import java.util.stream.Collectors;
 public class PassengerService {
 
     private final PassengerRepository passengerRepository;
-    private final SchoolService schoolService;
     private final CoordinateService coordinateService;
     private final RouteService routeService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public PassengerService(PassengerRepository passengerRepository, SchoolService schoolService, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public PassengerService(PassengerRepository passengerRepository, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.passengerRepository = passengerRepository;
-        this.schoolService = schoolService;
         this.coordinateService = coordinateService;
         this.routeService = routeService;
         this.passwordEncoder = passwordEncoder;
@@ -58,9 +56,9 @@ public class PassengerService {
 
         UserAccount userAccount = UserAccountMapper.toPassengerAccount(passengerDto, passwordEncoder.encode(password), new Company(loggedUserAccount.companyId()));
 
-        School school = schoolService.findSchoolById(passengerDto.getSchoolId());
+        Route route = routeService.findRouteById(passengerDto.getRouteId(), loggedUserAccount);
 
-        passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, school, userAccount, new Company(loggedUserAccount.companyId())));
+        passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, route, userAccount, new Company(loggedUserAccount.companyId())));
 
         emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
@@ -113,9 +111,9 @@ public class PassengerService {
 
         passenger.setPhoneNumber(new PhoneNumber(passenger.getPhoneNumber().getDdd(), passenger.getPhoneNumber().getNumber()));
 
-        if (!passenger.getSchool().getSchoolId().equals(passengerDto.getSchoolId())) {
-            School newSchool = schoolService.findSchoolById(passengerDto.getSchoolId());
-            passenger.setSchool(newSchool);
+        if (!passenger.getRoute().getRouteId().equals(passengerDto.getRouteId())) {
+            Route newRoute = routeService.findRouteById(passengerDto.getRouteId(), loggedUserAccount);
+            passenger.setRoute(newRoute);
         }
 
         Address address = AddressMapper.toEntity(

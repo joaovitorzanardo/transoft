@@ -26,13 +26,13 @@ public class PassengerDto {
     @NotBlank(message = "The email must be informed.")
     private String email;
 
-    @JsonProperty(namespace = "phone_number")
+    @JsonProperty(namespace = "phoneNumber")
     @NotNull(message = "The phone number must be informed.")
     private PhoneNumberDto phoneNumber;
 
-    @JsonProperty(namespace = "school_id")
-    @NotBlank(message = "The school id must be informed.")
-    private String schoolId;
+    @JsonProperty(namespace = "routeId")
+    @NotBlank(message = "The route id must be informed.")
+    private String routeId;
 
     @JsonProperty(namespace = "address")
     @NotNull(message = "The address must be informed.")

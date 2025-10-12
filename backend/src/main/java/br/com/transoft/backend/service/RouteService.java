@@ -1,12 +1,8 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.LoggedUserAccount;
-import br.com.transoft.backend.dto.route.RouteDto;
-import br.com.transoft.backend.dto.route.RoutePresenter;
-import br.com.transoft.backend.entity.Company;
-import br.com.transoft.backend.entity.Driver;
-import br.com.transoft.backend.entity.Passenger;
-import br.com.transoft.backend.entity.School;
+import br.com.transoft.backend.dto.route.*;
+import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.DayOfWeek;
 import br.com.transoft.backend.entity.route.DepartureTrip;
 import br.com.transoft.backend.entity.route.ReturnTrip;
@@ -20,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,23 +26,27 @@ public class RouteService {
     private final PassengerRepository passengerRepository;
     private final SchoolService schoolService;
     private final DriverService driverService;
+    private final VehicleService vehicleService;
 
-    public RouteService(RouteRepository routeRepository, PassengerRepository passengerRepository, SchoolService schoolService, DriverService driverService) {
+    public RouteService(RouteRepository routeRepository, PassengerRepository passengerRepository, SchoolService schoolService, DriverService driverService, VehicleService vehicleService) {
         this.routeRepository = routeRepository;
         this.passengerRepository = passengerRepository;
         this.schoolService = schoolService;
         this.driverService = driverService;
+        this.vehicleService = vehicleService;
     }
 
     public void saveRoute(RouteDto routeDto, LoggedUserAccount loggedUserAccount) {
         School school = schoolService.findSchoolById(routeDto.getSchoolId());
         Driver driver = driverService.findDriverById(routeDto.getDefaultDriverId(), loggedUserAccount);
+        Vehicle vehicle = vehicleService.findVehicleById(routeDto.getDefaultVehicleId(), loggedUserAccount);
 
         Route route = Route.builder()
                 .routeId(UUID.randomUUID().toString())
                 .name(routeDto.getName())
                 .school(school)
                 .defaultDriver(driver)
+                .defaultVehicle(vehicle)
                 .active(true)
                 .company(new Company(loggedUserAccount.companyId()))
                 .departureTrip(new DepartureTrip(routeDto.getDepartureTrip().getStartTime(), routeDto.getDepartureTrip().getEndTime()))
@@ -62,8 +61,23 @@ public class RouteService {
         return routeRepository.findByRouteIdAndCompany_CompanyId(routeId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Route not found"));
     }
 
-    public List<RoutePresenter> listRoutes(int page, int size, LoggedUserAccount loggedUserAccount) {
-        return routeRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Route::toPresenter).collect(Collectors.toList());
+    public RoutePresenterList listRoutes(int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<RoutePresenter> routes = routeRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId(), PageRequest.of(page, size)).stream().map(Route::toPresenter).collect(Collectors.toList());
+        int count = routeRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+
+        return new RoutePresenterList(count, routes);
+    }
+
+    public List<RouteSelectPresenter> listAllRoutes(LoggedUserAccount loggedUserAccount) {
+        return routeRepository.findAllByCompany_CompanyId(loggedUserAccount.companyId()).stream().map(route -> new RouteSelectPresenter(route.getRouteId(), route.getName())).collect(Collectors.toList());
+    }
+
+    public RoutesStatsPresenter getRoutesStats(LoggedUserAccount loggedUserAccount) {
+        int total = routeRepository.countAllByCompany_CompanyId(loggedUserAccount.companyId());
+        int active = routeRepository.countAllByCompany_CompanyIdAndActive(loggedUserAccount.companyId(), true);
+        int inactive = routeRepository.countAllByCompany_CompanyIdAndActive(loggedUserAccount.companyId(), false);
+
+        return new RoutesStatsPresenter(total, active, inactive);
     }
 
     public RoutePresenter listRouteById(String routeId, LoggedUserAccount loggedUserAccount) {

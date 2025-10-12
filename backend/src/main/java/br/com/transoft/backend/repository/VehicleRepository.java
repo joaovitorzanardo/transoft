@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,6 +14,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, String> {
     Optional<Vehicle> findByPlateNumberAndCompany_CompanyId(String plateNumber, String companyId);
     Optional<Vehicle> findByVehicleIdAndCompany_CompanyId(String vehicleId, String companyId);
     Page<Vehicle> findAllByCompany_CompanyId(String companyId, Pageable pageable);
+    List<Vehicle> findAllByCompany_CompanyIdAndActiveTrue(String companyId);
     int countAllByCompany_CompanyId(String companyId);
     int countAllByCompany_CompanyIdAndActive(String companyId, boolean active);
 }

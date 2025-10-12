@@ -41,6 +41,14 @@ public class VehicleController {
         return vehicleService.listVehicles(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
+    @GetMapping(path = "/all")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<VehiclePresenter> listVehicles(Authentication authentication) {
+        return vehicleService.listVehicles((LoggedUserAccount) authentication.getPrincipal());
+    }
+
     @GetMapping("/stats")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")

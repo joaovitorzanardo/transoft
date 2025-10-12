@@ -60,6 +60,14 @@ public class DriverController {
         return driverService.listDrivers(page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
+    @GetMapping(path = "/all")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<DriverPresenter> listDrivers(Authentication authentication) {
+        return driverService.listDrivers((LoggedUserAccount) authentication.getPrincipal());
+    }
+
     @GetMapping("/stats")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")

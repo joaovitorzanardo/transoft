@@ -124,6 +124,12 @@ public class DriverService {
         return new DriverPresenterList(count, drivers);
     }
 
+    public List<DriverPresenter> listDrivers(LoggedUserAccount loggedUserAccount) {
+        return driverRepository.findAllByCompany_CompanyIdAndUserAccountEnabledTrue(loggedUserAccount.companyId())
+                .stream()
+                .map(Driver::toPresenter).toList();
+    }
+
     public Driver findDriverById(String driverId, LoggedUserAccount loggedUserAccount) {
         return driverRepository.findByDriverIdAndCompany_CompanyId(driverId, loggedUserAccount.companyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
