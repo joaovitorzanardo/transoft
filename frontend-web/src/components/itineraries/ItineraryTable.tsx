@@ -1,27 +1,38 @@
-import { Chip, Container, IconButton, Tooltip } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { Chip, Container } from "@mui/material";
+import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId } from "@mui/x-data-grid";
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import ItineraryDialog from "./ItineraryDialog";
+import { getItineraries } from "../../services/itinerary.service";
+import type ItineraryPresenter from "../../models/ItineraryPresenter";
 
 interface ItineraryData {
     id: string;
-    rota: string;
-    data: string
-    motorista: string;
-    veiculo: string;
-    tipo: string;
+    routeName: string;
+    date: string
+    driverName: string;
+    vehiclePlate: string;
+    type: string;
     status: string;
 }
 
 export default function ItineraryTable() {
     const navigate = useNavigate();
 
-    const navigateToItineraryEditPage = () => {
-        navigate('/itineraries/edit');
+    const navigateToItineraryEditPage = (id: GridRowId) => () => {
+        navigate(`/itineraries/${id}`);
     };
+
+    const [data, setData] = React.useState<ItineraryData[]>([]);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [rowCount, setRowCount] = React.useState<number>(0);
+
+    const [paginationModel, setPaginationModel] = React.useState({
+        pageSize: 5,
+        page: 0,
+    });
 
     const [openInfoDialog, setOpenInfoDialog] = React.useState(false)
 
@@ -33,12 +44,39 @@ export default function ItineraryTable() {
         setOpenInfoDialog(false)
     }
 
+    React.useEffect(() => {
+        async function getAll() {
+            setLoading(true);
+            const response = await getItineraries(paginationModel.page, paginationModel.pageSize)
+            setLoading(false);
+
+            if (response.status !== 200) {
+                return;
+            }
+
+            setRowCount(response.data.count);
+            setData(response.data.itineraries.map((itinerary: ItineraryPresenter) => {
+                return {
+                    id: itinerary.itineraryId,
+                    routeName: itinerary.route.name,
+                    date: itinerary.date.toString(),
+                    driverName: itinerary.driver.name,
+                    vehiclePlate: itinerary.vehicle.plateNumber,
+                    type: itinerary.type,
+                    status: itinerary.status
+                }
+            })) 
+        }
+
+        getAll();
+    }, [paginationModel])
+
     const columns: GridColDef[] = [
-        { field: 'rota', headerName: 'Rota', width: 90 },
-        { field: 'data', headerName: 'Data', width: 150 },
-        { field: 'motorista', headerName: 'Motorista', width: 150 },
-        { field: 'veiculo', headerName: 'Veículo', width: 150 },
-        { field: 'tipo', headerName: 'Tipo', width: 120 },
+        { field: 'routeName', headerName: 'Rota', width: 90 },
+        { field: 'date', headerName: 'Data', width: 150 },
+        { field: 'driverName', headerName: 'Motorista', width: 150 },
+        { field: 'vehiclePlate', headerName: 'Veículo', width: 150 },
+        { field: 'type', headerName: 'Tipo', width: 120 },
         {
             field: 'status',
             headerName: 'Status',
@@ -73,38 +111,41 @@ export default function ItineraryTable() {
         }, 
         {
             field: 'actions',
+            type: 'actions',
             headerName: 'Ações',
             width: 120,
-            renderCell: () => {
-                return (
-                    <>
-                        <Tooltip title="Ver Detalhes">
-                            <IconButton>
-                                <FindInPageIcon onClick={handleOpenDialog}/>
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar">
-                            <IconButton onClick={navigateToItineraryEditPage}>
-                                <EditIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )
+            getActions: ({ id }) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<FindInPageIcon />}
+                        label="Ver Detalhes"
+                        className="textPrimary"
+                        onClick={handleOpenDialog}
+                        color="inherit"
+                    />,
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={navigateToItineraryEditPage(id)}
+                        color="inherit"
+                    />
+                ]
             }
         }
     ];
 
-    const data: ItineraryData[] = [
-        { id: "1", rota: 'Rota URI - Campus I', data: '23/08/2025', motorista: 'João Zich', veiculo: 'Sprinter', tipo: 'IDA', status: "AGENDADO" },
-        { id: "2", rota: 'Rota URI - Campus I', data: '23/08/2025', motorista: 'João Zich', veiculo: 'Sprinter', tipo: 'VOLTA', status: "AGENDADO" },
-        { id: "3", rota: 'Rota URI - Campus I', data: '23/08/2025', motorista: 'João Zich', veiculo: 'Sprinter', tipo: 'IDA', status: "EM_ANDAMENTO" },
-        { id: "4", rota: 'Rota URI - Campus I', data: '23/08/2025', motorista: 'João Zich', veiculo: 'Sprinter', tipo: 'IDA', status: "CONCLUIDO" },
-        { id: "5", rota: 'Rota URI - Campus I', data: '23/08/2025', motorista: 'João Zich', veiculo: 'Sprinter', tipo: 'VOLTA', status: "CANCELADO" }
-    ]
-
     return (
         <Container>
-            <DataGrid columns={columns} rows={data}/>
+            <DataGrid columns={columns} 
+                rows={data}
+                loading={loading}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[5, 15, 50]}
+                rowCount={rowCount}
+                paginationMode="server"
+            />
             <ItineraryDialog open={openInfoDialog} onClose={handleCloseDialog}/>
         </Container>
     )

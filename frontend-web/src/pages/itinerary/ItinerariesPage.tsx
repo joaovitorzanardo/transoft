@@ -11,6 +11,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { getItinerariesStats } from "../../services/itinerary.service";
 
 const status = ["Agendado", "Andamento", "Concluido", "Cancelado"]
 const tipos = ["Ida", "Volta"]
@@ -26,6 +27,13 @@ const MenuProps = {
       },
     },
 };
+
+interface StatsItineraries {
+    total: number;
+    scheduled: number;
+    finished: number;
+    canceled: number;
+}
 
 export default function ItinerariesPage() {
     const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
@@ -55,6 +63,25 @@ export default function ItinerariesPage() {
         navigate('/itineraries/generate');
     };
 
+    const [stats, setStats] = React.useState<StatsItineraries>({total: 0, scheduled: 0, finished: 0, canceled: 0});
+    const [loading, setLoading] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        async function getStats() {
+            setLoading(true);
+            const response = await getItinerariesStats();
+            setLoading(false);
+
+            if (response.status !== 200) {
+                return;
+            }
+
+            setStats(response.data);
+        }
+
+        getStats();
+    }, [])
+
     return (
         <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
             <SideMenu />
@@ -66,10 +93,10 @@ export default function ItinerariesPage() {
                     </Stack>
                 </Stack>
                 <Stack direction="row" spacing={5} sx={{ marginBottom: 5, marginTop: 5 }}>
-                    <StatsCard title="Total" value={12}/>
-                    <StatsCard title="Programados" value={8}/>
-                    <StatsCard title="Concluídos" value={3}/>
-                    <StatsCard title="Cancelados" value={5}/>
+                    <StatsCard title="Total" value={stats.total} loading={loading}/>
+                    <StatsCard title="Agendados" value={stats.scheduled} loading={loading}/>
+                    <StatsCard title="Concluídos" value={stats.finished} loading={loading}/>
+                    <StatsCard title="Cancelados" value={stats.canceled} loading={loading}/>
                 </Stack>
                 <Paper sx={{ padding: 2, marginBottom: 5 }}>
                     <Stack direction="row" spacing={1}>
