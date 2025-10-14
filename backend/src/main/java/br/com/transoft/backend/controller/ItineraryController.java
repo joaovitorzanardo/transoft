@@ -26,8 +26,24 @@ public class ItineraryController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.CREATED)
-    public void generateItinerary(@Valid @RequestBody ItineraryDto itineraryDto, Authentication authentication) {
-        itineraryService.generateItinerary(itineraryDto, (LoggedUserAccount) authentication.getPrincipal());
+    public void generateItinerary(@Valid @RequestBody GenerateItineraryDto generateItineraryDto, Authentication authentication) {
+        itineraryService.generateItinerary(generateItineraryDto, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping(path = "/{itineraryId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateItinerary(@PathVariable String itineraryId, @Valid @RequestBody ItineraryDto itineraryDto, Authentication authentication) {
+        itineraryService.updateItinerary(itineraryId, itineraryDto, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping(path = "/{itineraryId}/cancel")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelItinerary(@PathVariable String itineraryId, Authentication authentication) {
+        itineraryService.cancelItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping

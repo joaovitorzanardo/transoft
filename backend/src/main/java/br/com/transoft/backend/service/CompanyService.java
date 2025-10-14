@@ -1,6 +1,7 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.CompanyDto;
+import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
@@ -16,8 +17,15 @@ public class CompanyService {
         this.companyRepository = companyRepository;
     }
 
-    public void updateCompany(String companyId, CompanyDto companyDto) {
-        Company company = companyRepository.findById(companyId).orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+    public CompanyDto getCompany(LoggedUserAccount loggedUserAccount) {
+        return companyRepository
+                .findById(loggedUserAccount.companyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found"))
+                .toDto();
+    }
+
+    public void updateCompany(CompanyDto companyDto, LoggedUserAccount loggedUserAccount) {
+        Company company = companyRepository.findById(loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Company not found"));
 
         company.setName(companyDto.getName());
 

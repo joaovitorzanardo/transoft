@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItineraryDto {
+public class GenerateItineraryDto {
 
     @JsonProperty(namespace = "routeId")
     @NotBlank(message = "The route id must be informed.")

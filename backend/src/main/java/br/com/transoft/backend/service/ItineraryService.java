@@ -30,22 +30,26 @@ public class ItineraryService {
     private final PassengerService passengerService;
     private final RouteService routeService;
     private final PassengerStatusRepository passengerStatusRepository;
+    private final DriverService driverService;
+    private final VehicleService vehicleService;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, PassengerService passengerService, RouteService routeService, PassengerStatusRepository passengerStatusRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, PassengerService passengerService, RouteService routeService, PassengerStatusRepository passengerStatusRepository, DriverService driverService, VehicleService vehicleService) {
         this.itineraryRepository = itineraryRepository;
         this.passengerService = passengerService;
         this.routeService = routeService;
         this.passengerStatusRepository = passengerStatusRepository;
+        this.driverService = driverService;
+        this.vehicleService = vehicleService;
     }
 
     @Transactional(rollbackOn = SQLException.class)
-    public void generateItinerary(ItineraryDto itineraryDto, LoggedUserAccount loggedUserAccount) {
-        Route route = routeService.findRouteById(itineraryDto.getRouteId(), loggedUserAccount);
+    public void generateItinerary(GenerateItineraryDto generateItineraryDto, LoggedUserAccount loggedUserAccount) {
+        Route route = routeService.findRouteById(generateItineraryDto.getRouteId(), loggedUserAccount);
         Driver driver = route.getDefaultDriver();
         Vehicle vehicle = route.getDefaultVehicle();
         Set<Passenger> passengers = route.getPassengers();
 
-        List<LocalDate> dates = DateUtils.getDatesBetween(itineraryDto.getDateInterval().getStartDate(), itineraryDto.getDateInterval().getEndDate());
+        List<LocalDate> dates = DateUtils.getDatesBetween(generateItineraryDto.getDateInterval().getStartDate(), generateItineraryDto.getDateInterval().getEndDate());
 
         for (LocalDate date : dates) {
             createDepartureTrip(date, route, driver, vehicle, passengers, loggedUserAccount.companyId());
@@ -131,6 +135,28 @@ public class ItineraryService {
         int canceled = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.CANCELADO);
 
         return new ItineraryStatsPresenter(total, scheduled, finished, canceled);
+    }
+
+    public void updateItinerary(String itineraryId, ItineraryDto itineraryDto, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
+        Driver driver = driverService.findDriverById(itineraryDto.getDriverId(), loggedUserAccount);
+        Vehicle vehicle = vehicleService.findVehicleById(itineraryDto.getVehicleId(), loggedUserAccount);
+
+        itinerary.setDriver(driver);
+        itinerary.setVehicle(vehicle);
+
+        itinerary.setStartTime(itineraryDto.getStartTime());
+        itinerary.setEndTime(itineraryDto.getEndTime());
+
+        itineraryRepository.save(itinerary);
+    }
+
+    public void cancelItinerary(String itineraryId, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
+
+        itinerary.setStatus(ItineraryStatus.CANCELADO);
+
+        itineraryRepository.save(itinerary);
     }
 
     @Transactional(rollbackOn = SQLException.class)
