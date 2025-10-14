@@ -36,8 +36,8 @@ export default function AppRoutes() {
                     <Route path="/itineraries/generate" element={<GenerateItineraryPage />} />
                     <Route path="/itineraries/:itineraryId" element={<ItineraryInfoPage />} />
                     <Route path="/configuration" element={<ConfigurationPage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/reports" element={<ReportsPage />} />
+                    {/* <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/reports" element={<ReportsPage />} /> */}
                 </Route>
             </Routes>
         </BrowserRouter>

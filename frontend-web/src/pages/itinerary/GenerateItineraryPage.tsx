@@ -2,7 +2,6 @@ import { Box, Breadcrumbs, Button, FormControl, InputLabel, Link, MenuItem, Pape
 import SideMenu from "../../components/SideManu";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React from "react";
 import { getAllRoutes } from "../../services/route.service";
@@ -12,10 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import MessageAlert from "../../components/ui/MessageAlert";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
-import type ItineraryDto from "../../models/ItineraryDto";
 import { generateItineraries } from "../../services/itinerary.service";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+import type GenerateItineraryDto from "../../models/itinerary/GenerateItineraryDto";
 
 const dayjsSchema = z.custom<Dayjs>(
     (val) => dayjs.isDayjs(val),
@@ -61,7 +60,7 @@ export default function GenerateItineraryPage() {
             setOpenDialog(false);
             setLoading(true);
     
-            const itineraryDto: ItineraryDto = {
+            const itineraryDto: GenerateItineraryDto = {
                 routeId: data.routeId,
                 dateInterval: {
                     startDate: data.startDate === null ? new Date() : data.startDate.toDate(),

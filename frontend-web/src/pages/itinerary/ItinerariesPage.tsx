@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Divider, ListItemText, MenuItem, OutlinedInput, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
+import { Box, Button, Checkbox, Divider, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import PageTitle from "../../components/ui/PageTitle";
 import AddIcon from '@mui/icons-material/Add';
@@ -106,49 +106,63 @@ export default function ItinerariesPage() {
                     <Box sx={{height: '5px'}}/>
                     <Divider/>
                     <Box sx={{height: '15px'}}/>
-                    <Stack direction="row" spacing={2}>
-                        <Select
-                            labelId="demo-multiple-checkbox-label"
-                            id="demo-multiple-checkbox"
-                            size="small"
-                            multiple
-                            value={selectedStatus}
-                            onChange={handleChangeStatus}
-                            input={<OutlinedInput label="Tag" />}
-                            renderValue={(selected) => selected.join(', ')}
-                            MenuProps={MenuProps}
-                            >
-                            {status.map((stat) => (
-                                <MenuItem key={stat} value={stat}>
-                                <Checkbox checked={selectedStatus.includes(stat)} />
-                                <ListItemText primary={stat} />
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Select
-                            labelId="demo-multiple-checkbox-label"
-                            id="demo-multiple-checkbox"
-                            multiple
-                            size="small"
-                            value={selectedType}
-                            onChange={handleChangeType}
-                            input={<OutlinedInput label="Tag" />}
-                            renderValue={(selected) => selected.join(', ')}
-                            MenuProps={MenuProps}
-                            >
-                            {tipos.map((tipo) => (
-                                <MenuItem key={tipo} value={tipo}>
-                                <Checkbox size="small" checked={selectedType.includes(tipo)} />
-                                <ListItemText primary={tipo} />
-                                </MenuItem>
-                            ))}
-                        </Select>
+                    <Stack direction="row" spacing={2} justifyContent="space-evenly">
+                        <FormControl sx={{ flex: 1 }}>
+                            <InputLabel id="status-label" size="small">Status</InputLabel>
+                            <Select
+                                labelId="status-label"
+                                size="small"
+                                multiple
+                                value={selectedStatus}
+                                onChange={handleChangeStatus}
+                                input={<OutlinedInput label="Tag" />}
+                                renderValue={(selected) => selected.join(', ')}
+                                MenuProps={MenuProps}
+                                >
+                                {status.map((stat) => (
+                                    <MenuItem key={stat} value={stat}>
+                                    <Checkbox checked={selectedStatus.includes(stat)} />
+                                    <ListItemText primary={stat} />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl sx={{ flex: 1 }}>
+                        <InputLabel id="tipo-label" size="small">Tipo</InputLabel>
+                            <Select
+                                labelId="tipo-label"
+                                multiple
+                                size="small"
+                                value={selectedType}
+                                onChange={handleChangeType}
+                                input={<OutlinedInput label="Tag" />}
+                                renderValue={(selected) => selected.join(', ')}
+                                MenuProps={MenuProps}
+                                >
+                                {tipos.map((tipo) => (
+                                    <MenuItem key={tipo} value={tipo}>
+                                        <Checkbox size="small" checked={selectedType.includes(tipo)} />
+                                        <ListItemText primary={tipo} />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={['DatePicker']} >
-                                <DatePicker label="Data" />
-                            </DemoContainer>
+                            <DatePicker 
+                                label="Data" 
+                                sx={{ flex: 1 }}
+                                slotProps={{
+                                    textField: {
+                                      size: 'small',
+                                    },
+                                  }}
+                            />
                         </LocalizationProvider>
-                        <Button variant="contained" color="primary" size="small">Aplicar</Button>
+                        <Button 
+                            variant="contained" 
+                            color="primary" 
+                            size="small">Aplicar
+                        </Button>
                     </Stack>
                 </Paper>
                 <ItineraryTable />

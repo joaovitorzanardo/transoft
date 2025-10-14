@@ -9,6 +9,7 @@ import type RegisterDto from "../../models/auth/RegisterDto";
 import type CompanyDto from "../../models/CompanyDto";
 import CloseIcon from '@mui/icons-material/Close';
 import PasswordInput from "../../components/ui/PasswordInput";
+import { IMaskMixin } from "react-imask";
 
 const RegistrationForm = z.object({
     userName: z.string().nonempty({message: "O nome deve ser informado"}),
@@ -27,6 +28,10 @@ const RegistrationForm = z.object({
 });
 
 type IFormInputs = z.infer<typeof RegistrationForm>
+
+const MaskedTextField = IMaskMixin(({ inputRef, ...props }) => (
+    <TextField {...props} inputRef={inputRef} />
+));
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -118,10 +123,22 @@ export default function RegisterPage() {
                         control={control}
                         render={({ field, fieldState }) => <TextField label="Email da Empresa" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
                     />
-                    <Controller 
+                    <Controller
                         name="cnpj"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="CNPJ" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field}/>}
+                        render={({ field, fieldState }) => (
+                            <MaskedTextField 
+                                mask="00.000.000/0000-00"
+                                placeholder="00.000.000/0000-00"
+                                {...field}
+                                label="CNPJ" 
+                                type="text" 
+                                error={!!fieldState.error} 
+                                helperText={fieldState.error?.message}
+                                variant="outlined" 
+                                sx={{width: '100%'}}
+                            />
+                        )}
                     />
                     <Button variant="contained" type="submit">Realizar Cadastro</Button>
                 </FormControl>
