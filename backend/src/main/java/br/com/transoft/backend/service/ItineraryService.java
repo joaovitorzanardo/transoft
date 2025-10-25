@@ -1,13 +1,18 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.constants.Role;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.itinerary.*;
+import br.com.transoft.backend.dto.itinerary.account.ItineraryAccount;
+import br.com.transoft.backend.dto.itinerary.account.ItineraryAccountView;
 import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
+import br.com.transoft.backend.repository.ItineraryQueryRepository;
 import br.com.transoft.backend.repository.ItineraryRepository;
 import br.com.transoft.backend.repository.PassengerStatusRepository;
+import br.com.transoft.backend.repository.UserAccountRepository;
 import br.com.transoft.backend.utils.DateUtils;
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.constants.ItineraryType;
@@ -18,10 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ItineraryService {
@@ -32,14 +36,16 @@ public class ItineraryService {
     private final PassengerStatusRepository passengerStatusRepository;
     private final DriverService driverService;
     private final VehicleService vehicleService;
+    private final ItineraryQueryRepository itineraryQueryRepository;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, PassengerService passengerService, RouteService routeService, PassengerStatusRepository passengerStatusRepository, DriverService driverService, VehicleService vehicleService) {
+    public ItineraryService(ItineraryRepository itineraryRepository, PassengerService passengerService, RouteService routeService, PassengerStatusRepository passengerStatusRepository, DriverService driverService, VehicleService vehicleService, ItineraryQueryRepository itineraryQueryRepository) {
         this.itineraryRepository = itineraryRepository;
         this.passengerService = passengerService;
         this.routeService = routeService;
         this.passengerStatusRepository = passengerStatusRepository;
         this.driverService = driverService;
         this.vehicleService = vehicleService;
+        this.itineraryQueryRepository = itineraryQueryRepository;
     }
 
     @Transactional(rollbackOn = SQLException.class)
@@ -126,6 +132,107 @@ public class ItineraryService {
         int count = itineraryRepository.countItineraryByCompany_CompanyId(loggedUserAccount.companyId());
 
         return new ItineraryPresenterList(count, itineraries);
+    }
+
+    public ItineraryAccount getNextItinerary(LoggedUserAccount loggedUserAccount) {
+        if (Role.PASSENGER.equals(loggedUserAccount.role())) {
+            Passenger passenger = passengerService.findPassengerByUserAccountId(loggedUserAccount.userAccountId());
+
+            Itinerary itinerary = itineraryRepository
+                    .findNextItineraryForPassenger(passenger.getPassengerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
+
+            return new ItineraryAccount(itinerary.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), List.of(itinerary.toAccountView()));
+        }
+
+        if (Role.DRIVER.equals(loggedUserAccount.role())) {
+            Driver driver = driverService.findDriverByUserAccountId(loggedUserAccount.userAccountId());
+
+            Itinerary itinerary = itineraryRepository
+                    .findNextItineraryForDriver(driver.getDriverId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
+
+            return new ItineraryAccount(itinerary.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), List.of(itinerary.toAccountView()));
+        }
+
+        throw new ResourceNotFoundException("Itineraries not found");
+    }
+
+    public List<ItineraryAccount> listItinerariesByAccount(int page, int size, LoggedUserAccount loggedUserAccount) {
+        if (Role.PASSENGER.equals(loggedUserAccount.role())) {
+            Passenger passenger = passengerService.findPassengerByUserAccountId(loggedUserAccount.userAccountId());
+
+            Map<LocalDate, List<Itinerary>> itineraries = itineraryRepository
+                    .findItinerariesByPassengerId(passenger.getPassengerId(), PageRequest.of(page, size))
+                    .stream()
+                    .collect(Collectors.groupingBy(
+                            Itinerary::getDate,
+                            LinkedHashMap::new,
+                            Collectors.toList()
+                    ));
+
+            return convertToItineraryAccount(itineraries);
+        }
+
+        if (Role.DRIVER.equals(loggedUserAccount.role())) {
+            Driver driver = driverService.findDriverByUserAccountId(loggedUserAccount.userAccountId());
+
+            Map<LocalDate, List<Itinerary>> itineraries = itineraryRepository
+                    .findItinerariesByDriverId(driver.getDriverId(), PageRequest.of(page, size))
+                    .stream()
+                    .collect(Collectors.groupingBy(Itinerary::getDate));
+
+            return convertToItineraryAccount(itineraries);
+        }
+
+        throw new ResourceNotFoundException("Itineraries not found");
+    }
+
+    public List<ItineraryAccount> listItinerariesHistoryByAccount(int page, int size, LoggedUserAccount loggedUserAccount) {
+        if (Role.PASSENGER.equals(loggedUserAccount.role())) {
+            Passenger passenger = passengerService.findPassengerByUserAccountId(loggedUserAccount.userAccountId());
+
+            Map<LocalDate, List<Itinerary>> itineraries = itineraryRepository
+                    .findItinerariesHistoryByPassengerId(passenger.getPassengerId(), PageRequest.of(page, size))
+                    .stream()
+                    .collect(Collectors.groupingBy(Itinerary::getDate));
+
+            return convertToItineraryAccount(itineraries);
+        }
+
+        if (Role.DRIVER.equals(loggedUserAccount.role())) {
+            Driver driver = driverService.findDriverByUserAccountId(loggedUserAccount.userAccountId());
+
+            Map<LocalDate, List<Itinerary>> itineraries = itineraryRepository
+                    .findItinerariesHistoryByDriverId(driver.getDriverId(), PageRequest.of(page, size))
+                    .stream()
+                    .collect(Collectors.groupingBy(Itinerary::getDate));
+
+            return convertToItineraryAccount(itineraries);
+        }
+
+        throw new ResourceNotFoundException("Itineraries not found");
+    }
+
+    public ItineraryPresenterList listItinerariesWithFilter(ItineraryFilter itineraryFilter, int page, int size, LoggedUserAccount loggedUserAccount) {
+        List<ItineraryPresenter> itineraries = itineraryQueryRepository.findByFilter(itineraryFilter, loggedUserAccount.companyId())
+                .stream()
+                .map(Itinerary::toPresenter)
+                .toList();
+        int count = itineraryRepository.countItineraryByCompany_CompanyId(loggedUserAccount.companyId());
+
+        return new ItineraryPresenterList(count, itineraries);
+    }
+
+    private List<ItineraryAccount> convertToItineraryAccount(Map<LocalDate, List<Itinerary>> itineraries) {
+        return itineraries.entrySet().stream()
+                .map(entry -> new ItineraryAccount(
+                        entry.getKey().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                        entry.getValue().stream()
+                                .map(Itinerary::toAccountView)
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
 
     public ItineraryStatsPresenter getItinerariesStats(LoggedUserAccount loggedUserAccount) {

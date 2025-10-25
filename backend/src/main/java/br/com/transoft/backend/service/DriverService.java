@@ -84,6 +84,12 @@ public class DriverService {
         return null;
     }
 
+    public Driver findDriverByUserAccountId(String userAccountId) {
+        return driverRepository
+                .findByUserAccount_UserAccountId(userAccountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
+    }
+
     public void enableDriver(String driverId, LoggedUserAccount loggedUserAccount) {
         Driver driver = findDriverById(driverId, loggedUserAccount);
         UserAccount userAccount = driver.getUserAccount();

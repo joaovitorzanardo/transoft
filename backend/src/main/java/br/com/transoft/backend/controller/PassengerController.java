@@ -36,16 +36,16 @@ public class PassengerController {
     @PreAuthorize("hasRole('PASSENGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePassengerAccount(@Valid @RequestBody PassengerAccountDto passengerAccountDto) {
-        passengerService.updatePassengerAccount(passengerAccountDto);
+    public void updatePassengerAccount(@Valid @RequestBody PassengerAccountDto passengerAccountDto, Authentication authentication) {
+        passengerService.updatePassengerAccount(passengerAccountDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/account")
     @PreAuthorize("hasRole('PASSENGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public PassengerPresenter getPassengerAccount() {
-        return passengerService.getPassengerAccount();
+    public PassengerPresenter getPassengerAccount(Authentication authentication) {
+        return passengerService.getPassengerAccount((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping

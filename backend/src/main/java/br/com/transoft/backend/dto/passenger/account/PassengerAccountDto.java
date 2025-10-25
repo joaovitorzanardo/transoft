@@ -1,7 +1,6 @@
 package br.com.transoft.backend.dto.passenger.account;
 
 import br.com.transoft.backend.dto.PhoneNumberDto;
-import br.com.transoft.backend.dto.address.AddressDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -29,9 +28,5 @@ public class PassengerAccountDto {
     @JsonProperty(namespace = "phone_number")
     @NotNull(message = "The phone number must be informed.")
     private PhoneNumberDto phoneNumber;
-
-    @JsonProperty(namespace = "address")
-    @NotNull(message = "The address must be informed.")
-    private AddressDto address;
 
 }

@@ -1,5 +1,6 @@
 package br.com.transoft.backend.config.filters;
 
+import br.com.transoft.backend.constants.Role;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.service.CustomUserDetailsService;
 import br.com.transoft.backend.dto.TokenInfo;
@@ -8,7 +9,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -42,13 +46,28 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
 
         UserDetails user = customUserDetailsService.loadUserByUsername(tokenInfo.userAccountId());
 
-        LoggedUserAccount loggedUserAccount = new LoggedUserAccount(tokenInfo.userAccountId(), tokenInfo.companyId());
+        Role role = extractRoleFromUser(user);
+
+        LoggedUserAccount loggedUserAccount = new LoggedUserAccount(tokenInfo.userAccountId(), tokenInfo.companyId(), role);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loggedUserAccount, null, user.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    private Role extractRoleFromUser(UserDetails user) {
+        GrantedAuthority simpleGrantedAuthority = user.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
+
+        String roleString = simpleGrantedAuthority
+                .getAuthority()
+                .replace("ROLE_", "");
+
+        return Role.fromString(roleString);
     }
 
     private Optional<String> extractTokenFromRequestHeader(HttpServletRequest request) {

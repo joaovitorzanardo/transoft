@@ -1,4 +1,6 @@
-package br.com.transoft.backend.dto.itinerary;
+package br.com.transoft.backend.dto.itinerary.account;
 
-public record ItineraryAccount(String title, ) {
+import java.util.List;
+
+public record ItineraryAccount(String date, List<ItineraryAccountView> itinerary) {
 }

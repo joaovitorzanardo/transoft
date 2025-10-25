@@ -1,6 +1,7 @@
 package br.com.transoft.backend.entity;
 
 import br.com.transoft.backend.dto.itinerary.ItineraryPresenter;
+import br.com.transoft.backend.dto.itinerary.account.ItineraryAccountView;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.constants.ItineraryType;
@@ -9,6 +10,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,12 +68,24 @@ public class Itinerary {
                 itineraryId,
                 type,
                 status,
-                date,
-                startTime,
-                endTime,
+                date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                 route.toPresenter(),
                 driver.toPresenter(),
                 vehicle.toPresenter()
+        );
+    }
+
+    public ItineraryAccountView toAccountView() {
+        return new ItineraryAccountView(
+                itineraryId,
+                route.getName(),
+                route.getSchool().getName(),
+                type.name(),
+                status.getStatus(),
+                startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                endTime.format(DateTimeFormatter.ofPattern("HH:mm"))
         );
     }
 }

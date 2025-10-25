@@ -6,16 +6,13 @@ import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.constants.ItineraryType;
 import br.com.transoft.backend.dto.vehicle.presenter.VehiclePresenter;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public record ItineraryPresenter(
         String itineraryId,
         ItineraryType type,
         ItineraryStatus status,
-        LocalDate date,
-        LocalTime startTime,
-        LocalTime endTime,
+        String date,
+        String startTime,
+        String endTime,
         RoutePresenter route,
         DriverPresenter driver,
         VehiclePresenter vehicle

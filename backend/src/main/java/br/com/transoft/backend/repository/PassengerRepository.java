@@ -19,4 +19,5 @@ public interface PassengerRepository extends JpaRepository<Passenger, String> {
     int countAllByCompany_CompanyId(String companyId);
     int countAllByCompany_CompanyIdAndUserAccount_ActiveAndUserAccount_Enabled(String companyId, boolean active, boolean enabled);
     int countAllByCompany_CompanyIdAndUserAccount_Active(String companyId, boolean active);
+    Optional<Passenger> findByUserAccount_UserAccountId(String userAccountId);
 }

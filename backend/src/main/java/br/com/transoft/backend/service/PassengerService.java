@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,12 +69,30 @@ public class PassengerService {
         return passengerRepository.findByRoute(route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
     }
 
-    public void updatePassengerAccount(PassengerAccountDto passengerAccountDto) {
+    public void updatePassengerAccount(PassengerAccountDto passengerAccountDto, LoggedUserAccount loggedUserAccount) {
+        Passenger passenger = passengerRepository
+                .findByUserAccount_UserAccountId(loggedUserAccount.userAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
 
+        if (!Objects.equals(passenger.getEmail(), passengerAccountDto.getEmail())) {
+            if (passengerRepository.findByEmail(passengerAccountDto.getEmail()).isPresent()) {
+                throw new ResourceConflictException("This email is already registered for another passenger");
+            }
+
+            passenger.setEmail(passengerAccountDto.getEmail());
+        }
+
+        passenger.setName(passengerAccountDto.getName());
+        passenger.setPhoneNumber(new PhoneNumber(passengerAccountDto.getPhoneNumber()));
+
+        passengerRepository.save(passenger);
     }
 
-    public PassengerPresenter getPassengerAccount() {
-        return null;
+    public PassengerPresenter getPassengerAccount(LoggedUserAccount loggedUserAccount) {
+        return passengerRepository
+                .findByUserAccount_UserAccountId(loggedUserAccount.userAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"))
+                .toPresenter();
     }
 
     public PassengerPresenterList listPassengers(int page, int size, LoggedUserAccount loggedUserAccount) {
@@ -90,6 +109,12 @@ public class PassengerService {
         int pending = passengerRepository.countAllByCompany_CompanyIdAndUserAccount_Active(loggedUserAccount.companyId(), false);
 
         return new PassengerStatsPresenter(total, active, inactive, pending);
+    }
+
+    public Passenger findPassengerByUserAccountId(String userAccountId) {
+        return passengerRepository
+                .findByUserAccount_UserAccountId(userAccountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
     }
 
     public Passenger findPassengerById(String passengerId, LoggedUserAccount loggedUserAccount) {
