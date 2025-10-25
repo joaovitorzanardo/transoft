@@ -10,8 +10,8 @@ import React from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { getItinerariesStats } from "../../services/itinerary.service";
+import type ItineraryFilters from "../../models/itinerary/ItineraryFilters";
 
 const status = ["Agendado", "Andamento", "Concluido", "Cancelado"]
 const tipos = ["Ida", "Volta"]
@@ -36,6 +36,11 @@ interface StatsItineraries {
 }
 
 export default function ItinerariesPage() {
+    const [filters, setFilters] = React.useState<ItineraryFilters>({
+        status: [],
+        type: [],
+        date: null
+    });
     const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
     const [selectedType, setSelectedType] = React.useState<string[]>([]);
 
@@ -46,6 +51,10 @@ export default function ItinerariesPage() {
       setSelectedStatus(        
         typeof value === 'string' ? value.split(',') : value,
       );
+      setFilters({
+          ...filters,
+          status: typeof value === 'string' ? value.split(',') : value,
+      });
     };
 
     const handleChangeType = (event: SelectChangeEvent<typeof selectedType>) => {
@@ -55,7 +64,11 @@ export default function ItinerariesPage() {
         setSelectedType(        
           typeof value === 'string' ? value.split(',') : value,
         );
-      };
+        setFilters({
+            ...filters,
+            type: typeof value === 'string' ? value.split(',') : value,
+        });
+    };
 
     const navigate = useNavigate();
 
@@ -165,7 +178,7 @@ export default function ItinerariesPage() {
                         </Button>
                     </Stack>
                 </Paper>
-                <ItineraryTable />
+                <ItineraryTable filters={filters}/>
             </Stack>
         </Stack>
     );

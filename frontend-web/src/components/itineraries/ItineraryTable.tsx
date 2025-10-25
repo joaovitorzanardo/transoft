@@ -5,8 +5,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import ItineraryDialog from "./ItineraryDialog";
-import { getItineraries } from "../../services/itinerary.service";
+import { getItineraries, getItinerariesFilters } from "../../services/itinerary.service";
 import type ItineraryPresenter from "../../models/ItineraryPresenter";
+import type ItineraryFilters from "../../models/itinerary/ItineraryFilters";
 
 interface ItineraryData {
     id: string;
@@ -18,7 +19,12 @@ interface ItineraryData {
     status: string;
 }
 
-export default function ItineraryTable() {
+interface ItineraryTableProps {
+    filters: ItineraryFilters;
+}
+
+export default function ItineraryTable({ filters }: ItineraryTableProps) {
+    const [selectedItineraryId, setSelectedItineraryId] = React.useState<string>('');
     const navigate = useNavigate();
 
     const navigateToItineraryEditPage = (id: GridRowId) => () => {
@@ -36,7 +42,8 @@ export default function ItineraryTable() {
 
     const [openInfoDialog, setOpenInfoDialog] = React.useState(false)
 
-    const handleOpenDialog = () => {
+    const handleOpenDialog = (id: GridRowId) => () => {
+        setSelectedItineraryId(id.toString());
         setOpenInfoDialog(true)
     }
 
@@ -46,6 +53,26 @@ export default function ItineraryTable() {
 
     React.useEffect(() => {
         async function getAll() {
+            if (filters.date !== null || filters.status.length > 0 || filters.type.length > 0) {
+                setLoading(true);
+                const response = await getItinerariesFilters(filters);
+                setLoading(false);
+
+                setRowCount(response.data.count);    
+                setData(response.data.itineraries.map((itinerary: ItineraryPresenter) => {
+                    return {
+                        id: itinerary.itineraryId,
+                        routeName: itinerary.route.name,
+                        date: itinerary.date.toString(),
+                        driverName: itinerary.driver.name,
+                        vehiclePlate: itinerary.vehicle.plateNumber,
+                        type: itinerary.type,
+                        status: itinerary.status
+                    }
+                }))
+                return;
+            }
+
             setLoading(true);
             const response = await getItineraries(paginationModel.page, paginationModel.pageSize)
             setLoading(false);
@@ -69,7 +96,7 @@ export default function ItineraryTable() {
         }
 
         getAll();
-    }, [paginationModel])
+    }, [paginationModel, filters])
 
     const columns: GridColDef[] = [
         { field: 'routeName', headerName: 'Rota', width: 90 },
@@ -120,7 +147,7 @@ export default function ItineraryTable() {
                         icon={<FindInPageIcon />}
                         label="Ver Detalhes"
                         className="textPrimary"
-                        onClick={handleOpenDialog}
+                        onClick={handleOpenDialog(id)}
                         color="inherit"
                     />,
                     <GridActionsCellItem
@@ -146,7 +173,7 @@ export default function ItineraryTable() {
                 rowCount={rowCount}
                 paginationMode="server"
             />
-            <ItineraryDialog open={openInfoDialog} onClose={handleCloseDialog}/>
+            <ItineraryDialog open={openInfoDialog} onClose={handleCloseDialog} itineraryId={selectedItineraryId}/>
         </Container>
     )
 }
