@@ -1,93 +1,88 @@
-import CardTrip from '@/app/components/CardTrip';
-import { Trip } from '@/app/types/types';
-import { SectionList, Text } from "react-native";
+import ItineraryCard from "@/app/components/ItineraryCard";
+import { getItineraries } from "@/app/services/itinerary.service";
+import ItineraryView from "@/app/views/ItineraryView";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, SectionList, Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-interface TripListItem {
-    title: string;
-    data: Trip[];
+interface ItineraryAccount {
+    date: string;
+    itinerary: ItineraryView[];
 }
 
-const data: TripListItem[] = [
-    {
-        title: 'Segunda-feira, 18 de Agosto',
-        data: [
-            {
-                id: '1',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Ida',
-                time: '18:00 - 19:15',
-                status: 'Em andamento'                
-            },
-            {
-                id: '2',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Volta',
-                time: '22:30 - 23:15',
-                status: 'Programada',
-            },
-        ],
-    },
-    {
-        title: 'Terça-feira, 19 de Agosto',
-        data: [
-            {
-                id: '3',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Ida',
-                time: '18:00 - 19:15',
-                status: 'Programada',
-            },
-            {
-                id: '4',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Volta',
-                time: '22:30 - 23:15',
-                status: 'Programada',
-            },
-        ],
-    },
-    {
-        title: 'Quarta-feira, 20 de Agosto',
-        data: [
-            {
-                id: '5',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Ida',
-                time: '18:00 - 19:15',
-                status: 'Programada',
-            },
-            {
-                id: '6',
-                routeName: 'Rota URI Campus II - Noturno',
-                schoolName: 'URI Erechim',
-                type: 'Volta',
-                time: '22:30 - 23:15',
-                status: 'Programada',
-            },
-        ],
-    }
-]
+interface ItineraryList {
+    title: string;
+    data: ItineraryView[];
+}
 
 export default function TripsScreen() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [itineraries, setItineraries] = useState<ItineraryList[]>([]);
+    const [page, setPage] = useState<number>(0);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+    const PAGE_SIZE = 10;
+
+    const loadItineraries = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
+        try {
+            const response = await getItineraries(page, PAGE_SIZE);
+            
+            if (response.status === 200) {
+                const newData = response.data.map((itinerary: ItineraryAccount) => {
+                    return {
+                        title: itinerary.date,
+                        data: itinerary.itinerary
+                    }
+                });
+                
+                if (newData.length < PAGE_SIZE) {
+                    setHasMore(false);
+                }
+                
+                setItineraries(prev => [...prev, ...newData]);
+                setPage(prev => prev + 1);
+            }
+        } catch (error) {
+            console.error('Error loading itineraries:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadItineraries();
+    }, []);
+
+    const renderFooter = () => {
+        if (!loading) return null;
+        
+        return (
+            <ActivityIndicator 
+                size="large"
+                color="#0000ff"
+                style={{ padding: 20 }}
+            />
+        );
+    };
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={{ padding: 20 }}>
                 <SectionList 
-                    sections={data}
+                    sections={itineraries}
                     renderSectionHeader={({section: {title}}) => (
                         <Text>{title}</Text>
                     )}
                     renderItem={({ item }) => (
-                        <CardTrip trip={item}/>
+                        <ItineraryCard itinerary={item}/>
                     )}
+                    onEndReached={loadItineraries}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={renderFooter}
                 />
             </SafeAreaView>
         </SafeAreaProvider>
-    )
+    );
 }
