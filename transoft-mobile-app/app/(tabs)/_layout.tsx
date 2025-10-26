@@ -14,9 +14,9 @@ export default function TabLayout() {
         }}  
       />
       <Tabs.Screen
-        name="trips"
+        name="itineraries"
         options={{
-          title: 'Viagens',
+          title: 'Itinerários',
           tabBarIcon: () => <FontAwesome6 name='route' size={22}/>
         }}  
       />

@@ -76,7 +76,7 @@ export default function TripsScreen() {
                         <Text>{title}</Text>
                     )}
                     renderItem={({ item }) => (
-                        <ItineraryCard itinerary={item}/>
+                        <ItineraryCard itinerary={item} loading={loading}/>
                     )}
                     onEndReached={loadItineraries}
                     onEndReachedThreshold={0.5}

@@ -1,32 +1,24 @@
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import { storage } from "./utils/Storage";
+import { AuthProvider, useAuth } from "../src/contexts/AuthContext";
 
-export default function RootLayout() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    checkToken();
-  }, []);
-
-  const checkToken = async () => {
-    const token = await storage.getToken();
-    setIsAuthenticated(!!token);
-    setIsLoading(false);
-  };
-
-  if (isLoading) {
-    return null; // Or a loading screen
-  }
+function RootLayoutNav() {
+  const { user } = useAuth();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {!isAuthenticated ? (
+      {!user ? (
         <Stack.Screen name="login" />
       ) : (
         <Stack.Screen name="(tabs)" />
       )}
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

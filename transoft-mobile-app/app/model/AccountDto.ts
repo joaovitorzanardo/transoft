@@ -1,6 +1,6 @@
 import PhoneNumberDto from "./PhoneNumberDto";
 
-export default interface PassengerAccountDto {
+export default interface AccountDto {
     name: string;
     email:string;
     phoneNumber: PhoneNumberDto;

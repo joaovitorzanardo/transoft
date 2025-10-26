@@ -1,19 +1,22 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../src/contexts/AuthContext';
 import { login } from './services/login.service';
 import { storage } from './utils/Storage';
-// Add import for the icon library
-import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
+  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordVisible, setPasswordVisible] = useState(false); // State for password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
     const response = await login({ email, password });
     await storage.setToken(response.data.token);
+
+    setUser(response.data.user);
 
     if (!response.data.user.active) {
       router.replace('/first-access');

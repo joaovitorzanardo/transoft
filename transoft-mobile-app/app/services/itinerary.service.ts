@@ -20,3 +20,11 @@ export function getPassengersFromItinerary(itineraryId: string): Promise<AxiosRe
 export function getNextItinerary(): Promise<AxiosResponse> {
     return axiosInstance.get(`/itineraries/next`);
 }
+
+export function cancelItineraryForPassenger(itineraryId: string): Promise<AxiosResponse> {
+    return axiosInstance.patch(`/itineraries/${itineraryId}/passenger/cancel`);
+}
+
+export function confirmItineraryForPassenger(itineraryId: string): Promise<AxiosResponse> {
+    return axiosInstance.patch(`/itineraries/${itineraryId}/passenger/confirm`);
+}

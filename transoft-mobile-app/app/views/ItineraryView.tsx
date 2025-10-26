@@ -3,7 +3,7 @@ export default interface ItineraryView {
     routeName: string;
     schoolName: string;
     type: 'IDA' | 'VOLTA';
-    status: 'Agendado' | 'Em andamento' | 'Concluído' | 'Cancelado';
+    status: 'AGENDADO' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO';
     startTime: string;
     endTime: string;
 }
