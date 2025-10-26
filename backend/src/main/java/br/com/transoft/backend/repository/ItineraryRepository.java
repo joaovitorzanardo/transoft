@@ -57,6 +57,7 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
             "JOIN i.passengerStatus st " +
             "JOIN st.passenger p " +
             "where p.passengerId = :passengerId " +
+            "AND (i.status = 'AGENDADO') and i.date >= CURRENT_DATE " +
             "ORDER BY i.date, i.startTime ASC LIMIT 1")
     Optional<Itinerary> findNextItineraryForPassenger(String passengerId);
 

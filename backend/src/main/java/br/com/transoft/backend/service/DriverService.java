@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -76,12 +77,30 @@ public class DriverService {
         emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
 
-    public void updateDriverAccount(DriverAccountDto driverAccountDto) {
+    public void updateDriverAccount(DriverAccountDto driverAccountDto, LoggedUserAccount loggedUserAccount) {
+        Driver driver = driverRepository
+                .findByUserAccount_UserAccountId(loggedUserAccount.userAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found"));
 
+        if (!Objects.equals(driver.getEmail(), driverAccountDto.getEmail())) {
+            if (driverRepository.findByEmail(driverAccountDto.getEmail()).isPresent()) {
+                throw new ResourceConflictException("Email already registered");
+            }
+
+            driver.setEmail(driverAccountDto.getEmail());
+        }
+
+        driver.setName(driverAccountDto.getName());
+        driver.setPhoneNumber(new PhoneNumber(driverAccountDto.getPhoneNumber()));
+
+        driverRepository.save(driver);
     }
 
-    public DriverAccountPresenter getDriverAccount() {
-        return null;
+    public DriverPresenter getDriverAccount(LoggedUserAccount loggedUserAccount) {
+        return driverRepository
+                .findByUserAccount_UserAccountId(loggedUserAccount.userAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found"))
+                .toPresenter();
     }
 
     public Driver findDriverByUserAccountId(String userAccountId) {

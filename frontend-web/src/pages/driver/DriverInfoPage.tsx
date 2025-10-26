@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import BlockIcon from '@mui/icons-material/Block';
 import { IMaskMixin } from "react-imask";
 import React from "react";
-import { getDriverById, saveDriver } from "../../services/driver.service";
+import { getDriverById, saveDriver, updateDriver } from "../../services/driver.service";
 import type DriverDto from "../../models/driver/DriverDto";
 import MessageAlert from "../../components/ui/MessageAlert";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
@@ -112,7 +112,13 @@ export default function DriverInfoPage() {
         };
 
         try {
-            const response = await saveDriver(driverDto);
+            let response = null;
+            if (driverId && driverId !== 'edit') {
+                response = await updateDriver(driverId, driverDto);
+            } else {
+                response = await saveDriver(driverDto);
+            }
+            
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Motorista salvo com sucesso!', severity: 'success' });
                 reset();

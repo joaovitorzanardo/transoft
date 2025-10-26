@@ -36,20 +36,20 @@ public class DriverController {
         driverService.saveDriver(driverDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping(path = "/account")
+    @PatchMapping(path = "/account")
     @PreAuthorize("hasRole('DRIVER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public void updateDriverAccount(@Valid @RequestBody DriverAccountDto driverAccountDto) {
-        driverService.updateDriverAccount(driverAccountDto);
+    public void updateDriverAccount(@Valid @RequestBody DriverAccountDto driverAccountDto, Authentication authentication) {
+        driverService.updateDriverAccount(driverAccountDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/account")
     @PreAuthorize("hasRole('DRIVER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public DriverAccountPresenter getDriverAccount() {
-        return this.driverService.getDriverAccount();
+    public DriverPresenter getDriverAccount(Authentication authentication) {
+        return driverService.getDriverAccount((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping

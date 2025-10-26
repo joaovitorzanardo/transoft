@@ -110,4 +110,21 @@ public class ItineraryController {
     public List<PassengerItineraryPresenter> listPassengersFromItinerary(@PathVariable String itineraryId, Authentication authentication) {
         return itineraryService.listPassengersFromItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
     }
+
+    @PatchMapping("/{itineraryId}/passenger/cancel")
+    @PreAuthorize("hasAnyRole('PASSENGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelItineraryForPassenger(@PathVariable String itineraryId, Authentication authentication) {
+        itineraryService.cancelPassengerItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping("/{itineraryId}/passenger/confirm")
+    @PreAuthorize("hasAnyRole('PASSENGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void confirmItineraryForPassenger(@PathVariable String itineraryId, Authentication authentication) {
+        itineraryService.confirmPassengerItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
 }

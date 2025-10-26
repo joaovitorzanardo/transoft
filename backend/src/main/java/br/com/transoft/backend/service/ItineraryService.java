@@ -305,6 +305,33 @@ public class ItineraryService {
         return listItinerariesFromItinerary(itinerary);
     }
 
+
+    public void cancelPassengerItinerary(String itineraryId, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
+        Passenger passenger = passengerService.findPassengerByUserAccountId(loggedUserAccount.userAccountId());
+
+        PassengerStatus passengerStatus = passengerStatusRepository
+                .findByItineraryAndPassenger(itinerary, passenger)
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger is not in this itinerary."));
+
+        passengerStatus.setStatus(PassengerStatusEnum.NAO_VAI);
+
+        passengerStatusRepository.save(passengerStatus);
+    }
+
+    public void confirmPassengerItinerary(String itineraryId, LoggedUserAccount loggedUserAccount) {
+        Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
+        Passenger passenger = passengerService.findPassengerByUserAccountId(loggedUserAccount.userAccountId());
+
+        PassengerStatus passengerStatus = passengerStatusRepository
+                .findByItineraryAndPassenger(itinerary, passenger)
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger is not in this itinerary."));
+
+        passengerStatus.setStatus(PassengerStatusEnum.CONFIRMADO);
+
+        passengerStatusRepository.save(passengerStatus);
+    }
+
     public List<PassengerItineraryPresenter> listPassengersFromItinerary(String itineraryId, LoggedUserAccount loggedUserAccount) {
         Itinerary itinerary = findItineraryById(itineraryId, loggedUserAccount);
         return listItinerariesFromItinerary(itinerary);
