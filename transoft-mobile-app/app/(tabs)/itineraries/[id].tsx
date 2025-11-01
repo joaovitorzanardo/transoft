@@ -242,7 +242,6 @@ export default function TripDetailsScreen() {
                                 </Text>
                             </TouchableOpacity>
                         )}
-
                         
                         <View style={{
                             backgroundColor: 'white',
