@@ -10,12 +10,13 @@ import React from "react";
 import BlockIcon from '@mui/icons-material/Block';
 import { getAllRoutes } from "../../services/route.service";
 import type RouteSelectPresenter from "../../models/route/RouteSelectPresenter";
-import { getPassengersById, savePassenger } from "../../services/passenger.service";
+import { disablePassenger, enablePassenger, getPassengersById, savePassenger, updatePassenger } from "../../services/passenger.service";
 import type PassengerDto from "../../models/PassengerDto";
 import type AddressDto from "../../models/address/AddressDto";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import MessageAlert from "../../components/ui/MessageAlert";
 import { useParams } from "react-router";
+import CheckIcon from '@mui/icons-material/Check';
 import type PassengerPresenter from "../../models/PassengerPresenter";
 
 const PassengerForm = z.object({
@@ -47,6 +48,7 @@ export default function PassengerInfoPage() {
     const [openDialog, setOpenDialog] = React.useState<DialogType>(null);
     const [alert, setAlert] = React.useState<AlertState>(null);
     const [loading, setLoading] = React.useState(false);
+    const [isEnabled, setIsEnabled] = React.useState(false);
 
     const [routes, setRoutes] = React.useState<RouteSelectPresenter[]>([]);
 
@@ -81,7 +83,7 @@ export default function PassengerInfoPage() {
             }
 
             const passengerData = response.data;
-            //setActive(vehicleData.isActive);
+            setIsEnabled(passengerData.enabled);
             setPassenger(passengerData);
             
             setValue('name', passengerData.name);
@@ -94,7 +96,7 @@ export default function PassengerInfoPage() {
             setValue('cidade', passengerData.address.city);
             setValue('bairro', passengerData.address.district);
             setValue('endereco', passengerData.address.street);
-            setValue('numero', passengerData.address.number);
+            setValue('numero', passengerData.address.number.toString());
             setValue('complemento', passengerData.address.complement);
         }
 
@@ -138,16 +140,23 @@ export default function PassengerInfoPage() {
         };
 
         try {
-            const response = await savePassenger(passengerDto);
+            let response = null;
+            
+            if (passengerId && passengerId !== 'edit') {
+                response = await updatePassenger(passengerId, passengerDto);
+            } else {
+                response = await savePassenger(passengerDto);
+            }
+            
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Passageiro salvo com sucesso!', severity: 'success' });
                 reset();
-            } else {
-                setAlert({ open: true, message: 'Erro ao salvar passageiro!', severity: 'error' });
+            } else if (response.status === 200) {
+                setAlert({ open: true, message: 'Passageiro atualizado com sucesso!', severity: 'success' });
+                reset();    
             }
-        } catch(error) {
-            console.log(error);
-            setAlert({ open: true, message: 'Erro ao salvar passageiro!', severity: 'error' });
+        } catch(error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
         }
@@ -161,6 +170,34 @@ export default function PassengerInfoPage() {
 
         getAll();
     }, []);
+
+    const enable = async () => {
+        setOpenDialog(null);
+        try {
+            if (passengerId === undefined) {
+                return;
+            }
+            await enablePassenger(passengerId);
+            setIsEnabled(true);
+            setAlert({ open: true, message: 'Passageiro habilitado com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
+
+    const disable = async () => {
+        setOpenDialog(null);
+        try {
+            if (passengerId === undefined) {
+                return;
+            }
+            await disablePassenger(passengerId);
+            setIsEnabled(false);
+            setAlert({ open: true, message: 'Passageiro desabilitado com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
     
     const dialogConfig = {
         save: {
@@ -171,12 +208,12 @@ export default function PassengerInfoPage() {
         disable: {
             title: 'Confirmar Desabilitar Passageiro',
             message: 'Tem certeza que deseja desabilitar esse passageiro?',
-            onConfirm: () => console.log('Passageiro Desabilitado')
+            onConfirm: () => disable()
         },
         enable: {
             title: 'Confirmar Habilitar Passageiro',
             message: 'Tem certeza que deseja habilitar esse passageiro?',
-            onConfirm: () => console.log('Passageiro Desabilitado')
+            onConfirm: () => enable()
         }
     };
 
@@ -238,7 +275,30 @@ export default function PassengerInfoPage() {
                         >
                             Salvar
                         </Button>
-                        <Button variant="outlined" color="error" startIcon={<BlockIcon />}>Desabilitar</Button>
+                        {
+                            passengerId !== 'edit' && (
+                                isEnabled ? 
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    startIcon={<BlockIcon />} 
+                                    onClick={() => handleOpenDialog('disable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Desabilitar
+                                </Button> : <Button 
+                                    variant="outlined" 
+                                    color="success" 
+                                    startIcon={<CheckIcon />} 
+                                    onClick={() => handleOpenDialog('enable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Habilitar
+                                </Button>
+                            )                                
+                        }
                     </Stack>
                     {config && (
                         <ConfirmationDialog

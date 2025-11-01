@@ -20,8 +20,8 @@ export function getItineraries(page: number, size: number): Promise<AxiosRespons
     });
 }
 
-export function getItinerariesFilters(filter: ItineraryFilters): Promise<AxiosResponse> {
-    return axiosInstance.post(`/itineraries/filter`, filter, {
+export function getItinerariesFilters(filter: ItineraryFilters, page: number, size: number): Promise<AxiosResponse> {
+    return axiosInstance.post(`/itineraries/filter?page=${page}&size=${size}`, filter, {
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem("apiToken")}`
         }

@@ -15,7 +15,7 @@ type AuthProviderProps = PropsWithChildren;
 export default function AuthProvider({ children } : AuthProviderProps) {
     const [token, setToken] = React.useState<string | null>();
     async function handleLogin(email: string, password: string) {
-      try {
+      
         const loginDto: LoginDto = {
           email: email,
           password: password
@@ -27,10 +27,6 @@ export default function AuthProvider({ children } : AuthProviderProps) {
   
         setToken(token);
         sessionStorage.setItem("apiToken", token);
-      } catch {
-        sessionStorage.removeItem("apiToken");
-        setToken(null);          
-      }
     }
 
     function handleLogout() {

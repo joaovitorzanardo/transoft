@@ -11,7 +11,7 @@ import z from "zod";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type VehicleDto from "../../models/vehicle/VehicleDto";
-import { disableVehicle, enableVehicle, getVehicleById, saveVehicle } from "../../services/vehicle.service";
+import { disableVehicle, enableVehicle, getVehicleById, saveVehicle, updateVehicle } from "../../services/vehicle.service";
 import { useParams } from "react-router";
 import MessageAlert from "../../components/ui/MessageAlert";
 import CheckIcon from '@mui/icons-material/Check';
@@ -116,18 +116,25 @@ export default function VehicleInfoPage() {
         };
 
         try {
-            const response = await saveVehicle(vehicleDto);
+            let response = null;
+            
+            if (vehicleId && vehicleId !== 'edit') {
+                response = await updateVehicle(vehicleId, vehicleDto);
+            } else {
+                response = await saveVehicle(vehicleDto);
+            }
+
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Veículo salvo com sucesso!', severity: 'success' });
-            } else {
-                setAlert({ open: true, message: 'Erro ao salvar veículo!', severity: 'error' });
+                reset();
+            } else if (response.status === 200) {
+                setAlert({ open: true, message: 'Veículo atualizado com sucesso!', severity: 'success' });    
+                reset();
             }
-        } catch(error) {
-            console.log(error);
-            setAlert({ open: true, message: 'Erro ao salvar veículo!', severity: 'error' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
-            reset();
         }
     };
 
@@ -141,11 +148,9 @@ export default function VehicleInfoPage() {
             if (response.status === 200) {
                 setActive(false);
                 setAlert({ open: true, message: 'Veículo desabilitado com sucesso!', severity: 'success' });
-            } else {
-                setAlert({ open: true, message: 'Erro ao desabilitar veículo!', severity: 'error' });
             }
-        } catch(error) {
-            setAlert({ open: true, message: 'Erro ao desabilitar veículo!', severity: 'error' });
+        } catch(error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
         }

@@ -4,7 +4,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React from "react";
-import { getAllRoutes } from "../../services/route.service";
+import { getAllActiveRoutes, getAllRoutes } from "../../services/route.service";
 import type RouteSelectPresenter from "../../models/route/RouteSelectPresenter";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +40,7 @@ export default function GenerateItineraryPage() {
     
     React.useEffect(() => {
         async function getAll() {
-            const response = await getAllRoutes();
+            const response = await getAllActiveRoutes();
             setRoutes(response.data);
         }
 
@@ -73,12 +73,9 @@ export default function GenerateItineraryPage() {
                 if (response.status === 201) {
                     setAlert({ open: true, message: 'Itinerários gerados com sucesso!', severity: 'success' });
                     reset();
-                } else {
-                    setAlert({ open: true, message: 'Erro ao gerar itinerários!', severity: 'error' });
                 }
-            } catch(error) {
-                console.log(error);
-                setAlert({ open: true, message: 'Erro ao gerar itinerários!', severity: 'error' });
+            } catch(error: any) {
+                setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
             } finally {
                 setLoading(false);
             }
@@ -142,6 +139,7 @@ export default function GenerateItineraryPage() {
                                     <DatePicker 
                                         sx={{width: '100%', marginTop: 3}}
                                         label="Data Inicial" 
+                                        format="DD/MM/YYYY"
                                         value={field.value ? dayjs(field.value) : null}
                                         onChange={(newValue) => field.onChange(newValue)}
                                         slotProps={{
@@ -163,6 +161,7 @@ export default function GenerateItineraryPage() {
                                     <DatePicker 
                                         sx={{width: '100%', marginTop: 3}}
                                         label="Data Final" 
+                                        format="DD/MM/YYYY"
                                         value={field.value ? dayjs(field.value) : null}
                                         onChange={(newValue) => field.onChange(newValue)}
                                         slotProps={{

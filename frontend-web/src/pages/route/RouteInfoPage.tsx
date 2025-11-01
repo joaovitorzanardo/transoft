@@ -14,14 +14,17 @@ import type SchoolPresenter from "../../models/SchoolPresenter";
 import type DriverPresenter from "../../models/driver/DriverPresenter";
 import type VehiclePresenter from "../../models/vehicle/VehiclePresenter";
 import { getAllSchools } from "../../services/school.service";
-import { getAllDrivers } from "../../services/driver.service";
-import { getAllVehicles } from "../../services/vehicle.service";
+import { getAllEnabledDrivers  } from "../../services/driver.service";
+import { getAllActiveVehicles } from "../../services/vehicle.service";
 import MessageAlert from "../../components/ui/MessageAlert";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
-import { getRouteById, saveRoute } from "../../services/route.service";
+import { disableRoute, enableRoute, getRouteById, saveRoute, updateRoute } from "../../services/route.service";
 import type RouteDto from "../../models/route/RouteDto";
 import { useParams } from "react-router";
 import type RoutePresenter from "../../models/route/RoutePresenter";
+import type RouteUpdateDto from "../../models/route/RouteUpdateDto";
+import CheckIcon from '@mui/icons-material/Check';
+import UpdateRoutesConfirmationDialog from "../../components/ui/UpdateRoutesConfirmationDialog";
 
 const dayjsSchema = z.custom<Dayjs | null>(
     (val) => val === null || dayjs.isDayjs(val),
@@ -46,7 +49,7 @@ const RouteForm = z.object({
 
 type IFormInputs = z.infer<typeof RouteForm>
 
-type DialogType = 'save' | 'disable' | 'enable' | null;
+type DialogType = 'save' | 'disable' | 'enable' | 'update' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
 
 export default function RouteInfoPage() {
@@ -60,6 +63,9 @@ export default function RouteInfoPage() {
     const [openDialog, setOpenDialog] = React.useState<DialogType>(null);
     const [alert, setAlert] = React.useState<AlertState>(null);
     const [loading, setLoading] = React.useState(false);
+    const [updateItineraries, setUpdateItineraries] = React.useState(false);
+
+    const [isEnabled, setIsEnabled] = React.useState(false);
 
     React.useEffect(() => {
         async function getSchools() {
@@ -71,7 +77,7 @@ export default function RouteInfoPage() {
 
     React.useEffect(() => {
         async function getDrivers() {
-            const response = await getAllDrivers();
+            const response = await getAllEnabledDrivers();
             setDrivers(response.data);
         }
         
@@ -80,7 +86,7 @@ export default function RouteInfoPage() {
 
     React.useEffect(() => {
         async function getVehicles() {
-            const response = await getAllVehicles();
+            const response = await getAllActiveVehicles();
             setVehicles(response.data);
         }
         getVehicles();
@@ -118,7 +124,7 @@ export default function RouteInfoPage() {
             }
 
             const routeData = response.data;
-            //setActive(vehicleData.isActive);
+            setIsEnabled(routeData.active);
             setRoute(routeData);
             
             setValue('name', routeData.name);
@@ -142,40 +148,68 @@ export default function RouteInfoPage() {
     const onSubmit: SubmitHandler<IFormInputs> = async (data) => {        
         setOpenDialog(null);
         setLoading(true);
-        
-        const routeDto: RouteDto = {
-            name: data.name,
-            schoolId: data.schoolId,
-            defaultDriverId: data.defaultDriverId,
-            defaultVehicleId: data.defaultVehicleId,
-            departureTrip: {
-                startTime: data.dtStartTime ? data.dtStartTime.format('HH:mm') : '',
-                endTime: data.dtEndTime ? data.dtEndTime.format('HH:mm') : '',
-            },
-            returnTrip: {
-                startTime: data.rtStartTime ? data.rtStartTime.format('HH:mm') : '',
-                endTime: data.rtEndTime ? data.rtEndTime.format('HH:mm') : '',
-            },
-            daysOfWeek: {
-                monday: data.monday,
-                tuesday: data.tuesday,
-                wednesday: data.wednesday,
-                thursday: data.thursday,
-                friday: data.friday
-            }
-        };
 
         try {
-            const response = await saveRoute(routeDto);
+            let response = null;
+            if (routeId && routeId !== 'edit') {
+                const routeUpdateDto: RouteUpdateDto = {
+                    name: data.name,
+                    defaultDriverId: data.defaultDriverId,
+                    defaultVehicleId: data.defaultVehicleId,
+                    departureTrip: {
+                        startTime: data.dtStartTime ? data.dtStartTime.format('HH:mm') : '',
+                        endTime: data.dtEndTime ? data.dtEndTime.format('HH:mm') : '',
+                    },
+                    returnTrip: {
+                        startTime: data.rtStartTime ? data.rtStartTime.format('HH:mm') : '',
+                        endTime: data.rtEndTime ? data.rtEndTime.format('HH:mm') : '',
+                    },
+                    daysOfWeek: {
+                        monday: data.monday,
+                        tuesday: data.tuesday,
+                        wednesday: data.wednesday,
+                        thursday: data.thursday,
+                        friday: data.friday
+                    },
+                    updateItineraries: updateItineraries
+                };
+
+                response = await updateRoute(routeId, routeUpdateDto);
+            } else {
+                const routeDto: RouteDto = {
+                    name: data.name,
+                    schoolId: data.schoolId,
+                    defaultDriverId: data.defaultDriverId,
+                    defaultVehicleId: data.defaultVehicleId,
+                    departureTrip: {
+                        startTime: data.dtStartTime ? data.dtStartTime.format('HH:mm') : '',
+                        endTime: data.dtEndTime ? data.dtEndTime.format('HH:mm') : '',
+                    },
+                    returnTrip: {
+                        startTime: data.rtStartTime ? data.rtStartTime.format('HH:mm') : '',
+                        endTime: data.rtEndTime ? data.rtEndTime.format('HH:mm') : '',
+                    },
+                    daysOfWeek: {
+                        monday: data.monday,
+                        tuesday: data.tuesday,
+                        wednesday: data.wednesday,
+                        thursday: data.thursday,
+                        friday: data.friday
+                    }
+                };
+
+                response = await saveRoute(routeDto);
+            }
+            
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Motorista salvo com sucesso!', severity: 'success' });
                 reset();
-            } else {
-                setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
+            } else if (response.status === 200) {
+                setAlert({ open: true, message: 'Motorista atualizado com sucesso!', severity: 'success' });
+                reset();    
             }
-        } catch(error) {
-            console.log(error);
-            setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
+        } catch(error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
         }
@@ -192,25 +226,58 @@ export default function RouteInfoPage() {
         }
     };
 
+    const enable = async () => {
+        setOpenDialog(null);
+        try {
+            if (routeId === undefined) {
+                return;
+            }
+            await enableRoute(routeId);
+            setIsEnabled(true);
+            setAlert({ open: true, message: 'Rota habilitada com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
+
+    const disable = async () => {
+        setOpenDialog(null);
+        try {
+            if (routeId === undefined) {
+                return;
+            }
+            await disableRoute(routeId);
+            setIsEnabled(false);
+            setAlert({ open: true, message: 'Rota desabilitada com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
+
     const dialogConfig = {
         save: {
             title: 'Confirmar Cadastro de Rota',
             message: 'Tem certeza que deseja confirmar o cadastro desse rota?',
             onConfirm: () => handleSubmit(onSubmit)()
         },
+        update: {
+            title: 'Confirmar Atualização da Rota',
+            message: 'Tem certeza que deseja atualizar as informações dessa rota?',
+            onConfirm: () => handleSubmit(onSubmit)()
+        },
         disable: {
             title: 'Confirmar Desabilitar Rota',
             message: 'Tem certeza que deseja desabilitar esse rota?',
-            onConfirm: () => console.log('Rota Desabilitado')
+            onConfirm: () => disable()
         },
         enable: {
             title: 'Confirmar Habilitar Rota',
             message: 'Tem certeza que deseja habilitar esse rota?',
-            onConfirm: () => console.log('Rota Habilitada')
+            onConfirm: () => enable()
         }
     };
 
-    const config = openDialog ? dialogConfig[openDialog] : null;    
+    const config = openDialog ? dialogConfig[openDialog] : null;
 
     return (
         <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
@@ -428,22 +495,56 @@ export default function RouteInfoPage() {
                         <Button 
                             variant="contained" 
                             color="primary" 
-                            onClick={() => handleOpenDialog('save')} 
+                            onClick={() => routeId !== 'edit' ? handleOpenDialog('update') : handleOpenDialog('save')} 
                             loading={loading} 
                             loadingPosition="start"
                         >
                             Salvar
                         </Button>
-                        <Button variant="outlined" color="error" startIcon={<BlockIcon />}>Desabilitar</Button>
+                        {
+                            routeId !== 'edit' && (
+                                isEnabled ? 
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    startIcon={<BlockIcon />} 
+                                    onClick={() => handleOpenDialog('disable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Desabilitar
+                                </Button> : <Button 
+                                    variant="outlined" 
+                                    color="success" 
+                                    startIcon={<CheckIcon />} 
+                                    onClick={() => handleOpenDialog('enable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Habilitar
+                                </Button>
+                            )                                
+                        }
                     </Stack>
-                    {config && (
+                    {config && openDialog !== 'update' && (
                         <ConfirmationDialog
                             title={config.title}
                             message={config.message}
-                            open={openDialog !== null} 
+                            open={openDialog !== null}
                             onClose={() => setOpenDialog(null)}
                             onConfirm={config.onConfirm}
                         />
+                    )}
+                    {config && openDialog === 'update' && (
+                        <UpdateRoutesConfirmationDialog
+                            title={config.title}
+                            message={config.message}
+                            open={openDialog !== null}
+                            onClose={() => setOpenDialog(null)}
+                            onConfirm={config.onConfirm}
+                            updateItineraries={updateItineraries}
+                            setUpdateItineraries={setUpdateItineraries}
+                    />
                     )}
                     {alert && (
                         <MessageAlert 

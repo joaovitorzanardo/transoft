@@ -12,6 +12,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { getItinerariesStats } from "../../services/itinerary.service";
 import type ItineraryFilters from "../../models/itinerary/ItineraryFilters";
+import { getAllRoutes } from "../../services/route.service";
+import { getAllVehicles } from "../../services/vehicle.service";
+import { getAllDrivers } from "../../services/driver.service";
+import type DriverPresenter from "../../models/driver/DriverPresenter";
+import type VehiclePresenter from "../../models/vehicle/VehiclePresenter";
+import type RouteSelectPresenter from "../../models/route/RouteSelectPresenter";
 
 const status = ["Agendado", "Andamento", "Concluido", "Cancelado"]
 const tipos = ["Ida", "Volta"]
@@ -39,10 +45,24 @@ export default function ItinerariesPage() {
     const [filters, setFilters] = React.useState<ItineraryFilters>({
         status: [],
         type: [],
-        date: null
+        date: null,
+        routeId: null,
+        driverId: null,
+        vehicleId: null
     });
+
     const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
     const [selectedType, setSelectedType] = React.useState<string[]>([]);
+    const [selectedRoute, setSelectedRoute] = React.useState<string>('');
+    const [selectedDriver, setSelectedDriver] = React.useState<string>('');
+    const [selectedVehicle, setSelectedVehicle] = React.useState<string>('');
+    const [selectedDate, setSelectedDate] = React.useState<any>(null);
+
+    const [routes, setRoutes] = React.useState<RouteSelectPresenter[]>([]);
+    const [drivers, setDrivers] = React.useState<DriverPresenter[]>([]);
+    const [vehicles, setVehicles] = React.useState<VehiclePresenter[]>([]);
+
+    const [refreshKey, setRefreshKey] = React.useState(0);
 
     const handleChangeStatus = (event: SelectChangeEvent<typeof selectedStatus>) => {
       const {
@@ -51,10 +71,6 @@ export default function ItinerariesPage() {
       setSelectedStatus(        
         typeof value === 'string' ? value.split(',') : value,
       );
-      setFilters({
-          ...filters,
-          status: typeof value === 'string' ? value.split(',') : value,
-      });
     };
 
     const handleChangeType = (event: SelectChangeEvent<typeof selectedType>) => {
@@ -64,11 +80,23 @@ export default function ItinerariesPage() {
         setSelectedType(        
           typeof value === 'string' ? value.split(',') : value,
         );
-        setFilters({
-            ...filters,
-            type: typeof value === 'string' ? value.split(',') : value,
-        });
     };
+
+    const handleDateChange = (value: any) => {
+        setSelectedDate(value);
+    };
+
+    const handleChangeRoute = (event: SelectChangeEvent) => {
+        setSelectedRoute(event.target.value);
+    }
+
+    const handleChangeDriver = (event: SelectChangeEvent) => {
+        setSelectedDriver(event.target.value);
+    }
+
+    const handleChangeVehicle = (event: SelectChangeEvent) => {
+        setSelectedVehicle(event.target.value);
+    }
 
     const navigate = useNavigate();
 
@@ -92,8 +120,55 @@ export default function ItinerariesPage() {
             setStats(response.data);
         }
 
+        async function getFilterData() {
+            const responseRoutes = await getAllRoutes();
+            const responseVehicles = await getAllVehicles();
+            const responseDrivers = await getAllDrivers();
+
+            if (responseRoutes.status === 200) {
+                setRoutes(responseRoutes.data);
+            }
+
+            if (responseVehicles.status === 200) {
+                setVehicles(responseVehicles.data);
+            }
+
+            if (responseDrivers.status === 200) {
+                setDrivers(responseDrivers.data);
+            }
+        }
         getStats();
+        getFilterData();
     }, [])
+
+    const applyFilters = () => {
+        setFilters({
+            status: selectedStatus,
+            type: selectedType,
+            date: selectedDate,
+            routeId: selectedRoute === "" ? null : selectedRoute,
+            driverId: selectedDriver === "" ? null : selectedDriver,
+            vehicleId: selectedVehicle === "" ? null : selectedVehicle
+        });
+    }
+
+    const clearFilters = () => {
+        setSelectedDate(null);
+        setSelectedRoute('');
+        setSelectedDriver('');
+        setSelectedVehicle('');
+        setSelectedStatus([]);
+        setSelectedType([]);
+        setFilters({
+            status: [],
+            type: [],
+            date: null,
+            routeId: null,
+            driverId: null,
+            vehicleId: null
+        });
+        setRefreshKey(oldKey => oldKey + 1);
+    }
 
     return (
         <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
@@ -119,63 +194,121 @@ export default function ItinerariesPage() {
                     <Box sx={{height: '5px'}}/>
                     <Divider/>
                     <Box sx={{height: '15px'}}/>
-                    <Stack direction="row" spacing={2} justifyContent="space-evenly">
-                        <FormControl sx={{ flex: 1 }}>
-                            <InputLabel id="status-label" size="small">Status</InputLabel>
-                            <Select
-                                labelId="status-label"
-                                size="small"
-                                multiple
-                                value={selectedStatus}
-                                onChange={handleChangeStatus}
-                                input={<OutlinedInput label="Tag" />}
-                                renderValue={(selected) => selected.join(', ')}
-                                MenuProps={MenuProps}
+                    <Stack>
+                        <Stack direction="row" spacing={2} justifyContent="space-evenly">
+                            <FormControl sx={{ flex: 1 }}>
+                                <InputLabel id="status-label" size="small">Status</InputLabel>
+                                <Select
+                                    labelId="status-label"
+                                    size="small"
+                                    multiple
+                                    value={selectedStatus}
+                                    onChange={handleChangeStatus}
+                                    input={<OutlinedInput label="Tag" />}
+                                    renderValue={(selected) => selected.join(', ')}
+                                    MenuProps={MenuProps}
+                                    >
+                                    {status.map((stat) => (
+                                        <MenuItem key={stat} value={stat}>
+                                        <Checkbox checked={selectedStatus.includes(stat)} />
+                                        <ListItemText primary={stat} />
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ flex: 1 }}>
+                            <InputLabel id="tipo-label" size="small">Tipo</InputLabel>
+                                <Select
+                                    labelId="tipo-label"
+                                    multiple
+                                    size="small"
+                                    value={selectedType}
+                                    onChange={handleChangeType}
+                                    input={<OutlinedInput label="Tag" />}
+                                    renderValue={(selected) => selected.join(', ')}
+                                    MenuProps={MenuProps}
+                                    >
+                                    {tipos.map((tipo) => (
+                                        <MenuItem key={tipo} value={tipo}>
+                                            <Checkbox size="small" checked={selectedType.includes(tipo)} />
+                                            <ListItemText primary={tipo} />
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker 
+                                    key={refreshKey}
+                                    label="Data" 
+                                    sx={{ flex: 1 }}
+                                    onChange={handleDateChange}
+                                    format="DD/MM/YYYY"
+                                    value={selectedDate}
+                                    slotProps={{
+                                        textField: {
+                                        size: 'small'
+                                        },
+                                    }}
+                                />
+                            </LocalizationProvider>
+                        </Stack>
+                        <Stack direction="row" spacing={2} justifyContent="space-evenly" style={{ marginTop: '15px' }}>
+                            <FormControl sx={{ flex: 1 }}>
+                                <InputLabel id="status-label" size="small">Rota</InputLabel>
+                                <Select 
+                                    sx={{width: '100%'}}
+                                    label="Rota"
+                                    size="small"
+                                    onChange={handleChangeRoute}
+                                    value={selectedRoute}
                                 >
-                                {status.map((stat) => (
-                                    <MenuItem key={stat} value={stat}>
-                                    <Checkbox checked={selectedStatus.includes(stat)} />
-                                    <ListItemText primary={stat} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl sx={{ flex: 1 }}>
-                        <InputLabel id="tipo-label" size="small">Tipo</InputLabel>
-                            <Select
-                                labelId="tipo-label"
-                                multiple
-                                size="small"
-                                value={selectedType}
-                                onChange={handleChangeType}
-                                input={<OutlinedInput label="Tag" />}
-                                renderValue={(selected) => selected.join(', ')}
-                                MenuProps={MenuProps}
+                                    <MenuItem value="">Nenhum</MenuItem>
+                                    {routes.map((route) => (
+                                        <MenuItem value={route.routeId}>
+                                            {route.name}
+                                        </MenuItem> 
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ flex: 1 }}>
+                                <InputLabel id="tipo-label" size="small">Motorista</InputLabel>
+                                <Select 
+                                    sx={{width: '100%'}}
+                                    label="Motorista"
+                                    size="small"
+                                    onChange={handleChangeDriver}
+                                    value={selectedDriver}
                                 >
-                                {tipos.map((tipo) => (
-                                    <MenuItem key={tipo} value={tipo}>
-                                        <Checkbox size="small" checked={selectedType.includes(tipo)} />
-                                        <ListItemText primary={tipo} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker 
-                                label="Data" 
-                                sx={{ flex: 1 }}
-                                slotProps={{
-                                    textField: {
-                                      size: 'small',
-                                    },
-                                  }}
-                            />
-                        </LocalizationProvider>
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
-                            size="small">Aplicar
-                        </Button>
+                                    <MenuItem value="">Nenhum</MenuItem>
+                                    {drivers.map((driver) => (
+                                        <MenuItem value={driver.driverId}>
+                                            {driver.name}
+                                        </MenuItem> 
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ flex: 1 }}>
+                                <InputLabel id="tipo-label" size="small">Veículo</InputLabel>
+                                <Select 
+                                    sx={{width: '100%'}}
+                                    label="Veículo"
+                                    size="small"
+                                    onChange={handleChangeVehicle}
+                                    value={selectedVehicle}
+                                >
+                                    <MenuItem value="">Nenhum</MenuItem>
+                                    {vehicles.map((vehicle) => (
+                                        <MenuItem value={vehicle.vehicleId}>
+                                            {vehicle.vehicleModel.automaker.name} - {vehicle.vehicleModel.modelName} - {vehicle.plateNumber}
+                                        </MenuItem> 
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Stack>
+                        <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ marginTop: 2 }}>
+                            <Button variant="outlined" size="small" color="info" onClick={clearFilters}>Limpar</Button>
+                            <Button variant="contained" size="small" color="primary" onClick={applyFilters}>Aplicar</Button>
+                        </Stack>
                     </Stack>
                 </Paper>
                 <ItineraryTable filters={filters}/>

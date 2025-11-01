@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
 import ItineraryDialog from "./ItineraryDialog";
-import { getItineraries, getItinerariesFilters } from "../../services/itinerary.service";
+import { getItinerariesFilters } from "../../services/itinerary.service";
 import type ItineraryPresenter from "../../models/ItineraryPresenter";
 import type ItineraryFilters from "../../models/itinerary/ItineraryFilters";
 
@@ -53,35 +53,15 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
 
     React.useEffect(() => {
         async function getAll() {
-            if (filters.date !== null || filters.status.length > 0 || filters.type.length > 0) {
-                setLoading(true);
-                const response = await getItinerariesFilters(filters);
-                setLoading(false);
-
-                setRowCount(response.data.count);    
-                setData(response.data.itineraries.map((itinerary: ItineraryPresenter) => {
-                    return {
-                        id: itinerary.itineraryId,
-                        routeName: itinerary.route.name,
-                        date: itinerary.date.toString(),
-                        driverName: itinerary.driver.name,
-                        vehiclePlate: itinerary.vehicle.plateNumber,
-                        type: itinerary.type,
-                        status: itinerary.status
-                    }
-                }))
-                return;
-            }
-
             setLoading(true);
-            const response = await getItineraries(paginationModel.page, paginationModel.pageSize)
+            const response = await getItinerariesFilters(filters, paginationModel.page, paginationModel.pageSize);
             setLoading(false);
 
             if (response.status !== 200) {
                 return;
             }
 
-            setRowCount(response.data.count);
+            setRowCount(response.data.count);    
             setData(response.data.itineraries.map((itinerary: ItineraryPresenter) => {
                 return {
                     id: itinerary.itineraryId,
@@ -92,7 +72,7 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
                     type: itinerary.type,
                     status: itinerary.status
                 }
-            })) 
+            }))
         }
 
         getAll();

@@ -51,7 +51,7 @@ export default function RegisterPage() {
         resolver: zodResolver(RegistrationForm),
     });
 
-    const onSubmit: SubmitHandler<IFormInputs> = (data) => {        
+    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {        
         if (!isValid) {
             return;
         }
@@ -69,20 +69,13 @@ export default function RegisterPage() {
             company: companyDto,
         }
 
-        const response = register(registerDto);
-
-        response.then((response) => {
-            if (response.status !== 201) { 
-                setHasError(true);
-                setErrorMessage('Erro ao registrar usuário. Erro:' + response.data?.message)
-                return;
-            }
-
-            navigate('/dashboard');
-        }).catch((error) => {
+        try {
+            await register(registerDto);
+            navigate('/routes');
+        } catch (error: any) {
             setHasError(true);
-            setErrorMessage('Erro ao registrar usuário. Erro:' + error.message)
-        });
+            setErrorMessage(error.response?.data.message)
+        }
     }
 
     return (

@@ -11,12 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import BlockIcon from '@mui/icons-material/Block';
 import { IMaskMixin } from "react-imask";
 import React from "react";
-import { getDriverById, saveDriver, updateDriver } from "../../services/driver.service";
+import { disableDriver, enableDriver, getDriverById, saveDriver, updateDriver } from "../../services/driver.service";
 import type DriverDto from "../../models/driver/DriverDto";
 import MessageAlert from "../../components/ui/MessageAlert";
 import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import dayjs, { Dayjs } from "dayjs";
 import { useParams } from "react-router";
+import CheckIcon from '@mui/icons-material/Check';
 import type DriverPresenter from "../../models/driver/DriverPresenter";
 
 const DriverForm = z.object({
@@ -56,6 +57,7 @@ export default function DriverInfoPage() {
     const [openDialog, setOpenDialog] = React.useState<DialogType>(null);
     const [alert, setAlert] = React.useState<AlertState>(null);
     const [loading, setLoading] = React.useState(false);
+    const [isEnabled, setIsEnabled] = React.useState(false);
 
     const { handleSubmit, control, trigger, reset, setValue } = useForm<IFormInputs>({
         defaultValues: {
@@ -82,7 +84,7 @@ export default function DriverInfoPage() {
             }
 
             const driverData = response.data;
-            //setActive(vehicleData.isActive);
+            setIsEnabled(driverData.enabled);
             setDriver(driverData);
             
             setValue('name', driverData.name);
@@ -90,7 +92,7 @@ export default function DriverInfoPage() {
             setValue('ddd', driverData.phoneNumber.ddd);
             setValue('number', driverData.phoneNumber.number);
             setValue('cnhNumber', driverData.cnhNumber);
-            setValue('cnhExpirationDate', dayjs(driverData.cnhExpirationDate));
+            setValue('cnhExpirationDate', dayjs(driverData.cnhExpirationDate, 'DD/MM/YYYY'));
         }
 
         getById();
@@ -113,6 +115,7 @@ export default function DriverInfoPage() {
 
         try {
             let response = null;
+
             if (driverId && driverId !== 'edit') {
                 response = await updateDriver(driverId, driverDto);
             } else {
@@ -122,12 +125,12 @@ export default function DriverInfoPage() {
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Motorista salvo com sucesso!', severity: 'success' });
                 reset();
-            } else {
-                setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
+            } else if (response.status === 200) {
+                setAlert({ open: true, message: 'Motorista atualizado com sucesso!', severity: 'success' });
+                reset();
             }
-        } catch(error) {
-            console.log(error);
-            setAlert({ open: true, message: 'Erro ao salvar motorista!', severity: 'error' });
+        } catch(error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
         }
@@ -153,14 +156,42 @@ export default function DriverInfoPage() {
         disable: {
             title: 'Confirmar Desabilitar Motorista',
             message: 'Tem certeza que deseja desabilitar esse motorista?',
-            onConfirm: () => console.log('Motorista Desabilitado')
+            onConfirm: () => disable()
         },
         enable: {
             title: 'Confirmar Habilitar Motorista',
             message: 'Tem certeza que deseja habilitar esse motorista?',
-            onConfirm: () => console.log('Motorista Habilitado')
+            onConfirm: () => enable()
         }
     };
+
+    const disable = async () => {
+        setOpenDialog(null);
+        try {
+            if (driverId === undefined) {
+                return;
+            }
+            await disableDriver(driverId);
+            setIsEnabled(false);
+            setAlert({ open: true, message: 'Motorista desabilitado com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
+
+    const enable = async () => {
+        setOpenDialog(null);
+        try {
+            if (driverId === undefined) {
+                return;
+            }
+            await enableDriver(driverId);
+            setIsEnabled(true);
+            setAlert({ open: true, message: 'Motorista habilitado com sucesso!', severity: 'success' });
+        } catch (error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
+        }
+    }
 
     const config = openDialog ? dialogConfig[openDialog] : null;
 
@@ -212,6 +243,7 @@ export default function DriverInfoPage() {
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                             <DatePicker 
                                                 label="Validade" 
+                                                format="DD/MM/YYYY"
                                                 value={field.value ? dayjs(field.value) : null}
                                                 onChange={(newValue) => field.onChange(newValue)}
                                                 slotProps={{
@@ -239,7 +271,30 @@ export default function DriverInfoPage() {
                         >
                             Salvar
                         </Button>
-                        <Button variant="outlined" color="error" startIcon={<BlockIcon />}>Desabilitar</Button>
+                        {
+                            driverId !== 'edit' && (
+                                isEnabled ? 
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    startIcon={<BlockIcon />} 
+                                    onClick={() => handleOpenDialog('disable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Desabilitar
+                                </Button> : <Button 
+                                    variant="outlined" 
+                                    color="success" 
+                                    startIcon={<CheckIcon />} 
+                                    onClick={() => handleOpenDialog('enable')} 
+                                    loading={loading} 
+                                    loadingPosition="start"
+                                >
+                                    Habilitar
+                                </Button>
+                            )                                
+                        }   
                     </Stack>
                     {config && (
                         <ConfirmationDialog

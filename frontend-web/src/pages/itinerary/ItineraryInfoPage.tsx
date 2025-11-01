@@ -5,8 +5,8 @@ import React from "react";
 import CancelIcon from '@mui/icons-material/Cancel';
 import type DriverPresenter from "../../models/driver/DriverPresenter";
 import type VehiclePresenter from "../../models/vehicle/VehiclePresenter";
-import { getAllDrivers } from "../../services/driver.service";
-import { getAllVehicles } from "../../services/vehicle.service";
+import { getAllEnabledDrivers } from "../../services/driver.service";
+import { getAllActiveVehicles } from "../../services/vehicle.service";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -37,6 +37,8 @@ type IFormInputs = z.infer<typeof RouteForm>
 type DialogType = 'save' | 'disable' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
 
+type ItineraryStatus = 'AGENDADO' | 'EM_ANDAMENTO' | 'CANCELADO' | 'CONCLUIDO' | null;
+
 export default function ItineraryInfoPage() {
     const { itineraryId } = useParams();
 
@@ -47,9 +49,11 @@ export default function ItineraryInfoPage() {
     const [alert, setAlert] = React.useState<AlertState>(null);
     const [loading, setLoading] = React.useState(false);
 
+    const [itineraryStatus, setItineraryStatus] = React.useState<ItineraryStatus>(null);
+
     React.useEffect(() => {
             async function getDrivers() {
-                const response = await getAllDrivers();
+                const response = await getAllEnabledDrivers();
                 setDrivers(response.data);
             }
             
@@ -58,7 +62,7 @@ export default function ItineraryInfoPage() {
     
     React.useEffect(() => {
         async function getVehicles() {
-            const response = await getAllVehicles();
+            const response = await getAllActiveVehicles();
             setVehicles(response.data);
         }
         getVehicles();
@@ -88,6 +92,7 @@ export default function ItineraryInfoPage() {
 
             const itineraryData = response.data;
             
+            setItineraryStatus(itineraryData.status);
             setValue('driverId', itineraryData.driver.driverId);
             setValue('vehicleId', itineraryData.vehicle.vehicleId);
             setValue('startTime', itineraryData.startTime ? dayjs(itineraryData.startTime, 'HH:mm') : null);
@@ -140,13 +145,11 @@ export default function ItineraryInfoPage() {
             const response = await cancelItinerary(itineraryId);
             if (response.status === 200) {
                 setAlert({ open: true, message: 'Itinerário cancelado com sucesso!', severity: 'success' });
+                setItineraryStatus('CANCELADO');
                 reset();
-            } else {
-                setAlert({ open: true, message: 'Erro ao cancelar itinerário!', severity: 'error' });
             }
-        } catch(error) {
-            console.log(error);
-            setAlert({ open: true, message: 'Erro ao cancelar itinerário!', severity: 'error' });
+        } catch(error: any) {
+            setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
         }
@@ -298,6 +301,7 @@ export default function ItineraryInfoPage() {
                         >
                             Atualizar
                         </Button>
+                    {itineraryStatus && itineraryStatus === 'AGENDADO' && (
                         <Button 
                             variant="outlined" 
                             color="error" 
@@ -308,6 +312,7 @@ export default function ItineraryInfoPage() {
                         >
                             Cancelar
                         </Button>
+                    )}
                     </Stack>
                     {config && (
                         <ConfirmationDialog
