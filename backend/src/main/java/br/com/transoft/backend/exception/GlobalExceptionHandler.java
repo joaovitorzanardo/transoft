@@ -48,4 +48,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleEmailNotFromEmployeeException(EmailNotFromEmployeeException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(exception.getMessage()));
     }
+
+    @ExceptionHandler(DisabledUserException.class)
+    public ResponseEntity<ErrorResponse> handleDisabledUserException(DisabledUserException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exception.getMessage()));
+    }
+
 }

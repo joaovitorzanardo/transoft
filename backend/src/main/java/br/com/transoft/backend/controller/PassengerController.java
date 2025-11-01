@@ -72,11 +72,11 @@ public class PassengerController {
         return passengerService.findPassengerById(passengerId, (LoggedUserAccount) authentication.getPrincipal()).toPresenter();
     }
 
-    @PutMapping(path = "/{passengerId}")
+    @PatchMapping(path = "/{passengerId}")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePassenger(@PathVariable String passengerId, PassengerDto passengerDto, Authentication authentication) {
+    public void updatePassenger(@PathVariable String passengerId, @Valid @RequestBody PassengerDto passengerDto, Authentication authentication) {
         passengerService.updatePassenger(passengerId, passengerDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 

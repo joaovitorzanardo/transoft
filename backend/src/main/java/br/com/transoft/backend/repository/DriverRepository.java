@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface DriverRepository extends JpaRepository<Driver, String> {
     Optional<Driver> findByDriverIdAndCompany_CompanyId(String driverId, String companyId);
     Optional<Driver> findByCnhNumberAndCompany_CompanyId(String cnhNumber, String companyId);
+    List<Driver> findAllByCompany_CompanyId(String companyId);
     List<Driver> findAllByCompany_CompanyIdAndUserAccountEnabledTrue(String companyId);
     Page<Driver> findAllByCompany_CompanyId(String companyId, Pageable pageable);
     Optional<Driver> findByEmail(String email);

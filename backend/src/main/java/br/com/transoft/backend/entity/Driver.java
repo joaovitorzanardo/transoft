@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "driver")
@@ -48,7 +49,7 @@ public class Driver {
                 name,
                 email,
                 cnhNumber,
-                cnhExpirationDate,
+                cnhExpirationDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 phoneNumber.toDto(),
                 userAccount.getActive(),
                 userAccount.getEnabled()

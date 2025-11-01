@@ -49,7 +49,7 @@ public class SchoolService {
     }
 
     public School findSchoolById(String schoolId) {
-        return schoolRepository.findById(schoolId).orElseThrow(() -> new ResourceNotFoundException("School id was not found."));
+        return schoolRepository.findById(schoolId).orElseThrow(() -> new ResourceNotFoundException("Escola não encontrada"));
     }
 
 }

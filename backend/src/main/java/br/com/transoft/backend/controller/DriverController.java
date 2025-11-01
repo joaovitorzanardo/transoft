@@ -64,8 +64,16 @@ public class DriverController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public List<DriverPresenter> listDrivers(Authentication authentication) {
+    public List<DriverPresenter> listAllDrivers(Authentication authentication) {
         return driverService.listDrivers((LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/all/enabled")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<DriverPresenter> listAllEnabledDrivers(Authentication authentication) {
+        return driverService.listAllEnabledDrivers((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping("/stats")
@@ -100,7 +108,7 @@ public class DriverController {
         driverService.disableDriver(driverId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PutMapping(path = "/{driverId}")
+    @PatchMapping(path = "/{driverId}")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)

@@ -49,7 +49,7 @@ public class Route {
     private ReturnTrip returnTrip;
 
     @Embedded
-    private DayOfWeek dayOfWeek;
+    private DayOfTheWeek dayOfTheWeek;
 
     @OneToMany(mappedBy = "route")
     private Set<Passenger> passengers;
@@ -64,7 +64,7 @@ public class Route {
                 defaultVehicle.toPresenter(),
                 departureTrip.toDto(),
                 returnTrip.toDto(),
-                dayOfWeek.toDto()
+                dayOfTheWeek.toDto()
         );
     }
 

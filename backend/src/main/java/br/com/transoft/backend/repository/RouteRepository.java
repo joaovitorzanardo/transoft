@@ -14,6 +14,9 @@ public interface RouteRepository extends JpaRepository<Route, String> {
     Optional<Route> findByRouteIdAndCompany_CompanyId(String routeId, String companyId);
     Page<Route> findAllByCompany_CompanyId(String companyId, Pageable pageable);
     List<Route> findAllByCompany_CompanyId(String companyId);
+    List<Route> findAllByCompany_CompanyIdAndActiveTrue(String companyId);
+    List<Route> findAllRoutesByCompany_CompanyIdAndDefaultVehicle_VehicleId(String companyId, String vehicleId);
+    List<Route> findAllRoutesByCompany_CompanyIdAndDefaultDriver_DriverId(String companyId, String diverId);
     int countAllByCompany_CompanyId(String companyId);
     int countAllByCompany_CompanyIdAndActive(String companyId, Boolean active);
 }

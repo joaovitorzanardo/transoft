@@ -10,7 +10,7 @@ public record DriverPresenter(
         @JsonProperty(namespace = "name") String name,
         @JsonProperty(namespace = "email") String email,
         @JsonProperty(namespace = "cnhNumber") String cnhNumber,
-        @JsonProperty(namespace = "cnhExpirationDate") LocalDate cnhExpirationDate,
+        @JsonProperty(namespace = "cnhExpirationDate") String cnhExpirationDate,
         @JsonProperty(namespace = "phoneNumber") PhoneNumberDto phoneNumber,
         @JsonProperty(namespace = "active") Boolean active,
         @JsonProperty(namespace = "enabled") Boolean enabled

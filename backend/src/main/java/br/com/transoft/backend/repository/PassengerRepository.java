@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface PassengerRepository extends JpaRepository<Passenger, String> {
     Optional<Passenger> findByEmail(String email);
-    List<Passenger> findByRoute(Route route);
+    List<Passenger> findByCompany_CompanyIdAndRoute(String companyId, Route route);
     Optional<Passenger> findByPassengerIdAndCompany_CompanyId(String passengerId, String companyId);
     Page<Passenger> findAllByCompany_CompanyId(String companyId, Pageable pageable);
     int countAllByCompany_CompanyId(String companyId);

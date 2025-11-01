@@ -4,6 +4,7 @@ import br.com.transoft.backend.dto.login.LoginDto;
 import br.com.transoft.backend.dto.login.LoginResponse;
 import br.com.transoft.backend.dto.login.UserAccountDto;
 import br.com.transoft.backend.entity.UserAccount;
+import br.com.transoft.backend.exception.DisabledUserException;
 import br.com.transoft.backend.exception.IncorrectPasswordException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.UserAccountRepository;
@@ -29,6 +30,10 @@ public class LoginService {
 
         if (!passwordEncoder.matches(loginDto.getPassword(), userAccount.getPassword())) {
             throw new IncorrectPasswordException();
+        }
+
+        if (!userAccount.getEnabled()) {
+            throw new DisabledUserException();
         }
 
         UserAccountDto user = new UserAccountDto(userAccount.getName(), userAccount.getEmail(), userAccount.getActive(), userAccount.getRole().getRole());

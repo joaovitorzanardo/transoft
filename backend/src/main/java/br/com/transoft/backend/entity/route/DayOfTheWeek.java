@@ -5,13 +5,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.List;
+
 @Embeddable
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
-public class DayOfWeek {
+public class DayOfTheWeek {
 
     @Column(name = "monday")
     private Boolean monday;
@@ -30,6 +34,18 @@ public class DayOfWeek {
 
     public DaysOfWeekDto toDto() {
         return new DaysOfWeekDto(monday, tuesday, wednesday, thursday, friday);
+    }
+
+    public List<DayOfWeek> getDaysOfWeek() {
+        List<DayOfWeek> days = new ArrayList<>();
+
+        if (monday) days.add(DayOfWeek.MONDAY);
+        if (tuesday) days.add(DayOfWeek.TUESDAY);
+        if (wednesday) days.add(DayOfWeek.WEDNESDAY);
+        if (thursday) days.add(DayOfWeek.THURSDAY);
+        if (friday) days.add(DayOfWeek.FRIDAY);
+
+        return days;
     }
 
 }

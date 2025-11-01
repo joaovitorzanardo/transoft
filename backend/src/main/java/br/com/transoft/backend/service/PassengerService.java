@@ -13,7 +13,9 @@ import br.com.transoft.backend.dto.passenger.PassengerPresenter;
 import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.exception.ResourceConflictException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
+import br.com.transoft.backend.repository.ItineraryRepository;
 import br.com.transoft.backend.repository.PassengerRepository;
+import br.com.transoft.backend.repository.PassengerStatusRepository;
 import br.com.transoft.backend.utils.PasswordGeneratorUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
@@ -21,21 +23,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PassengerService {
 
     private final PassengerRepository passengerRepository;
+    private final ItineraryRepository itineraryRepository;
+    private final PassengerStatusRepository passengerStatusRepository;
     private final CoordinateService coordinateService;
     private final RouteService routeService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public PassengerService(PassengerRepository passengerRepository, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public PassengerService(PassengerRepository passengerRepository, ItineraryRepository itineraryRepository, PassengerStatusRepository passengerStatusRepository, CoordinateService coordinateService, RouteService routeService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.passengerRepository = passengerRepository;
+        this.itineraryRepository = itineraryRepository;
+        this.passengerStatusRepository = passengerStatusRepository;
         this.coordinateService = coordinateService;
         this.routeService = routeService;
         this.passwordEncoder = passwordEncoder;
@@ -45,7 +50,7 @@ public class PassengerService {
     @Transactional(rollbackOn = {SQLException.class})
     public void savePassenger(PassengerDto passengerDto, LoggedUserAccount loggedUserAccount) {
         if (isEmailRegistered(passengerDto.getEmail())) {
-            throw new ResourceConflictException("This email is already registered for another passenger");
+            throw new ResourceConflictException("O email informado já está registrado para outro passageiro!");
         }
 
         Address address = AddressMapper.toEntity(
@@ -66,7 +71,7 @@ public class PassengerService {
 
     public List<PassengerPresenter> listPassengersFromRoute(String routeId, LoggedUserAccount loggedUserAccount) {
         Route route = routeService.findRouteById(routeId, loggedUserAccount);
-        return passengerRepository.findByRoute(route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
+        return passengerRepository.findByCompany_CompanyIdAndRoute(loggedUserAccount.companyId(), route).stream().map(Passenger::toPresenter).collect(Collectors.toList());
     }
 
     public void updatePassengerAccount(PassengerAccountDto passengerAccountDto, LoggedUserAccount loggedUserAccount) {
@@ -76,7 +81,7 @@ public class PassengerService {
 
         if (!Objects.equals(passenger.getEmail(), passengerAccountDto.getEmail())) {
             if (passengerRepository.findByEmail(passengerAccountDto.getEmail()).isPresent()) {
-                throw new ResourceConflictException("This email is already registered for another passenger");
+                throw new ResourceConflictException("O email informado já está registrado para outro passageiro!");
             }
 
             passenger.setEmail(passengerAccountDto.getEmail());
@@ -127,14 +132,14 @@ public class PassengerService {
 
         passenger.setName(passengerDto.getName());
 
-        if (!passenger.getEmail().equals(passengerDto.getEmail())) {
+            if (!passenger.getEmail().equals(passengerDto.getEmail())) {
             if (isEmailRegistered(passengerDto.getEmail())) {
-                throw new ResourceConflictException("Email is already in use.");
+                throw new ResourceConflictException("O email informado já está registrado para outro passageiro!");
             }
             passenger.setEmail(passengerDto.getEmail());
         }
 
-        passenger.setPhoneNumber(new PhoneNumber(passenger.getPhoneNumber().getDdd(), passenger.getPhoneNumber().getNumber()));
+        passenger.setPhoneNumber(new PhoneNumber(passengerDto.getPhoneNumber()));
 
         if (!passenger.getRoute().getRouteId().equals(passengerDto.getRouteId())) {
             Route newRoute = routeService.findRouteById(passengerDto.getRouteId(), loggedUserAccount);
@@ -156,10 +161,35 @@ public class PassengerService {
         passengerRepository.save(passenger);
     }
 
+    @Transactional(rollbackOn = {SQLException.class})
     public void disablePassenger(String passengerId, LoggedUserAccount loggedUserAccount) {
         Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
         passenger.getUserAccount().setEnabled(false);
         passengerRepository.save(passenger);
+
+        removePassengerFromScheduledItineraries(loggedUserAccount.companyId(), passengerId);
+    }
+
+    @Transactional(rollbackOn = {SQLException.class})
+    protected void removePassengerFromScheduledItineraries(String companyId, String passengerId) {
+        List<Itinerary> itineraries = itineraryRepository
+                .findAllScheduledItinerariesByPassengerId(companyId, passengerId);
+
+        Set<PassengerStatus> passengersStatusToRemove = new HashSet<>();
+
+        for (Itinerary itinerary : itineraries) {
+            Optional<PassengerStatus> passengerStatus = itinerary.getPassengerStatus()
+                    .stream()
+                    .filter((ps) -> ps.getPassengerStatusKey().equals(new PassengerStatusKey(passengerId, itinerary.getItineraryId()))).findFirst();
+
+            if (passengerStatus.isEmpty()) {
+                continue;
+            }
+
+            passengersStatusToRemove.add(passengerStatus.get());
+        }
+
+        passengerStatusRepository.deleteAll(passengersStatusToRemove);
     }
 
     private boolean isEmailRegistered(String email) {

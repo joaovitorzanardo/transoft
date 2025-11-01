@@ -46,7 +46,15 @@ public class VehicleController {
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
     public List<VehiclePresenter> listVehicles(Authentication authentication) {
-        return vehicleService.listVehicles((LoggedUserAccount) authentication.getPrincipal());
+        return vehicleService.listAllVehicles((LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/all/active")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<VehiclePresenter> listAllActiveVehicles(Authentication authentication) {
+        return vehicleService.listAllActiveVehicles((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping("/stats")
@@ -65,7 +73,7 @@ public class VehicleController {
         return vehicleService.findVehicleById(vehicleId, (LoggedUserAccount) authentication.getPrincipal()).toPresenter();
     }
 
-    @PutMapping("/{vehicleId}")
+    @PatchMapping("/{vehicleId}")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)

@@ -14,6 +14,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, String> {
     Optional<Vehicle> findByPlateNumberAndCompany_CompanyId(String plateNumber, String companyId);
     Optional<Vehicle> findByVehicleIdAndCompany_CompanyId(String vehicleId, String companyId);
     Page<Vehicle> findAllByCompany_CompanyId(String companyId, Pageable pageable);
+    List<Vehicle> findAllByCompany_CompanyId(String companyId);
     List<Vehicle> findAllByCompany_CompanyIdAndActiveTrue(String companyId);
     int countAllByCompany_CompanyId(String companyId);
     int countAllByCompany_CompanyIdAndActive(String companyId, boolean active);

@@ -34,6 +34,14 @@ public class RouteController {
         routeService.saveRoute(routeDto, (LoggedUserAccount) authentication.getPrincipal());
     }
 
+    @PatchMapping(path = "/{routeId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateRoute(@PathVariable String routeId, @Valid @RequestBody RouteUpdateDto routeUpdateDto, Authentication authentication) {
+        routeService.updateRoute(routeId, routeUpdateDto, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
@@ -48,6 +56,14 @@ public class RouteController {
     @ResponseStatus(HttpStatus.OK)
     public List<RouteSelectPresenter> listRoutes(Authentication authentication) {
         return routeService.listAllRoutes((LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @GetMapping(path = "/all/active")
+    @PreAuthorize("hasRole('MANAGER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public List<RouteSelectPresenter> listAllActiveRoutes(Authentication authentication) {
+        return routeService.listAllActiveRoutes((LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/stats")
@@ -66,14 +82,6 @@ public class RouteController {
         return routeService.listRouteById(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping(path = "/{routeId}/passengers/{passengerId}")
-    @PreAuthorize("hasRole('MANAGER')")
-    @SecurityRequirement(name = "Authorization")
-    @ResponseStatus(HttpStatus.OK)
-    public void addPassengerToRoute(@PathVariable String routeId, @PathVariable String passengerId, Authentication authentication) {
-        routeService.addPassengerToRoute(passengerId, routeId, (LoggedUserAccount) authentication.getPrincipal());
-    }
-
     @GetMapping(path = "/{routeId}/passengers")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
@@ -82,15 +90,7 @@ public class RouteController {
         return passengerService.listPassengersFromRoute(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @DeleteMapping(path = "/{routeId}/passengers/{passengerId}")
-    @PreAuthorize("hasRole('MANAGER')")
-    @SecurityRequirement(name = "Authorization")
-    @ResponseStatus(HttpStatus.OK)
-    public void removePassengerFromRoute(@PathVariable String routeId, @PathVariable String passengerId, Authentication authentication) {
-        routeService.removePassengerFromRoute(passengerId, routeId, (LoggedUserAccount) authentication.getPrincipal());
-    }
-
-    @PostMapping(path = "/{routeId}/enable")
+    @PatchMapping(path = "/{routeId}/enable")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
@@ -98,7 +98,7 @@ public class RouteController {
         routeService.enableRoute(routeId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
-    @PostMapping(path = "/{routeId}/disable")
+    @PatchMapping(path = "/{routeId}/disable")
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)

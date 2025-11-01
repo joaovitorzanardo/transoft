@@ -21,14 +21,41 @@ public class ItineraryQueryRepository {
         this.entityManager = entityManager;
     }
 
-    public List<Itinerary> findByFilter(ItineraryFilter filter, String companyId) {
+    public List<Itinerary> findByFilter(ItineraryFilter filter, String companyId, int page, int size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Itinerary> query = criteriaBuilder.createQuery(Itinerary.class);
         Root<Itinerary> root = query.from(Itinerary.class);
 
+        List<Predicate> predicates = buildPredicates(criteriaBuilder, root, filter, companyId);
+        query.where(predicates.toArray(new Predicate[0]));
+
+        return entityManager.createQuery(query)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
+    public Long countByFilter(ItineraryFilter filter, String companyId) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+        Root<Itinerary> root = query.from(Itinerary.class);
+
+        List<Predicate> predicates = buildPredicates(criteriaBuilder, root, filter, companyId);
+
+        query.select(criteriaBuilder.count(root));
+        query.where(predicates.toArray(new Predicate[0]));
+
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    private List<Predicate> buildPredicates(CriteriaBuilder criteriaBuilder, Root<Itinerary> root,
+                                            ItineraryFilter filter, String companyId) {
         List<Predicate> predicates = new ArrayList<>();
 
         Join<Itinerary, Company> company = root.join("company");
+        Join<Itinerary, Company> route = root.join("route");
+        Join<Itinerary, Company> driver = root.join("driver");
+        Join<Itinerary, Company> vehicle = root.join("vehicle");
 
         predicates.add(criteriaBuilder.equal(company.get("companyId"), companyId));
 
@@ -38,16 +65,27 @@ public class ItineraryQueryRepository {
         }
 
         if (Objects.nonNull(filter.type()) && !filter.type().isEmpty()) {
-            predicates.add(root.get("type").in(filter.type()));
+            List<String> types = filter.type().stream().map(String::toUpperCase).toList();
+            predicates.add(root.get("type").in(types));
         }
 
         if (Objects.nonNull(filter.date())) {
             predicates.add(criteriaBuilder.equal(root.get("date"), filter.date()));
         }
 
-        query.where(predicates.toArray(new Predicate[0]));
+        if (Objects.nonNull(filter.driverId()) && !filter.driverId().isEmpty()) {
+            predicates.add(criteriaBuilder.equal(driver.get("driverId"), filter.driverId()));
+        }
 
-        return entityManager.createQuery(query).getResultList();
+        if (Objects.nonNull(filter.routeId()) && !filter.routeId().isEmpty()) {
+            predicates.add(criteriaBuilder.equal(route.get("routeId"), filter.routeId()));
+        }
+
+        if (Objects.nonNull(filter.vehicleId()) && !filter.vehicleId().isEmpty()) {
+            predicates.add(criteriaBuilder.equal(vehicle.get("vehicleId"), filter.vehicleId()));
+        }
+
+        return predicates;
     }
 
 }

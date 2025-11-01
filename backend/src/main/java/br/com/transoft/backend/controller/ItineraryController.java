@@ -7,11 +7,13 @@ import br.com.transoft.backend.service.ItineraryService;
 import jakarta.validation.Valid;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/itineraries")
@@ -75,8 +77,8 @@ public class ItineraryController {
     @PreAuthorize("hasRole('MANAGER')")
     @SecurityRequirement(name = "Authorization")
     @ResponseStatus(HttpStatus.OK)
-    public ItineraryPresenterList listItinerariesWithFilter(@RequestBody ItineraryFilter itineraryFilter, Authentication authentication) {
-        return itineraryService.listItinerariesWithFilter(itineraryFilter, 0, 10, (LoggedUserAccount) authentication.getPrincipal());
+    public ItineraryPresenterList listItinerariesWithFilter(@RequestBody ItineraryFilter itineraryFilter, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false, defaultValue = "10") int size, Authentication authentication) {
+        return itineraryService.listItinerariesWithFilter(itineraryFilter, page, size, (LoggedUserAccount) authentication.getPrincipal());
     }
 
     @GetMapping(path = "/stats")
@@ -98,9 +100,17 @@ public class ItineraryController {
     @GetMapping(path = "/next")
     @PreAuthorize("hasAnyRole('DRIVER', 'PASSENGER')")
     @SecurityRequirement(name = "Authorization")
-    @ResponseStatus(HttpStatus.OK)
-    public ItineraryAccount getNextItinerary(Authentication authentication) {
-        return itineraryService.getNextItinerary((LoggedUserAccount) authentication.getPrincipal());
+    public ResponseEntity<ItineraryAccount> getNextItinerary(Authentication authentication) {
+        Optional<ItineraryAccount> itineraryAccount = itineraryService.getNextItinerary((LoggedUserAccount) authentication.getPrincipal());
+        return itineraryAccount.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
+    }
+
+    @GetMapping(path = "/ongoing")
+    @PreAuthorize("hasAnyRole('DRIVER', 'PASSENGER')")
+    @SecurityRequirement(name = "Authorization")
+    public ResponseEntity<ItineraryAccount> getOngoingItinerary(Authentication authentication) {
+        Optional<ItineraryAccount> itineraryAccount =  itineraryService.getOngoingItinerary((LoggedUserAccount) authentication.getPrincipal());
+        return itineraryAccount.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
     }
 
     @GetMapping("/{itineraryId}/passengers")
@@ -125,6 +135,22 @@ public class ItineraryController {
     @ResponseStatus(HttpStatus.OK)
     public void confirmItineraryForPassenger(@PathVariable String itineraryId, Authentication authentication) {
         itineraryService.confirmPassengerItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping("/{itineraryId}/start")
+    @PreAuthorize("hasAnyRole('DRIVER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void startItinerary(@PathVariable String itineraryId, Authentication authentication) {
+        itineraryService.startItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
+    }
+
+    @PatchMapping("/{itineraryId}/finish")
+    @PreAuthorize("hasAnyRole('DRIVER')")
+    @SecurityRequirement(name = "Authorization")
+    @ResponseStatus(HttpStatus.OK)
+    public void finishItinerary(@PathVariable String itineraryId, Authentication authentication) {
+        itineraryService.finishItinerary(itineraryId, (LoggedUserAccount) authentication.getPrincipal());
     }
 
 }

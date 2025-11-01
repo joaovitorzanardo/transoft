@@ -35,11 +35,11 @@ public class RegistrationService {
         boolean isCnpjRegistered = companyRepository.findByCnpj(registrationDto.getCompany().getCnpj()).isPresent();
 
         if (isEmailInUse(registrationDto.getEmail())) {
-            throw new ResourceConflictException("Email already in use");
+            throw new ResourceConflictException("O email informado já está sendo utilizado!");
         }
 
         if (isCnpjRegistered) {
-            throw new ResourceConflictException("A company with this CNPJ is already registered");
+            throw new ResourceConflictException("Uma empresa com esse CNPJ já está cadastrada!");
         }
 
         Company company = Company.builder()
@@ -60,7 +60,7 @@ public class RegistrationService {
     @Transactional(rollbackOn = SQLException.class)
     public void registerAdmin(RegistrationAdminDto registrationAdminDto) {
         if (isEmailInUse(registrationAdminDto.getEmail())) {
-            throw new ResourceConflictException("Email already in use");
+            throw new ResourceConflictException("O email informado já está sendo utilizado!");
         }
 
         if (!isEmailFromEmployee(registrationAdminDto.getEmail())) {
