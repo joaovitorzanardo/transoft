@@ -85,6 +85,7 @@ export default function DriverProfile({isDialogVisible, setIsDialogVisible, hand
             backgroundColor: '#ff4444',
             padding: 16,
             borderRadius: 8,
+            marginTop: 20,
             alignItems: 'center',
             flexDirection: 'row',
             justifyContent: 'center',

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../src/contexts/AuthContext';
 import { login } from './services/login.service';
 import { storage } from './utils/Storage';
@@ -13,18 +13,30 @@ export default function LoginScreen() {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
-    const response = await login({ email, password });
-    await storage.setToken(response.data.token);
+    try {
+      const response = await login({ email, password });
+      await storage.setToken(response.data.token);
 
-    setUser(response.data.user);
+      setUser(response.data.user);
 
-    if (!response.data.user.active) {
-      router.replace('/first-access');
-      return;
+      if (!response.data.user.active) {
+        router.replace('/first-access');
+        return;
+      }
+
+      router.replace('/(tabs)');
+    } catch (error:any) {
+      showAlert(error.response?.data?.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.');
     }
-
-    router.replace('/(tabs)');
   };
+
+  const showAlert = (message: string) => {
+    Alert.alert('Erro ao fazer login', message, [
+          {
+              text: 'Ok'
+          }
+      ]);
+  }
 
   return (
     <View style={styles.container}>

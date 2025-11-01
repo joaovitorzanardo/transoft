@@ -1,86 +1,39 @@
-import ItineraryCard from "@/app/components/ItineraryCard";
-import { getItineraries } from "@/app/services/itinerary.service";
-import ItineraryView from "@/app/views/ItineraryView";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, SectionList, Text } from "react-native";
+import { useState } from 'react';
+import { Dimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
-interface ItineraryAccount {
-    date: string;
-    itinerary: ItineraryView[];
-}
-
-interface ItineraryList {
-    title: string;
-    data: ItineraryView[];
-}
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
+import HistoryItineraries from './HistoryItineraries';
+import NextItineraries from './NextItineraries';
 
 export default function TripsScreen() {
-    const [loading, setLoading] = useState<boolean>(false);
-    const [itineraries, setItineraries] = useState<ItineraryList[]>([]);
-    const [page, setPage] = useState<number>(0);
-    const [hasMore, setHasMore] = useState<boolean>(true);
-    const PAGE_SIZE = 10;
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
+        { key: 'next', title: 'Próximos' },
+        { key: 'history', title: 'Histórico' },
+    ]);
 
-    const loadItineraries = async () => {
-        if (loading || !hasMore) return;
-
-        setLoading(true);
-        try {
-            const response = await getItineraries(page, PAGE_SIZE);
-            
-            if (response.status === 200) {
-                const newData = response.data.map((itinerary: ItineraryAccount) => {
-                    return {
-                        title: itinerary.date,
-                        data: itinerary.itinerary
-                    }
-                });
-                
-                if (newData.length < PAGE_SIZE) {
-                    setHasMore(false);
-                }
-                
-                setItineraries(prev => [...prev, ...newData]);
-                setPage(prev => prev + 1);
-            }
-        } catch (error) {
-            console.error('Error loading itineraries:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadItineraries();
-    }, []);
-
-    const renderFooter = () => {
-        if (!loading) return null;
-        
-        return (
-            <ActivityIndicator 
-                size="large"
-                color="#0000ff"
-                style={{ padding: 20 }}
-            />
-        );
-    };
+    const renderScene = SceneMap({
+        next: NextItineraries,
+        history: HistoryItineraries,
+    });
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{ padding: 20 }}>
-                <SectionList 
-                    sections={itineraries}
-                    renderSectionHeader={({section: {title}}) => (
-                        <Text>{title}</Text>
+            <SafeAreaView style={{ flex: 1 }}>
+                <TabView
+                    navigationState={{ index, routes }}
+                    renderScene={renderScene}
+                    onIndexChange={setIndex}
+                    initialLayout={{ width: Dimensions.get('window').width }}
+                    renderTabBar={props => (
+                        <TabBar
+                            {...props}
+                            style={{ backgroundColor: '#fff' }}
+                            indicatorStyle={{ backgroundColor: '#000' }}
+                            activeColor="#000"
+                            inactiveColor="#000"
+                        />
                     )}
-                    renderItem={({ item }) => (
-                        <ItineraryCard itinerary={item} loading={loading}/>
-                    )}
-                    onEndReached={loadItineraries}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={renderFooter}
                 />
             </SafeAreaView>
         </SafeAreaProvider>

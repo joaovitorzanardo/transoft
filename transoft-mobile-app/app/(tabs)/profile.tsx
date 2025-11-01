@@ -1,7 +1,7 @@
 import { useAuth } from '@/src/contexts/AuthContext';
 import { router } from 'expo-router';
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, RefreshControl, ScrollView } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import DriverProfile from '../screens/profile/DriverProfile';
 import PassengerProfile from '../screens/profile/PassengerProfile';
@@ -10,6 +10,16 @@ import { storage } from '../utils/Storage';
 export default function ProfileScreen() {
   const { user, setUser } = useAuth();
   const [isDialogVisible, setIsDialogVisible] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    // Add your refresh logic here
+    // For example, refetch user data
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
   
   const handleLogout = async () => {
     Alert.alert(
@@ -51,21 +61,28 @@ export default function ProfileScreen() {
           flex: 1,
           backgroundColor: '#f5f5f5' 
         }}>
-          {
-            user.role === 'DRIVER' ? (
-              <DriverProfile 
-                isDialogVisible={isDialogVisible}
-                setIsDialogVisible={setIsDialogVisible}
-                handleLogout={handleLogout}
-              />
-            ) : (
-              <PassengerProfile
-                isDialogVisible={isDialogVisible}
-                setIsDialogVisible={setIsDialogVisible}
-                handleLogout={handleLogout}
-              />
-            )
-          }
+          <ScrollView
+            contentContainerStyle={{ flex: 1 }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            {
+              user.role === 'DRIVER' ? (
+                <DriverProfile 
+                  isDialogVisible={isDialogVisible}
+                  setIsDialogVisible={setIsDialogVisible}
+                  handleLogout={handleLogout}
+                />
+              ) : (
+                <PassengerProfile
+                  isDialogVisible={isDialogVisible}
+                  setIsDialogVisible={setIsDialogVisible}
+                  handleLogout={handleLogout}
+                />
+              )
+            }
+          </ScrollView>
         </SafeAreaView>
     </SafeAreaProvider>
   );

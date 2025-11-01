@@ -87,6 +87,7 @@ export default function PassengerProfile({isDialogVisible, setIsDialogVisible, h
             backgroundColor: '#ff4444',
             padding: 16,
             borderRadius: 8,
+            marginTop: 20,
             alignItems: 'center',
             flexDirection: 'row',
             justifyContent: 'center',

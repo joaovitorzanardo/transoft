@@ -1,13 +1,14 @@
 import Chip from "@/app/components/Chip";
+import CoordinateDto from "@/app/model/CoordinateDto";
 import ItineraryPresenter from "@/app/model/ItineraryPresenter";
 import PassengerItineraryPresenter from "@/app/model/PassengerItineraryPresenter";
-import { cancelItineraryForPassenger, confirmItineraryForPassenger, getItineraryById, getPassengersFromItinerary } from "@/app/services/itinerary.service";
+import { finishItinerary, getItineraryById, getPassengersFromItinerary, startItinerary } from "@/app/services/itinerary.service";
 import { formatStatus, formatType } from "@/app/utils/Format";
 import { useAuth } from "@/src/contexts/AuthContext";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,6 +16,7 @@ interface Passengers {
     id: string;
     name: string;
     email: string;
+    coordinates: CoordinateDto;
     status: 'CONFIRMADO' | 'NAO_VAI';
 }
 
@@ -67,6 +69,7 @@ export default function DriverItinerary() {
                             id: item.passenger.passengerId,
                             name: item.passenger.name,
                             email: item.passenger.email,
+                            coordinates: item.passenger.address.coordinate,
                             status: item.status
                         }
                     });
@@ -82,7 +85,7 @@ export default function DriverItinerary() {
         setLoading(false);
     }, [id]);
 
-    const handleCancelItinerary = () => {
+    const handleFinishItinerary = () => {
         Alert.alert('Finalizar Itinerário', 'Tem certeza que deseja finalizar esse itinerário itinerário?', [
             {
                 text: 'Não'
@@ -91,15 +94,10 @@ export default function DriverItinerary() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await cancelItineraryForPassenger(id);
+                       const response = await finishItinerary(id);
                        
                        if (response.status === 200) {
-                           setStatus("NAO_VAI");
-                           setPassengers(passengers.map(passenger => 
-                               passenger.email === user?.email 
-                               ? { ...passenger, status: 'NAO_VAI' }
-                               : passenger
-                           ));
+                        setItinerary(prevState => prevState ? { ...prevState, status: 'CONCLUIDO' } : prevState);
                            Alert.alert('Sucesso', 'Sua participação foi cancelada com sucesso.');
                        }
                     } catch (error) {
@@ -110,7 +108,7 @@ export default function DriverItinerary() {
         ]);
     }
 
-    const handleConfirmItinerary = () => {
+    const handleStartItinerary = () => {
         Alert.alert('Iniciar Itinerário', 'Tem certeza que deseja iniciar esse itinerário?', [
             {
                 text: 'Não'
@@ -119,19 +117,14 @@ export default function DriverItinerary() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await confirmItineraryForPassenger(id);
+                       const response = await startItinerary(id);
                        
                        if (response.status === 200) {
-                           setStatus("CONFIRMADO");
-                           setPassengers(passengers.map(passenger => 
-                               passenger.email === user?.email
-                               ? { ...passenger, status: 'CONFIRMADO' }
-                               : passenger
-                           ));
-                           Alert.alert('Sucesso', 'Sua participação foi confirmada com sucesso.');
+                            setItinerary(prevState => prevState ? { ...prevState, status: 'EM_ANDAMENTO' } : prevState);
+                           Alert.alert('Sucesso', 'Itinerário iniciado com sucesso.');
                        }
                     } catch (error) {
-                        console.error('Error confirming trip:', error);
+                        console.error('Error starting itinerary:', error);
                     }
                 }
             }
@@ -140,13 +133,17 @@ export default function DriverItinerary() {
     
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{flex: 1, width: '100%', paddingTop: 20}}>
+            <SafeAreaView style={{flex: 1}}>
                 {loading ? (
                     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                         <ActivityIndicator size="large" color="#007AFF" />
                     </View>
                 ) : (
-                    <>
+                    <ScrollView 
+                        style={{marginTop: 20}}
+                        contentContainerStyle={{flexGrow: 1, paddingBottom: 20}}
+                        showsVerticalScrollIndicator={false}
+                    >
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20}}>
                             <Text style={{ fontWeight: 'bold'}}>{itinerary?.route.name}</Text>
                             <Text>{getItineraryStatusChip(itinerary?.status)}</Text>
@@ -194,42 +191,78 @@ export default function DriverItinerary() {
                             </View>
                         </View>
 
-                        (
-                            <MapView style={{height: '40%', width: '100%'}} 
-                                provider="google"
-                                initialRegion={{
-                                    latitude: -27.6363,
-                                    longitude: -52.2739,
-                                    latitudeDelta: 0.0222,
-                                    longitudeDelta: 0.0121,
-                                }}
-                            >
+                        {itinerary?.status !== 'CONCLUIDO' && (
+                            <>
+                                <MapView 
+                                    style={{height: 300, width: '100%'}} 
+                                    provider="google"
+                                    initialRegion={{
+                                        latitude: -27.6363,
+                                        longitude: -52.2739,
+                                        latitudeDelta: 0.0222,
+                                        longitudeDelta: 0.0121,
+                                    }}
+                                >
                                 <Marker
-                                    coordinate={{ latitude: Number(itinerary?.route.school.address.coordinate.latitude), longitude: Number(itinerary?.route.school.address.coordinate.longitude) }}
-                                    title="My Marker"
-                                    description="Here is a marker example"
+                                    coordinate={{ 
+                                        latitude: Number(itinerary?.route.school.address.coordinate.latitude), 
+                                        longitude: Number(itinerary?.route.school.address.coordinate.longitude) 
+                                    }}
+                                    title="Escola"
+                                    description={itinerary?.route.school.name}
+                                    pinColor="red"
                                 />
-                            </MapView>
-                        )
-                        <TouchableOpacity 
-                            style={{
-                                backgroundColor: itinerary?.status === 'AGENDADO' ? '#4CAF50' : '#ff4444',
-                                padding: 10,
-                                borderRadius: 5,
-                                marginHorizontal: 20,
-                                marginVertical: 10,
-                            }}
-                            onPress={status === 'CONFIRMADO' ? handleCancelItinerary : handleConfirmItinerary}
-                        >
-                            <Text style={{
-                                color: 'white',
-                                textAlign: 'center',
-                                fontSize: 16,
-                                fontWeight: 'bold'
-                            }}>
-                                {itinerary?.status === 'AGENDADO' ? 'Iniciar' : 'Finalizar'}
-                            </Text>
-                        </TouchableOpacity>
+                                    {passengers.map((passenger) => (
+                                        <Marker
+                                            key={passenger.id}
+                                            coordinate={{
+                                                latitude: Number(passenger.coordinates.latitude),
+                                                longitude: Number(passenger.coordinates.longitude)
+                                            }}
+                                            title={passenger.name}
+                                            description={`Status: ${formatStatus(passenger.status)}`}
+                                            pinColor={passenger.status === 'CONFIRMADO' ? 'blue' : 'red'}
+                                        />
+                                    ))}
+                                </MapView>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    gap: 16,
+                                    marginTop: 8,
+                                    marginHorizontal: 20,
+                                }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <View style={{ width: 10, height: 10, backgroundColor: 'red', borderRadius: 5 }} />
+                                        <Text style={{ color: '#666', fontSize: 12 }}>Escola</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                        <View style={{ width: 10, height: 10, backgroundColor: 'blue', borderRadius: 5 }} />
+                                        <Text style={{ color: '#666', fontSize: 12 }}>Confirmado</Text>
+                                    </View>
+                                </View>
+                                <TouchableOpacity 
+                                    style={{
+                                        backgroundColor: itinerary?.status === 'AGENDADO' ? '#4CAF50' : '#ff4444',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                        marginHorizontal: 20,
+                                        marginVertical: 10,
+                                    }}
+                                    onPress={itinerary?.status === 'AGENDADO' ? handleStartItinerary : handleFinishItinerary}
+                                >
+                                    <Text style={{
+                                        color: 'white',
+                                        textAlign: 'center',
+                                        fontSize: 16,
+                                        fontWeight: 'bold'
+                                    }}>
+                                        {itinerary?.status === 'AGENDADO' ? 'Iniciar' : 'Finalizar'}
+                                    </Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                        
                         <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
@@ -248,25 +281,27 @@ export default function DriverItinerary() {
                                 color: '#444',
                                 marginBottom: 12
                             }}>Passageiros</Text>
-                            <FlatList 
-                                data={passengers} 
-                                renderItem={({item}) => (
-                                    <View style={{
-                                        flexDirection: 'row', 
-                                        justifyContent: 'space-between', 
-                                        alignItems: 'center', 
-                                        paddingVertical: 12,
-                                        borderBottomWidth: 1, 
-                                        borderColor: '#eee'
-                                    }}>
+                            
+                            <View>
+                                {passengers.map((item) => (
+                                    <View 
+                                        key={item.id}
+                                        style={{
+                                            flexDirection: 'row', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'center', 
+                                            paddingVertical: 12,
+                                            borderBottomWidth: 1, 
+                                            borderColor: '#eee'
+                                        }}
+                                    >
                                         <Text style={{ fontSize: 14, color: '#666' }}>{item.name}</Text>
                                         <Chip text={formatStatus(item.status)} color={item.status === 'CONFIRMADO' ? 'success' : 'error'} />
                                     </View>
-                                )}
-                                style={{ maxHeight: 200 }}
-                            />
+                                ))}
+                            </View>
                         </View>
-                    </>
+                    </ScrollView>
                 )}
             </SafeAreaView>
         </SafeAreaProvider>

@@ -7,9 +7,11 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     async (config) => {
-      const token = await storage.getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      if (!config.url?.endsWith('/login')) {
+        const token = await storage.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
       return config;
     },

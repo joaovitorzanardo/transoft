@@ -8,7 +8,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -153,7 +153,7 @@ export default function TripDetailsScreen() {
                         <ActivityIndicator size="large" color="#007AFF" />
                     </View>
                 ) : (
-                    <>
+                    <View>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20}}>
                             <Text style={{ fontWeight: 'bold'}}>{itinerary?.route.name}</Text>
                             <Text>{getItineraryStatusChip(itinerary?.status)}</Text>
@@ -202,41 +202,48 @@ export default function TripDetailsScreen() {
                         </View>
 
                         {itinerary?.status === 'EM_ANDAMENTO' && (
-                            <MapView style={{height: '40%', width: '100%'}} 
-                                provider="google"
-                                initialRegion={{
-                                  latitude: 37.78825,
-                                  longitude: -122.4324,
-                                  latitudeDelta: 0.0922,
-                                  longitudeDelta: 0.0421,
-                                }}
-                            >
-                                <Marker
-                                    coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-                                    title="My Marker"
-                                    description="Here is a marker example"
-                                />
-                            </MapView>
+                            <>
+                                <MapView style={{height: '40%', width: '100%'}} 
+                                    provider="google"
+                                    initialRegion={{
+                                    latitude: 37.78825,
+                                    longitude: -122.4324,
+                                    latitudeDelta: 0.0922,
+                                    longitudeDelta: 0.0421,
+                                    }}
+                                >
+                                    <Marker
+                                        coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
+                                        title="My Marker"
+                                        description="Here is a marker example"
+                                    />
+                                </MapView>
+                            </>
                         )}
-                        <TouchableOpacity 
-                            style={{
-                                backgroundColor: status === 'CONFIRMADO' ? '#ff4444' : '#4CAF50',
-                                padding: 10,
-                                borderRadius: 5,
-                                marginHorizontal: 20,
-                                marginVertical: 10,
-                            }}
-                            onPress={status === 'CONFIRMADO' ? handleCancelItinerary : handleConfirmItinerary}
-                        >
-                            <Text style={{
-                                color: 'white',
-                                textAlign: 'center',
-                                fontSize: 16,
-                                fontWeight: 'bold'
-                            }}>
-                                {status === 'CONFIRMADO' ? 'Não Vou' : 'Vou'}
-                            </Text>
-                        </TouchableOpacity>
+
+                        {itinerary?.status !== 'CONCLUIDO' && itinerary?.status !== 'CANCELADO' && (
+                            <TouchableOpacity 
+                                style={{
+                                    backgroundColor: status === 'CONFIRMADO' ? '#ff4444' : '#4CAF50',
+                                    padding: 10,
+                                    borderRadius: 5,
+                                    marginHorizontal: 20,
+                                    marginVertical: 10,
+                                }}
+                                onPress={status === 'CONFIRMADO' ? handleCancelItinerary : handleConfirmItinerary}
+                            >
+                                <Text style={{
+                                    color: 'white',
+                                    textAlign: 'center',
+                                    fontSize: 16,
+                                    fontWeight: 'bold'
+                                }}>
+                                    {status === 'CONFIRMADO' ? 'Não Vou' : 'Vou'}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+
+                        
                         <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
@@ -255,6 +262,13 @@ export default function TripDetailsScreen() {
                                 color: '#444',
                                 marginBottom: 12
                             }}>Passageiros</Text>
+                            <ScrollView>
+                                {passengers.map(item => (
+                                    <View key={item.id}>
+                                    <Text>{item.name}</Text>
+                                    </View>
+                                ))}
+                            </ScrollView>
                             <FlatList 
                                 data={passengers} 
                                 renderItem={({item}) => (
@@ -273,7 +287,7 @@ export default function TripDetailsScreen() {
                                 style={{ maxHeight: 200 }}
                             />
                         </View>
-                    </>
+                    </View>
                 )}
             </SafeAreaView>
         </SafeAreaProvider>

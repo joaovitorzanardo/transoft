@@ -21,10 +21,22 @@ export function getNextItinerary(): Promise<AxiosResponse> {
     return axiosInstance.get(`/itineraries/next`);
 }
 
+export function getOngoingItinerary(): Promise<AxiosResponse> {
+    return axiosInstance.get(`/itineraries/ongoing`);
+}
+
 export function cancelItineraryForPassenger(itineraryId: string): Promise<AxiosResponse> {
     return axiosInstance.patch(`/itineraries/${itineraryId}/passenger/cancel`);
 }
 
 export function confirmItineraryForPassenger(itineraryId: string): Promise<AxiosResponse> {
     return axiosInstance.patch(`/itineraries/${itineraryId}/passenger/confirm`);
+}
+
+export function startItinerary(itineraryId: string): Promise<AxiosResponse> {
+    return axiosInstance.patch(`/itineraries/${itineraryId}/start`);
+}
+
+export function finishItinerary(itineraryId: string): Promise<AxiosResponse> {
+    return axiosInstance.patch(`/itineraries/${itineraryId}/finish`);
 }
