@@ -1,7 +1,7 @@
 import { axiosInstance } from './axios-instance';
-import type RegisterDto from "../models/auth/RegisterDto";
 import type { AxiosResponse } from 'axios';
+import type CompanyRegistrationDto from '../models/CompanyRegistrationDto';
 
-export function register(registerDto: RegisterDto): Promise<AxiosResponse> {
-    return axiosInstance.post('/register', registerDto);
+export function register(companyRegistrationDto: CompanyRegistrationDto): Promise<AxiosResponse> {
+    return axiosInstance.post('/register', companyRegistrationDto);
 }

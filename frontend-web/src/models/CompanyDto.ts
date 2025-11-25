@@ -3,4 +3,3 @@ export default interface CompanyDto {
     email: string;
     cnpj: string;
 }
-

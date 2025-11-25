@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography, Button } from "@mui/material";
 
 // import EqualizerIcon from '@mui/icons-material/Equalizer';
 import ForkRightIcon from '@mui/icons-material/ForkRight';
@@ -9,6 +9,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 // import ArticleIcon from '@mui/icons-material/Article';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import { useNavigate } from "react-router";
+import ConfirmationDialog from "./ui/ConfirmationDialog";
+import React from "react";
+import MessageAlert from "./ui/MessageAlert";
+import { axiosInstance } from "../services/axios-instance";
 
 interface MenuItem {
     name: string;
@@ -16,8 +20,13 @@ interface MenuItem {
     path: string;
 }
 
+type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
+
 export default function SideMenu() {
     const navigate = useNavigate();
+
+    const [alert, setAlert] = React.useState<AlertState>(null);
+    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
 
     const items: MenuItem[] = [
         // {name: "Dashboard", icon: <EqualizerIcon/>, path: "/dashboard"}, 
@@ -31,20 +40,53 @@ export default function SideMenu() {
     ];
 
     return (
-        <Paper elevation={3} sx={{ width: 250, height: '100vh' }}>
-            <Typography variant="h5" sx={{ padding: 2, textAlign: 'center' }}>Transoft</Typography>
-            <List>
-                {items.map((menuItem, index) => (
-                    <ListItem key={index}>
-                        <ListItemButton onClick={() => navigate(menuItem.path)}>
-                            <ListItemIcon>
-                                {menuItem.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={menuItem.name} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+        <Paper elevation={3} sx={{ width: 250, height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+                <Typography variant="h5" sx={{ padding: 2, textAlign: 'center' }}>Transoft</Typography>
+                <List>
+                    {items.map((menuItem, index) => (
+                        <ListItem key={index}>
+                            <ListItemButton onClick={() => navigate(menuItem.path)}>
+                                <ListItemIcon>
+                                    {menuItem.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={menuItem.name} />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+            </div>
+            <ConfirmationDialog
+                title="Confirmar Sair do Sistema"
+                message="Tem certeza que deseja sair do sistema?"
+                open={openDialog} 
+                onClose={() => setOpenDialog(false)}
+                onConfirm={async () => {
+                    try {
+                        await axiosInstance.post("/logout");
+                        navigate("/login");
+                    } catch (error) {
+                        setAlert({ open: true, message: 'Erro fazer o logout!', severity: 'error' });
+                        setOpenDialog(false);
+                    }
+                }}
+            />
+            <Button 
+                variant="contained" 
+                color="error" 
+                sx={{ margin: 2 }} 
+                onClick={() => setOpenDialog(true)}
+            >
+                Sair
+            </Button>
+            {alert && (
+                <MessageAlert 
+                    open={alert.open}
+                    message={alert.message}
+                    severity={alert.severity}
+                    onClose={() => setAlert(null)}
+                />
+            )}
         </Paper>
     );
 }

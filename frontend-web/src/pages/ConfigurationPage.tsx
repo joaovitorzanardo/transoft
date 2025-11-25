@@ -7,9 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IMaskMixin } from "react-imask";
 import React from "react";
 import { getCompany, updateCompany } from "../services/configuration.service";
-import type CompanyDto from "../models/CompanyDto";
 import MessageAlert from "../components/ui/MessageAlert";
 import ConfirmationDialog from "../components/ui/ConfirmationDialog";
+import type CompanyDto from "../models/CompanyDto";
 
 const ConfigurationForm = z.object({
     cnpj: z.string().nonempty({message: "O cnpj deve ser informado"}),
@@ -68,9 +68,9 @@ export default function ConfigurationPage() {
         setLoading(true);
         
         const companyDto: CompanyDto = {
-            cnpj: data.cnpj,
             name: data.name,
             email: data.email,
+            cnpj: data.cnpj
         };
 
         try {

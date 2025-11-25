@@ -1,10 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router";
 import RoutesPage from "../pages/route/RoutesPage";
 import DriversPage from "../pages/driver/DriversPage";
 import ItinerariesPage from "../pages/itinerary/ItinerariesPage";
 import ConfigurationPage from "../pages/ConfigurationPage";
-import DashboardPage from "../pages/DashboardPage";
-import ReportsPage from "../pages/ReportsPage";
 import VehiclesPage from "../pages/vehicle/VehiclesPage";
 import { LoginPage } from "../pages/LoginPage";
 import RegisterPage from "../pages/register/RegisterPage";
@@ -21,6 +19,7 @@ export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route path="/" element={<Navigate to="/routes" replace />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route element={<ProtectedRoute allowedRoles="MANAGER"/>}>
@@ -36,8 +35,6 @@ export default function AppRoutes() {
                     <Route path="/itineraries/generate" element={<GenerateItineraryPage />} />
                     <Route path="/itineraries/:itineraryId" element={<ItineraryInfoPage />} />
                     <Route path="/configuration" element={<ConfigurationPage />} />
-                    {/* <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/reports" element={<ReportsPage />} /> */}
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -1,9 +1,8 @@
-import React, { createContext, useContext, type PropsWithChildren } from "react";
+import { createContext, useContext, type PropsWithChildren } from "react";
 import type LoginDto from "../models/auth/LoginDto";
 import { login } from "../services/login.service";
 
 interface AuthContext {
-    token?: string | null;
     handleLogin: (email: string, password: string) => Promise<void>;
     handleLogout: () => void;
 }
@@ -13,7 +12,6 @@ const AuthContext = createContext<AuthContext | undefined>(undefined);
 type AuthProviderProps = PropsWithChildren;
 
 export default function AuthProvider({ children } : AuthProviderProps) {
-    const [token, setToken] = React.useState<string | null>();
     async function handleLogin(email: string, password: string) {
       
         const loginDto: LoginDto = {
@@ -21,24 +19,16 @@ export default function AuthProvider({ children } : AuthProviderProps) {
           password: password
         }
 
-        const response = await login(loginDto);
-  
-        const { token } = response.data;
-  
-        setToken(token);
-        sessionStorage.setItem("apiToken", token);
+        await login(loginDto);
     }
 
     function handleLogout() {
-        sessionStorage.removeItem("apiToken");
-        setToken(null);
+        // Implement logout functionality if needed 
     }
-
 
     return (
         <AuthContext.Provider
           value={{
-            token,
             handleLogin,
             handleLogout,
           }}
