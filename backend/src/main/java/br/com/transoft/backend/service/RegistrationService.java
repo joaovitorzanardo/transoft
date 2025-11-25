@@ -1,7 +1,7 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
-import br.com.transoft.backend.dto.registration.RegistrationDto;
+import br.com.transoft.backend.dto.registration.CompanyRegistrationDto;
 import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.UserAccount;
 import br.com.transoft.backend.exception.EmailNotFromEmployeeException;
@@ -31,10 +31,10 @@ public class RegistrationService {
     }
 
     @Transactional(rollbackOn = {SQLException.class})
-    public void register(RegistrationDto registrationDto) {
-        boolean isCnpjRegistered = companyRepository.findByCnpj(registrationDto.getCompany().getCnpj()).isPresent();
+    public void register(CompanyRegistrationDto companyRegistrationDto) {
+        boolean isCnpjRegistered = companyRepository.findByCnpj(companyRegistrationDto.getCnpj()).isPresent();
 
-        if (isEmailInUse(registrationDto.getEmail())) {
+        if (isEmailInUse(companyRegistrationDto.getEmail())) {
             throw new ResourceConflictException("O email informado já está sendo utilizado!");
         }
 
@@ -44,14 +44,14 @@ public class RegistrationService {
 
         Company company = Company.builder()
                 .companyId(UUID.randomUUID().toString())
-                .name(registrationDto.getCompany().getName())
-                .email(registrationDto.getCompany().getEmail())
-                .cnpj(registrationDto.getCompany().getCnpj())
+                .name(companyRegistrationDto.getName())
+                .email(companyRegistrationDto.getEmail())
+                .cnpj(companyRegistrationDto.getCnpj())
                 .build();
 
         companyRepository.save(company);
 
-        UserAccount userAccount = UserAccountMapper.toManagerAccount(registrationDto, passwordEncoder, company);
+        UserAccount userAccount = UserAccountMapper.toManagerAccount(companyRegistrationDto, passwordEncoder, company);
 
         userAccountRepository.save(userAccount);
 

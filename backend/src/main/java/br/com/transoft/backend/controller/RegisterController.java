@@ -1,7 +1,7 @@
 package br.com.transoft.backend.controller;
 
 import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
-import br.com.transoft.backend.dto.registration.RegistrationDto;
+import br.com.transoft.backend.dto.registration.CompanyRegistrationDto;
 import br.com.transoft.backend.service.RegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,8 +19,8 @@ public class RegisterController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@Valid @RequestBody RegistrationDto registrationDto) {
-        registrationService.register(registrationDto);
+    public void register(@Valid @RequestBody CompanyRegistrationDto companyRegistrationDto) {
+        registrationService.register(companyRegistrationDto);
     }
 
     @PostMapping

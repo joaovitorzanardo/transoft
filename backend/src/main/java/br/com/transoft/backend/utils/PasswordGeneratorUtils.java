@@ -11,7 +11,7 @@ import java.util.List;
 @UtilityClass
 public class PasswordGeneratorUtils {
 
-    private static final Integer DEFAULT_SIZE = 6;
+    private static final Integer DEFAULT_SIZE = 10;
 
     public static String generatePassword() {
         return new PasswordGenerator().generatePassword(DEFAULT_SIZE, getDefaultRules());

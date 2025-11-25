@@ -2,7 +2,7 @@ package br.com.transoft.backend.mapper;
 
 import br.com.transoft.backend.constants.Role;
 import br.com.transoft.backend.dto.registration.RegistrationAdminDto;
-import br.com.transoft.backend.dto.registration.RegistrationDto;
+import br.com.transoft.backend.dto.registration.CompanyRegistrationDto;
 import br.com.transoft.backend.dto.driver.DriverDto;
 import br.com.transoft.backend.dto.passenger.PassengerDto;
 import br.com.transoft.backend.entity.Company;
@@ -39,12 +39,12 @@ public class UserAccountMapper {
                 .build();
     }
 
-    public static UserAccount toManagerAccount(RegistrationDto registrationDto, PasswordEncoder passwordEncoder, Company company) {
+    public static UserAccount toManagerAccount(CompanyRegistrationDto companyRegistrationDto, PasswordEncoder passwordEncoder, Company company) {
         return UserAccount.builder()
                 .userAccountId(UUID.randomUUID().toString())
-                .name(registrationDto.getName())
-                .email(registrationDto.getEmail())
-                .password(passwordEncoder.encode(registrationDto.getPassword()))
+                .name(companyRegistrationDto.getName())
+                .email(companyRegistrationDto.getEmail())
+                .password(passwordEncoder.encode(companyRegistrationDto.getPassword()))
                 .role(Role.MANAGER)
                 .company(company)
                 .active(true)

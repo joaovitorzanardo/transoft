@@ -2,11 +2,13 @@ package br.com.transoft.backend.config.filters;
 
 import br.com.transoft.backend.constants.Role;
 import br.com.transoft.backend.dto.LoggedUserAccount;
+import br.com.transoft.backend.exception.InvalidTokenException;
 import br.com.transoft.backend.service.CustomUserDetailsService;
 import br.com.transoft.backend.dto.TokenInfo;
 import br.com.transoft.backend.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotFoundException;
@@ -34,11 +36,19 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/api/login") ||
+                path.equals("/api/register") ||
+                path.equals("/api/register/admin");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Optional<String> token = extractTokenFromRequestHeader(request);
 
         if (token.isEmpty()) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
@@ -71,6 +81,20 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> extractTokenFromRequestHeader(HttpServletRequest request) {
+        if ("web".equals(request.getHeader("X-Client-Type"))) {
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies == null) {
+                return Optional.empty();
+            }
+
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    return Optional.of(cookie.getValue());
+                }
+            }
+        }
+
         String authorization = request.getHeader("Authorization");
 
         if (Objects.nonNull(authorization) && authorization.startsWith("Bearer ")) {
