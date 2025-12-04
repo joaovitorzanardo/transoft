@@ -61,7 +61,7 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
                 return;
             }
 
-            setRowCount(response.data.count);    
+            setRowCount(response.data.count);
             setData(response.data.itineraries.map((itinerary: ItineraryPresenter) => {
                 return {
                     id: itinerary.itineraryId,
@@ -98,16 +98,18 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
                         case 'CONCLUIDO':
                             return { color: 'success' as const, label: 'Concluído' };
                         case 'CANCELADO':
-                                return { color: 'error' as const, label: 'Cancelado' };    
+                            return { color: 'error' as const, label: 'Cancelado' };
+                        case 'PERDIDO':
+                            return { color: 'default' as const, label: 'Perdido' };
                         default:
                             return { color: 'default' as const, label: 'Desconhecido' };
                     }
                 };
 
                 const chipProps = getChipProps(params.value);
-                
+
                 return (
-                    <Chip 
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
@@ -115,7 +117,7 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
                     />
                 );
             }
-        }, 
+        },
         {
             field: 'actions',
             type: 'actions',
@@ -144,7 +146,7 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
 
     return (
         <Container>
-            <DataGrid columns={columns} 
+            <DataGrid columns={columns}
                 rows={data}
                 loading={loading}
                 paginationModel={paginationModel}
@@ -153,7 +155,7 @@ export default function ItineraryTable({ filters }: ItineraryTableProps) {
                 rowCount={rowCount}
                 paginationMode="server"
             />
-            <ItineraryDialog open={openInfoDialog} onClose={handleCloseDialog} itineraryId={selectedItineraryId}/>
+            <ItineraryDialog open={openInfoDialog} onClose={handleCloseDialog} itineraryId={selectedItineraryId} />
         </Container>
     )
 }

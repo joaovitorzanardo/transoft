@@ -5,7 +5,7 @@ import type VehiclePresenter from "./vehicle/VehiclePresenter";
 export default interface ItineraryPresenter {
     itineraryId: string;
     type: 'IDA' | 'VOLTA';
-    status: 'AGENDADO' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO';
+    status: 'AGENDADO' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'CANCELADO' | 'PERDIDO';
     date: Date;
     startTime: string;
     endTime: string;

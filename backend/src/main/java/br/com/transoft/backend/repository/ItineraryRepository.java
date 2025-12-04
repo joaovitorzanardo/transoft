@@ -2,6 +2,7 @@ package br.com.transoft.backend.repository;
 
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.entity.Itinerary;
+import br.com.transoft.backend.entity.route.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,7 +35,7 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
             "JOIN st.passenger p " +
             "where c.companyId = :companyId " +
             "AND p.passengerId = :passengerId " +
-            "AND (i.status = 'CANCELADO' OR i.status = 'CONCLUIDO') " +
+            "AND i.status = 'CONCLUIDO' " +
             "AND i.date <= CURRENT_DATE " +
             "ORDER BY i.date DESC, i.startTime DESC ")
     Page<Itinerary> findItinerariesHistoryByPassengerId(String companyId, String passengerId, Pageable pageable);
@@ -114,6 +115,14 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
             "AND i.status = 'AGENDADO' ")
     List<Itinerary> findAllScheduledItinerariesByPassengerId(String companyId, String passengerId);
 
+    @Query("SELECT i from Itinerary i " +
+            "JOIN i.company c " +
+            "JOIN i.route r " +
+            "where c.companyId = :companyId " +
+            "AND r.routeId = :routeId " +
+            "AND i.status = 'AGENDADO' ")
+    List<Itinerary> findAllItinerariesByScheduledItinerariesByRouteId(String companyId, String routeId);
+
     @Query("SELECT i FROM Itinerary i " +
             "JOIN i.company c " +
             "JOIN i.vehicle v " +
@@ -141,6 +150,11 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
                                                     LocalDate startDate,
                                                     LocalDate endDate
     );
+
+    @Query("SELECT i FROM Itinerary i " +
+            "WHERE i.status = 'AGENDADO' " +
+            "AND i.date < CURRENT_DATE")
+    List<Itinerary> findMissedItineraries();
 
     int countItineraryByCompany_CompanyId(String companyId);
     int countItineraryByCompany_CompanyIdAndStatus(String companyId, ItineraryStatus status);

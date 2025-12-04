@@ -12,7 +12,7 @@ interface ItineraryDialogProps {
 }
 
 
-export default function ItineraryDialog({open, onClose, itineraryId}: ItineraryDialogProps) {
+export default function ItineraryDialog({ open, onClose, itineraryId }: ItineraryDialogProps) {
     const [chipProps, setChipProps] = React.useState<{ color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'; label: string }>({ color: 'default', label: 'Desconhecido' });
     const [passengers, setPassengers] = React.useState<PassengerItineraryPresenter[]>([]);
     const [itineraryData, setItineraryData] = React.useState<ItineraryPresenter>();
@@ -47,7 +47,7 @@ export default function ItineraryDialog({open, onClose, itineraryId}: ItineraryD
             case 'CONCLUIDO':
                 return { color: 'success' as const, label: 'Concluído' };
             case 'CANCELADO':
-                    return { color: 'error' as const, label: 'Cancelado' };    
+                return { color: 'error' as const, label: 'Cancelado' };
             default:
                 return { color: 'default' as const, label: 'Desconhecido' };
         }
@@ -57,23 +57,34 @@ export default function ItineraryDialog({open, onClose, itineraryId}: ItineraryD
         <Dialog open={open} onClose={onClose} >
             <Container sx={{ padding: 3 }}>
                 <DialogHeader title="Itinerário" onClose={onClose} />
-                <Box sx={{height: 10}}/>
-                <Typography variant="body1" >Rota: {itineraryData?.route.name}</Typography>
-                <Typography variant="body1" >Data: {itineraryData?.date.toString()}</Typography>
-                <Typography variant="body1" >Motorista: {itineraryData?.driver.name}</Typography>
-                <Typography variant="body1" >Veiculo: {itineraryData?.vehicle.plateNumber}</Typography>
-                <Typography variant="body1" >Tipo: {itineraryData?.type}</Typography>
+                <Box sx={{ height: 10 }} />
+                <Typography variant="body1" ><b>Rota:</b> {itineraryData?.route.name}</Typography>
+                <Typography variant="body1" ><b>Data:</b> {itineraryData?.date.toString()}</Typography>
+                <Typography variant="body1" ><b>Motorista:</b> {itineraryData?.driver.name}</Typography>
+                <Typography variant="body1" ><b>Tipo:</b> {itineraryData?.type}</Typography>
+                <Typography variant="h6" >Veículo</Typography>
+                <Box>
+                    <Typography variant="body1" ><b>Placa:</b> {itineraryData?.vehicle.plateNumber}</Typography>
+                    <Typography variant="body1" ><b>Montadora:</b> {itineraryData?.vehicle.vehicleModel.automaker.name}</Typography>
+                    <Typography variant="body1" ><b>Modelo:</b> {itineraryData?.vehicle.vehicleModel.modelName}</Typography>
+                    <Typography variant="body1" ><b>Ano:</b> {itineraryData?.vehicle.vehicleModel.modelYear}</Typography>
+                </Box>
+                <Typography variant="h6" >Horários</Typography>
+                <Box gap={1} sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <Typography variant="body1"><b>Início:</b> {itineraryData?.startTime}</Typography>
+                    <Typography variant="body1" ><b>Fim:</b> {itineraryData?.endTime}</Typography>
+                </Box>
                 <Stack direction="row">
-                    <Typography variant="body1" >Status:</Typography>
-                    <Box sx={{width: 5}}/>
-                    <Chip 
+                    <Typography variant="body1" ><b>Status:</b></Typography>
+                    <Box sx={{ width: 5 }} />
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
                         variant="filled"
                     />
-                </Stack>                
-                <Box sx={{height: 20}}/>
+                </Stack>
+                <Box sx={{ height: 20 }} />
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 350 }} aria-label="simple table">
                         <TableHead>
@@ -93,19 +104,19 @@ export default function ItineraryDialog({open, onClose, itineraryId}: ItineraryD
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         {
-                                            (passenger.status === 'CONFIRMADO') ? 
-                                            <Chip 
-                                                label="Confirmado"
-                                                color="success"
-                                                size="small"
-                                                variant="filled"
-                                            /> : 
-                                            <Chip 
-                                                label="Não Vai"
-                                                color="error"
-                                                size="small"
-                                                variant="filled"
-                                            />
+                                            (passenger.status === 'CONFIRMADO') ?
+                                                <Chip
+                                                    label="Confirmado"
+                                                    color="success"
+                                                    size="small"
+                                                    variant="filled"
+                                                /> :
+                                                <Chip
+                                                    label="Não Vai"
+                                                    color="error"
+                                                    size="small"
+                                                    variant="filled"
+                                                />
                                         }
                                     </TableCell>
                                 </TableRow>

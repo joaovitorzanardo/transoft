@@ -27,10 +27,10 @@ const ITEM_PADDING_TOP = 8;
 
 const MenuProps = {
     PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
     },
 };
 
@@ -39,6 +39,7 @@ interface StatsItineraries {
     scheduled: number;
     finished: number;
     canceled: number;
+    missed?: number;
 }
 
 export default function ItinerariesPage() {
@@ -65,20 +66,20 @@ export default function ItinerariesPage() {
     const [refreshKey, setRefreshKey] = React.useState(0);
 
     const handleChangeStatus = (event: SelectChangeEvent<typeof selectedStatus>) => {
-      const {
-        target: { value },
-      } = event;
-      setSelectedStatus(        
-        typeof value === 'string' ? value.split(',') : value,
-      );
+        const {
+            target: { value },
+        } = event;
+        setSelectedStatus(
+            typeof value === 'string' ? value.split(',') : value,
+        );
     };
 
     const handleChangeType = (event: SelectChangeEvent<typeof selectedType>) => {
         const {
-          target: { value },
+            target: { value },
         } = event;
-        setSelectedType(        
-          typeof value === 'string' ? value.split(',') : value,
+        setSelectedType(
+            typeof value === 'string' ? value.split(',') : value,
         );
     };
 
@@ -104,7 +105,7 @@ export default function ItinerariesPage() {
         navigate('/itineraries/generate');
     };
 
-    const [stats, setStats] = React.useState<StatsItineraries>({total: 0, scheduled: 0, finished: 0, canceled: 0});
+    const [stats, setStats] = React.useState<StatsItineraries>({ total: 0, scheduled: 0, finished: 0, canceled: 0 });
     const [loading, setLoading] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -171,29 +172,30 @@ export default function ItinerariesPage() {
     }
 
     return (
-        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
+        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
             <SideMenu />
             <Stack sx={{ paddingLeft: 5, paddingTop: 5 }}>
-                <Stack direction="row" sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+                <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
                     <PageTitle title="Itinerários" description="Gerencie os itinerários da frota" />
                     <Stack direction="row" spacing={2}>
-                        <Button variant="outlined" color="primary" startIcon={<AddIcon/>} onClick={navigateToGenerateItineraryPage}>Gerar Itinerário</Button>
+                        <Button variant="outlined" color="primary" startIcon={<AddIcon />} onClick={navigateToGenerateItineraryPage}>Gerar Itinerário</Button>
                     </Stack>
                 </Stack>
                 <Stack direction="row" spacing={5} sx={{ marginBottom: 5, marginTop: 5 }}>
-                    <StatsCard title="Total" value={stats.total} loading={loading}/>
-                    <StatsCard title="Agendados" value={stats.scheduled} loading={loading}/>
-                    <StatsCard title="Concluídos" value={stats.finished} loading={loading}/>
-                    <StatsCard title="Cancelados" value={stats.canceled} loading={loading}/>
+                    <StatsCard title="Total" value={stats.total} loading={loading} />
+                    <StatsCard title="Agendados" value={stats.scheduled} loading={loading} />
+                    <StatsCard title="Concluídos" value={stats.finished} loading={loading} />
+                    <StatsCard title="Cancelados" value={stats.canceled} loading={loading} />
+                    <StatsCard title="Perdidos" value={stats.missed} loading={loading} />
                 </Stack>
                 <Paper sx={{ padding: 2, marginBottom: 5 }}>
                     <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1" >Filtros Rápidos</Typography>
                         <BoltIcon />
                     </Stack>
-                    <Box sx={{height: '5px'}}/>
-                    <Divider/>
-                    <Box sx={{height: '15px'}}/>
+                    <Box sx={{ height: '5px' }} />
+                    <Divider />
+                    <Box sx={{ height: '15px' }} />
                     <Stack>
                         <Stack direction="row" spacing={2} justifyContent="space-evenly">
                             <FormControl sx={{ flex: 1 }}>
@@ -207,17 +209,17 @@ export default function ItinerariesPage() {
                                     input={<OutlinedInput label="Tag" />}
                                     renderValue={(selected) => selected.join(', ')}
                                     MenuProps={MenuProps}
-                                    >
+                                >
                                     {status.map((stat) => (
                                         <MenuItem key={stat} value={stat}>
-                                        <Checkbox checked={selectedStatus.includes(stat)} />
-                                        <ListItemText primary={stat} />
+                                            <Checkbox checked={selectedStatus.includes(stat)} />
+                                            <ListItemText primary={stat} />
                                         </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ flex: 1 }}>
-                            <InputLabel id="tipo-label" size="small">Tipo</InputLabel>
+                                <InputLabel id="tipo-label" size="small">Tipo</InputLabel>
                                 <Select
                                     labelId="tipo-label"
                                     multiple
@@ -227,7 +229,7 @@ export default function ItinerariesPage() {
                                     input={<OutlinedInput label="Tag" />}
                                     renderValue={(selected) => selected.join(', ')}
                                     MenuProps={MenuProps}
-                                    >
+                                >
                                     {tipos.map((tipo) => (
                                         <MenuItem key={tipo} value={tipo}>
                                             <Checkbox size="small" checked={selectedType.includes(tipo)} />
@@ -237,16 +239,16 @@ export default function ItinerariesPage() {
                                 </Select>
                             </FormControl>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker 
+                                <DatePicker
                                     key={refreshKey}
-                                    label="Data" 
+                                    label="Data"
                                     sx={{ flex: 1 }}
                                     onChange={handleDateChange}
                                     format="DD/MM/YYYY"
                                     value={selectedDate}
                                     slotProps={{
                                         textField: {
-                                        size: 'small'
+                                            size: 'small'
                                         },
                                     }}
                                 />
@@ -255,8 +257,8 @@ export default function ItinerariesPage() {
                         <Stack direction="row" spacing={2} justifyContent="space-evenly" style={{ marginTop: '15px' }}>
                             <FormControl sx={{ flex: 1 }}>
                                 <InputLabel id="status-label" size="small">Rota</InputLabel>
-                                <Select 
-                                    sx={{width: '100%'}}
+                                <Select
+                                    sx={{ width: '100%' }}
                                     label="Rota"
                                     size="small"
                                     onChange={handleChangeRoute}
@@ -266,14 +268,14 @@ export default function ItinerariesPage() {
                                     {routes.map((route) => (
                                         <MenuItem value={route.routeId}>
                                             {route.name}
-                                        </MenuItem> 
+                                        </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ flex: 1 }}>
                                 <InputLabel id="tipo-label" size="small">Motorista</InputLabel>
-                                <Select 
-                                    sx={{width: '100%'}}
+                                <Select
+                                    sx={{ width: '100%' }}
                                     label="Motorista"
                                     size="small"
                                     onChange={handleChangeDriver}
@@ -283,14 +285,14 @@ export default function ItinerariesPage() {
                                     {drivers.map((driver) => (
                                         <MenuItem value={driver.driverId}>
                                             {driver.name}
-                                        </MenuItem> 
+                                        </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ flex: 1 }}>
                                 <InputLabel id="tipo-label" size="small">Veículo</InputLabel>
-                                <Select 
-                                    sx={{width: '100%'}}
+                                <Select
+                                    sx={{ width: '100%' }}
                                     label="Veículo"
                                     size="small"
                                     onChange={handleChangeVehicle}
@@ -300,7 +302,7 @@ export default function ItinerariesPage() {
                                     {vehicles.map((vehicle) => (
                                         <MenuItem value={vehicle.vehicleId}>
                                             {vehicle.vehicleModel.automaker.name} - {vehicle.vehicleModel.modelName} - {vehicle.plateNumber}
-                                        </MenuItem> 
+                                        </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
@@ -311,7 +313,7 @@ export default function ItinerariesPage() {
                         </Stack>
                     </Stack>
                 </Paper>
-                <ItineraryTable filters={filters}/>
+                <ItineraryTable filters={filters} />
             </Stack>
         </Stack>
     );

@@ -1,4 +1,4 @@
-import { Box, Breadcrumbs, Button, FormControl, Grid, InputLabel, Link, MenuItem, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
+import { Box, Breadcrumbs, Button, Chip, FormControl, Grid, InputLabel, Link, MenuItem, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import React from "react";
@@ -19,6 +19,7 @@ import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import type ItineraryDto from "../../models/itinerary/ItineraryDto";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { id } from "zod/v4/locales";
 
 const dayjsSchema = z.custom<Dayjs | null>(
     (val) => val === null || dayjs.isDayjs(val),
@@ -26,8 +27,8 @@ const dayjsSchema = z.custom<Dayjs | null>(
 ).nullable();
 
 const RouteForm = z.object({
-    driverId: z.string().nonempty({message: "O motorista padrão deve ser informado"}),
-    vehicleId: z.string().nonempty({message: "O veículo padrão deve ser informado"}),
+    driverId: z.string().nonempty({ message: "O motorista padrão deve ser informado" }),
+    vehicleId: z.string().nonempty({ message: "O veículo padrão deve ser informado" }),
     startTime: dayjsSchema,
     endTime: dayjsSchema,
 });
@@ -52,14 +53,14 @@ export default function ItineraryInfoPage() {
     const [itineraryStatus, setItineraryStatus] = React.useState<ItineraryStatus>(null);
 
     React.useEffect(() => {
-            async function getDrivers() {
-                const response = await getAllEnabledDrivers();
-                setDrivers(response.data);
-            }
-            
-            getDrivers();
-        }, []);
-    
+        async function getDrivers() {
+            const response = await getAllEnabledDrivers();
+            setDrivers(response.data);
+        }
+
+        getDrivers();
+    }, []);
+
     React.useEffect(() => {
         async function getVehicles() {
             const response = await getAllActiveVehicles();
@@ -91,7 +92,7 @@ export default function ItineraryInfoPage() {
             }
 
             const itineraryData = response.data;
-            
+
             setItineraryStatus(itineraryData.status);
             setValue('driverId', itineraryData.driver.driverId);
             setValue('vehicleId', itineraryData.vehicle.vehicleId);
@@ -102,10 +103,10 @@ export default function ItineraryInfoPage() {
         getById();
     }, [itineraryId, setValue]);
 
-    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {        
+    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
         setOpenDialog(null);
         setLoading(true);
-        
+
         const itineraryDto: ItineraryDto = {
             driverId: data.driverId,
             vehicleId: data.vehicleId,
@@ -124,7 +125,7 @@ export default function ItineraryInfoPage() {
             } else {
                 setAlert({ open: true, message: 'Erro ao salvar itinerário!', severity: 'error' });
             }
-        } catch(error) {
+        } catch (error) {
             console.log(error);
             setAlert({ open: true, message: 'Erro ao salvar itinerário!', severity: 'error' });
         } finally {
@@ -148,7 +149,7 @@ export default function ItineraryInfoPage() {
                 setItineraryStatus('CANCELADO');
                 reset();
             }
-        } catch(error: any) {
+        } catch (error: any) {
             setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
@@ -181,57 +182,91 @@ export default function ItineraryInfoPage() {
         }
     };
 
+    const isDisabled = itineraryStatus === 'CANCELADO' || itineraryStatus === 'CONCLUIDO';
+
     return (
-        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
+        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
             <SideMenu />
-            <Stack sx={{ padding: '3rem'}}>
+            <Stack sx={{ padding: '3rem' }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href="/itineraries">Itinerários</Link>
                     <Typography sx={{ color: 'text.primary' }}>Editar</Typography>
                 </Breadcrumbs>
-                <Box sx={{height: 10}}/>
-                <Stack direction="row" sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+                <Box sx={{ height: 10 }} />
+                <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
                     <Typography variant="h4" >Editar Itinerário</Typography>
                 </Stack>
-                <Box sx={{height: 20}}/>
+                <Box sx={{ height: 20 }} />
+                <Paper sx={{ padding: 3 }}>
+                    <Typography variant="h5" sx={{ marginBottom: 2 }}>Dados do Itinerário</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: "space-between", marginBottom: 1 }}>
+                        <Typography variant="body1" ><b>Data:</b> 03/12/2025</Typography>
+                        <Chip
+                            label="2 Confirmados"
+                            color="success"
+                            size="small"
+                            variant="filled"
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: "space-between" }}>
+                        <Typography variant="body1"><b>Rota:</b> Rota 1</Typography>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Chip
+                                label="IDA"
+                                color="warning"
+                                size="small"
+                                variant="filled"
+                            />
+                            <Chip
+                                label="Agendado"
+                                color="primary"
+                                size="small"
+                                variant="filled"
+                            />
+                        </Box>
+                    </Box>
+                </Paper>
+                <Box sx={{ height: 30 }} />
                 <FormControl component="form">
                     <Paper sx={{ padding: 3 }}>
                         <Typography variant="h5" >Informações Gerais</Typography>
-                        <Grid container spacing={2} sx={{marginTop: 3}}>
+                        <Grid container spacing={2} sx={{ marginTop: 3 }}>
                             <Grid size={6}>
                                 <Controller
-                                        name="driverId"
-                                        control={control}
-                                        render={({ field, fieldState }) => (
-                                            <FormControl sx={{width: '100%'}}>
-                                                <InputLabel id="driverId-label">Motorista Padrão</InputLabel>
-                                                <Select 
-                                                    {...field}
-                                                    sx={{width: '100%'}}
-                                                    label="Motorista"
-                                                    error={!!fieldState.error}
-                                                >
-                                                    <MenuItem value="">Nenhum</MenuItem>
-                                                    {drivers.map((driver) => (
-                                                        <MenuItem value={driver.driverId}>
-                                                            {driver.name}
-                                                        </MenuItem> 
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        )}
-                                    />
+                                    name="driverId"
+                                    disabled={isDisabled}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl sx={{ width: '100%' }}>
+                                            <InputLabel id="driverId-label">Motorista</InputLabel>
+                                            <Select
+                                                {...field}
+                                                sx={{ width: '100%' }}
+                                                label="Motorista"
+                                                error={!!fieldState.error}
+                                            >
+                                                <MenuItem value="">Nenhum</MenuItem>
+                                                {drivers.map((driver) => (
+                                                    <MenuItem value={driver.driverId}>
+                                                        {driver.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    )}
+                                />
                             </Grid>
                             <Grid size={6}>
                                 <Controller
                                     name="vehicleId"
                                     control={control}
+                                    disabled={isDisabled}
                                     render={({ field, fieldState }) => (
-                                        <FormControl sx={{width: '100%'}}>
-                                            <InputLabel id="vehicleId-label">Veículo Padrão</InputLabel>
-                                            <Select 
+                                        <FormControl sx={{ width: '100%' }}>
+                                            <InputLabel id="vehicleId-label">Veículo</InputLabel>
+                                            <Select
                                                 {...field}
-                                                sx={{width: '100%'}}
+                                                sx={{ width: '100%' }}
                                                 label="Veículo"
                                                 error={!!fieldState.error}
                                             >
@@ -239,7 +274,7 @@ export default function ItineraryInfoPage() {
                                                 {vehicles.map((vehicle) => (
                                                     <MenuItem value={vehicle.vehicleId}>
                                                         {vehicle.plateNumber} {vehicle.vehicleModel.modelName} - {vehicle.vehicleModel.modelYear}
-                                                    </MenuItem> 
+                                                    </MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>
@@ -248,18 +283,20 @@ export default function ItineraryInfoPage() {
                             </Grid>
                         </Grid>
                     </Paper>
-                    <Box sx={{height: 30}}/>
+                    <Box sx={{ height: 30 }} />
                     <Paper sx={{ padding: 3 }}>
                         <Typography variant="h5" >Horário</Typography>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <Stack direction="row" spacing={2} sx={{marginTop: 3}}>
+                            <Stack direction="row" spacing={2} sx={{ marginTop: 3 }}>
                                 <Controller
                                     name="startTime"
                                     control={control}
+                                    disabled={isDisabled}
                                     render={({ field, fieldState }) => (
                                         <TimePicker
                                             label="Início"
                                             value={field.value}
+                                            disabled={isDisabled}
                                             onChange={(newValue) => field.onChange(newValue)}
                                             slotProps={{
                                                 textField: {
@@ -277,6 +314,7 @@ export default function ItineraryInfoPage() {
                                         <TimePicker
                                             label="Fim"
                                             value={field.value}
+                                            disabled={isDisabled}
                                             onChange={(newValue) => field.onChange(newValue)}
                                             slotProps={{
                                                 textField: {
@@ -288,43 +326,44 @@ export default function ItineraryInfoPage() {
                                     )}
                                 />
                             </Stack>
-                        </LocalizationProvider>                        
+                        </LocalizationProvider>
                     </Paper>
-                    <Box sx={{height: 20}}/>
+                    <Box sx={{ height: 20 }} />
                     <Stack direction="row" justifyContent="flex-start" spacing={2}>
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
-                            onClick={() => handleOpenDialog('save')} 
-                            loading={loading} 
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disabled={isDisabled}
+                            onClick={() => handleOpenDialog('save')}
+                            loading={loading}
                             loadingPosition="start"
                         >
                             Atualizar
                         </Button>
-                    {itineraryStatus && itineraryStatus === 'AGENDADO' && (
-                        <Button 
-                            variant="outlined" 
-                            color="error" 
-                            onClick={() => handleOpenDialog('disable')}
-                            loading={loading} 
-                            loadingPosition="start"
-                            startIcon={<CancelIcon />}
-                        >
-                            Cancelar
-                        </Button>
-                    )}
+                        {itineraryStatus && itineraryStatus === 'AGENDADO' && (
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => handleOpenDialog('disable')}
+                                loading={loading}
+                                loadingPosition="start"
+                                startIcon={<CancelIcon />}
+                            >
+                                Cancelar
+                            </Button>
+                        )}
                     </Stack>
                     {config && (
                         <ConfirmationDialog
                             title={config.title}
                             message={config.message}
-                            open={openDialog !== null} 
+                            open={openDialog !== null}
                             onClose={() => setOpenDialog(null)}
                             onConfirm={config.onConfirm}
                         />
                     )}
                     {alert && (
-                        <MessageAlert 
+                        <MessageAlert
                             open={alert.open}
                             message={alert.message}
                             severity={alert.severity}

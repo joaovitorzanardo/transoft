@@ -128,6 +128,16 @@ public class ItineraryService {
         passengerStatusRepository.saveAll(passengersStatus);
     }
 
+    public void invalidateMissedItineraries() {
+        List<Itinerary> missedItineraries = itineraryRepository.findMissedItineraries();
+
+        for (Itinerary itinerary : missedItineraries) {
+            itinerary.setStatus(ItineraryStatus.PERDIDO);
+        }
+
+        itineraryRepository.saveAll(missedItineraries);
+    }
+
     public Itinerary findItineraryById(String itineraryId, LoggedUserAccount loggedUserAccount) {
         return itineraryRepository.findItineraryByItineraryIdAndCompany_CompanyId(itineraryId, loggedUserAccount.companyId()).orElseThrow(() -> new ResourceNotFoundException("Itinerary not found"));
     }
@@ -275,8 +285,9 @@ public class ItineraryService {
         int scheduled = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.AGENDADO);
         int finished = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.CONCLUIDO);
         int canceled = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.CANCELADO);
+        int missed = itineraryRepository.countItineraryByCompany_CompanyIdAndStatus(loggedUserAccount.companyId(), ItineraryStatus.PERDIDO);
 
-        return new ItineraryStatsPresenter(total, scheduled, finished, canceled);
+        return new ItineraryStatsPresenter(total, scheduled, finished, canceled, missed);
     }
 
     public void updateItinerary(String itineraryId, ItineraryDto itineraryDto, LoggedUserAccount loggedUserAccount) {

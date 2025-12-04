@@ -1,5 +1,5 @@
 import { Chip, Container } from "@mui/material";
-import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId  } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId } from '@mui/x-data-grid';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
@@ -79,7 +79,7 @@ export default function PassengersTable() {
             width: 120,
             renderCell: (params) => {
                 const getChipProps = (status: Status) => {
-                    switch(status) {
+                    switch (status) {
                         case 'ativo':
                             return { color: 'success' as const, label: 'Ativo' };
                         case 'inativo':
@@ -90,9 +90,9 @@ export default function PassengersTable() {
                 };
 
                 const chipProps = getChipProps(params.value);
-                
+
                 return (
-                    <Chip 
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
@@ -114,13 +114,6 @@ export default function PassengersTable() {
                         className="textPrimary"
                         onClick={navigateToPassengerInfo(id)}
                         color="inherit"
-                    />,
-                    <GridActionsCellItem
-                        icon={<FindInPageIcon />}
-                        label="Ver Detalhes"
-                        className="textPrimary"
-                        onClick={navigateToPassengerInfo(id)}
-                        color="inherit"
                     />
                 ]
             }
@@ -129,7 +122,7 @@ export default function PassengersTable() {
 
     return (
         <Container>
-            <DataGrid columns={columns} 
+            <DataGrid columns={columns}
                 rows={data}
                 loading={loading}
                 paginationModel={paginationModel}

@@ -8,7 +8,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
@@ -261,13 +261,7 @@ export default function TripDetailsScreen() {
                                 color: '#444',
                                 marginBottom: 12
                             }}>Passageiros</Text>
-                            <ScrollView>
-                                {passengers.map(item => (
-                                    <View key={item.id}>
-                                    <Text>{item.name}</Text>
-                                    </View>
-                                ))}
-                            </ScrollView>
+                            
                             <FlatList 
                                 data={passengers} 
                                 renderItem={({item}) => (

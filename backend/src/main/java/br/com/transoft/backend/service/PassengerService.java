@@ -1,5 +1,6 @@
 package br.com.transoft.backend.service;
 
+import br.com.transoft.backend.constants.PassengerStatusEnum;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.passenger.PassengerPresenterList;
 import br.com.transoft.backend.dto.passenger.PassengerStatsPresenter;
@@ -64,7 +65,11 @@ public class PassengerService {
 
         Route route = routeService.findRouteById(passengerDto.getRouteId(), loggedUserAccount);
 
-        passengerRepository.save(PassengerMapper.toEntity(passengerDto, address, route, userAccount, new Company(loggedUserAccount.companyId())));
+        Passenger passenger = PassengerMapper.toEntity(passengerDto, address, route, userAccount, new Company(loggedUserAccount.companyId()));
+
+        passengerRepository.save(passenger);
+
+        addPassengerToScheduledItineraries(loggedUserAccount.companyId(), passenger);
 
         emailService.sendEmailWithUserPassword(userAccount.getEmail(), password);
     }
@@ -127,12 +132,13 @@ public class PassengerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Passenger was not found."));
     }
 
+    @Transactional(rollbackOn = {SQLException.class})
     public void updatePassenger(String passengerId, PassengerDto passengerDto, LoggedUserAccount loggedUserAccount) {
         Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
 
         passenger.setName(passengerDto.getName());
 
-            if (!passenger.getEmail().equals(passengerDto.getEmail())) {
+        if (!passenger.getEmail().equals(passengerDto.getEmail())) {
             if (isEmailRegistered(passengerDto.getEmail())) {
                 throw new ResourceConflictException("O email informado já está registrado para outro passageiro!");
             }
@@ -144,6 +150,8 @@ public class PassengerService {
         if (!passenger.getRoute().getRouteId().equals(passengerDto.getRouteId())) {
             Route newRoute = routeService.findRouteById(passengerDto.getRouteId(), loggedUserAccount);
             passenger.setRoute(newRoute);
+            removePassengerFromScheduledItineraries(loggedUserAccount.companyId(), passengerId);
+            addPassengerToScheduledItineraries(loggedUserAccount.companyId(), passenger);
         }
 
         Address address = AddressMapper.toEntity(
@@ -155,10 +163,13 @@ public class PassengerService {
         passengerRepository.save(passenger);
     }
 
+    @Transactional(rollbackOn = {SQLException.class})
     public void enablePassenger(String passengerId, LoggedUserAccount loggedUserAccount) {
         Passenger passenger = findPassengerById(passengerId, loggedUserAccount);
         passenger.getUserAccount().setEnabled(true);
         passengerRepository.save(passenger);
+
+        addPassengerToScheduledItineraries(loggedUserAccount.companyId(), passenger);
     }
 
     @Transactional(rollbackOn = {SQLException.class})
@@ -190,6 +201,25 @@ public class PassengerService {
         }
 
         passengerStatusRepository.deleteAll(passengersStatusToRemove);
+    }
+
+    @Transactional(rollbackOn = {SQLException.class})
+    public void addPassengerToScheduledItineraries(String companyId, Passenger passenger) {
+        List<PassengerStatus> passengerStatusList = new ArrayList<>();
+        List<Itinerary> itineraries = itineraryRepository.findAllItinerariesByScheduledItinerariesByRouteId(companyId, passenger.getRoute().getRouteId());
+
+        for (Itinerary itinerary : itineraries) {
+            PassengerStatus passengerStatus = PassengerStatus.builder()
+                    .passengerStatusKey(new PassengerStatusKey(passenger.getPassengerId(), itinerary.getItineraryId()))
+                    .passenger(passenger)
+                    .itinerary(itinerary)
+                    .status(PassengerStatusEnum.CONFIRMADO)
+                    .build();
+
+            passengerStatusList.add(passengerStatus);
+        }
+
+        passengerStatusRepository.saveAll(passengerStatusList);
     }
 
     private boolean isEmailRegistered(String email) {
