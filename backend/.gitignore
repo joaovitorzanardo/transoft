@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-.env
+../.env
 config.json
 src/main/resources/private_key.pem
 src/main/resources/public_key.pem

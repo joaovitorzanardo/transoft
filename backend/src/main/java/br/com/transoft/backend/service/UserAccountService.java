@@ -20,12 +20,6 @@ public class UserAccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void activateUser(String userId) {
-        UserAccount userAccount = userAccountRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User id not found"));
-        userAccount.setActive(true);
-        userAccountRepository.save(userAccount);
-    }
-
     public UserAccountDto getUserAccount(LoggedUserAccount loggedUserAccount) {
         return userAccountRepository
                 .findById(loggedUserAccount.userAccountId())

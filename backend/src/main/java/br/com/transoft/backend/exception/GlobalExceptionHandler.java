@@ -54,4 +54,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(exception.getMessage()));
     }
 
+    @ExceptionHandler(InvalidDateIntervalException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDateIntervalException(InvalidDateIntervalException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(CookieExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleCookieExpiredException(CookieExpiredException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(exception.getMessage()));
+    }
+
 }

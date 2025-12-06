@@ -10,12 +10,17 @@ import java.util.List;
 @UtilityClass
 public class DateUtils {
 
-    public static List<LocalDate> getDatesBetween(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek) {
+    public static List<LocalDate> getDatesBetween(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, List<LocalDate> excludeDates) {
         List<LocalDate> dates = new ArrayList<>();
 
         LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
+            if (excludeDates != null && excludeDates.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+                continue;
+            }
+
             if (!daysOfWeek.contains(currentDate.getDayOfWeek())) {
                 currentDate = currentDate.plusDays(1);
                 continue;

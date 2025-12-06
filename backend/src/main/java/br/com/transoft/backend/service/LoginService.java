@@ -38,7 +38,10 @@ public class LoginService {
 
         UserAccountDto user = new UserAccountDto(userAccount.getName(), userAccount.getEmail(), userAccount.getActive(), userAccount.getRole().getRole());
 
-        return new LoginResponse(user, tokenService.generateToken(userAccount));
+        String token = tokenService.generateToken(userAccount);
+        String refreshToken = tokenService.generateRefreshToken(userAccount);
+
+        return new LoginResponse(user, token, refreshToken);
     }
 
 }

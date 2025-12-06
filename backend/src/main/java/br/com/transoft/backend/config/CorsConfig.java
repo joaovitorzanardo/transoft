@@ -1,5 +1,6 @@
 package br.com.transoft.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -12,10 +13,13 @@ import java.util.Collections;
 @Configuration
 public class CorsConfig {
 
+    @Value("${FRONTEND_URL}")
+    public String FRONTEND_URL;
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+        configuration.setAllowedOrigins(Collections.singletonList(FRONTEND_URL));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);

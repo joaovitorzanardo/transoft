@@ -23,4 +23,16 @@ public class DateIntervalDto {
     @NotNull(message = "The end date must be informed.")
     private LocalDate endDate;
 
+    public boolean isValid() {
+        return isEndDateEqualOrAfterStartDate() && isStartDateEqualOrAfterToday();
+    }
+
+    private boolean isEndDateEqualOrAfterStartDate() {
+        return endDate.isEqual(startDate) || endDate.isAfter(startDate);
+    }
+
+    private boolean isStartDateEqualOrAfterToday() {
+        return startDate.isEqual(LocalDate.now()) || startDate.isAfter(LocalDate.now());
+    }
+
 }

@@ -27,15 +27,24 @@ public class LoginController {
         LoginResponse loginResponse = loginService.login(loginDto);
 
         if ("web".equals(request.getHeader("X-Client-Type"))) {
-            ResponseCookie cookie = ResponseCookie.from("jwt", loginResponse.token())
+            ResponseCookie tokenCookie = ResponseCookie.from("token", loginResponse.token())
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .maxAge(86400)
+                    .maxAge(900000)
                     .sameSite("Lax")
                     .build();
 
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh-token", loginResponse.refreshToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(604800000)
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, tokenCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
         }
 
         return loginResponse;

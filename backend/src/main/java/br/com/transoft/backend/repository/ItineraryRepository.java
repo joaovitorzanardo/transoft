@@ -139,13 +139,13 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
             "AND i.status IN ('AGENDADO', 'EM_ANDAMENTO')")
     List<Itinerary> findAllScheduledAndOngoingItinerariesByDriverId(String companyId, String driverId);
 
-    @Query("SELECT i FROM Itinerary i " +
+    @Query("SELECT i.date FROM Itinerary i " +
             "JOIN i.company c " +
             "JOIN i.route r " +
             "WHERE r.routeId = :routeId " +
             "AND c.companyId = :companyId " +
             "AND i.date BETWEEN :startDate AND :endDate")
-    List<Itinerary> findItinerariesInDatesByRouteId(String companyId,
+    List<LocalDate> findDatesWithItinerariesGenerated(String companyId,
                                                     String routeId,
                                                     LocalDate startDate,
                                                     LocalDate endDate

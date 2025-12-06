@@ -7,6 +7,7 @@ import br.com.transoft.backend.dto.itinerary.account.ItineraryAccount;
 import br.com.transoft.backend.dto.itinerary.account.ItineraryAccountView;
 import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.Route;
+import br.com.transoft.backend.exception.InvalidDateIntervalException;
 import br.com.transoft.backend.exception.InvalidItineraryStatusException;
 import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.ItineraryQueryRepository;
@@ -51,15 +52,27 @@ public class ItineraryService {
 
     @Transactional(rollbackOn = SQLException.class)
     public void generateItinerary(GenerateItineraryDto generateItineraryDto, LoggedUserAccount loggedUserAccount) {
+        if (!generateItineraryDto.getDateInterval().isValid()) {
+            throw new InvalidDateIntervalException();
+        }
+
         Route route = routeService.findRouteById(generateItineraryDto.getRouteId(), loggedUserAccount);
         Driver driver = route.getDefaultDriver();
         Vehicle vehicle = route.getDefaultVehicle();
         Set<Passenger> passengers = route.getPassengers();
 
+        List<LocalDate> excludeDates = itineraryRepository.findDatesWithItinerariesGenerated(
+                loggedUserAccount.companyId(),
+                route.getRouteId(),
+                generateItineraryDto.getDateInterval().getStartDate(),
+                generateItineraryDto.getDateInterval().getEndDate()
+        );
+
         List<LocalDate> dates = DateUtils.getDatesBetween(
                 generateItineraryDto.getDateInterval().getStartDate(),
                 generateItineraryDto.getDateInterval().getEndDate(),
-                route.getDayOfTheWeek().getDaysOfWeek()
+                route.getDayOfTheWeek().getDaysOfWeek(),
+                excludeDates
         );
 
         for (LocalDate date : dates) {
