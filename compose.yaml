@@ -1,0 +1,46 @@
+services:
+  backend-db:
+    container_name: backend-db
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${BK_POSTGRES_DB}
+      POSTGRES_USER: ${BK_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${BK_POSTGRES_PASSWORD}
+    ports:
+        - "5432:5432"
+    volumes:
+        - backend_data:/var/lib/postgresql/data
+
+  backend-app:
+    build: ./backend
+    container_name: backend-app
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: backend-db
+      BK_POSTGRES_DB: ${BK_POSTGRES_DB}
+      BK_POSTGRES_USER: ${BK_POSTGRES_USER}
+      BK_POSTGRES_PASSWORD: ${BK_POSTGRES_PASSWORD}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      GEOCODING_API_KEY: ${GEOCODING_API_KEY}
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      backend-db:
+        condition: service_started
+        
+  frontend-app:
+    build: ./frontend-web
+    container_name: frontend-app
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-app
+
+volumes:
+  backend_data:
+    driver: local
