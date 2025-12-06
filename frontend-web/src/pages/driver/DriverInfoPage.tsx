@@ -1,4 +1,5 @@
-import { Box, Breadcrumbs, Button, FormControl, Grid, Link, Paper, Stack, TextField, Typography } from "@mui/material";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Box, Breadcrumbs, Button, FormControl, Grid, Link, Paper, Stack, Typography } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import PersonalInfoPaper from "../../components/ui/PersonalInfoPaper";
 import PhoneNumberInput from "../../components/ui/PhoneNumberInput";
@@ -9,7 +10,6 @@ import z from "zod";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import BlockIcon from '@mui/icons-material/Block';
-import { IMaskMixin } from "react-imask";
 import React from "react";
 import { disableDriver, enableDriver, getDriverById, saveDriver, updateDriver } from "../../services/driver.service";
 import type DriverDto from "../../models/driver/DriverDto";
@@ -18,17 +18,17 @@ import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import dayjs, { Dayjs } from "dayjs";
 import { useParams } from "react-router";
 import CheckIcon from '@mui/icons-material/Check';
-import type DriverPresenter from "../../models/driver/DriverPresenter";
+import { MaskedTextField } from "../../components/TextMaskCustom";
 
 const DriverForm = z.object({
-    name: z.string().nonempty({message: "O nome deve ser informado"}),
-    email: z.email({message: "Formato do email inválido"}),
-    ddd: z.string().nonempty({message: "O DDD deve ser informado"}),
-    number: z.string().nonempty({message: "O número deve ser informado"}),
+    name: z.string().nonempty({ message: "O nome deve ser informado" }),
+    email: z.email({ message: "Formato do email inválido" }),
+    ddd: z.string().nonempty({ message: "O DDD deve ser informado" }),
+    number: z.string().nonempty({ message: "O número deve ser informado" }),
     cnhNumber: z.string()
-            .nonempty({message: "A CNH deve ter ser informada"})
-            .length(11, {message: "A CNH deve ter 11 caracteres"})
-            .regex(/^\d+$/, {message: "A CNH deve conter apenas números"}),
+        .nonempty({ message: "A CNH deve ter ser informada" })
+        .length(11, { message: "A CNH deve ter 11 caracteres" })
+        .regex(/^\d+$/, { message: "A CNH deve conter apenas números" }),
     cnhExpirationDate: z.custom<Dayjs>(
         (val) => dayjs.isDayjs(val),
         { message: "Data inválida" }
@@ -43,17 +43,12 @@ const DriverForm = z.object({
 
 type IFormInputs = z.infer<typeof DriverForm>
 
-const MaskedTextField = IMaskMixin(({ inputRef, ...props }) => (
-    <TextField {...props} inputRef={inputRef} />
-));
-
 type DialogType = 'save' | 'disable' | 'enable' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
 
 export default function DriverInfoPage() {
     const { driverId } = useParams();
 
-    const [driver, setDriver] = React.useState<DriverPresenter>();
     const [openDialog, setOpenDialog] = React.useState<DialogType>(null);
     const [alert, setAlert] = React.useState<AlertState>(null);
     const [loading, setLoading] = React.useState(false);
@@ -85,8 +80,7 @@ export default function DriverInfoPage() {
 
             const driverData = response.data;
             setIsEnabled(driverData.enabled);
-            setDriver(driverData);
-            
+
             setValue('name', driverData.name);
             setValue('email', driverData.email);
             setValue('ddd', driverData.phoneNumber.ddd);
@@ -98,10 +92,10 @@ export default function DriverInfoPage() {
         getById();
     }, [driverId, setValue]);
 
-    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {        
+    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
         setOpenDialog(null);
         setLoading(true);
-        
+
         const driverDto: DriverDto = {
             name: data.name,
             email: data.email,
@@ -121,7 +115,7 @@ export default function DriverInfoPage() {
             } else {
                 response = await saveDriver(driverDto);
             }
-            
+
             if (response.status === 201) {
                 setAlert({ open: true, message: 'Motorista salvo com sucesso!', severity: 'success' });
                 reset();
@@ -129,7 +123,7 @@ export default function DriverInfoPage() {
                 setAlert({ open: true, message: 'Motorista atualizado com sucesso!', severity: 'success' });
                 reset();
             }
-        } catch(error: any) {
+        } catch (error: any) {
             setAlert({ open: true, message: error.response?.data.message, severity: 'error' });
         } finally {
             setLoading(false);
@@ -196,41 +190,41 @@ export default function DriverInfoPage() {
     const config = openDialog ? dialogConfig[openDialog] : null;
 
     return (
-        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA'}}>
+        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
             <SideMenu />
-            <Stack sx={{ padding: '3rem'}}>
+            <Stack sx={{ padding: '3rem' }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href="/drivers">Motoristas</Link>
                     <Typography sx={{ color: 'text.primary' }}>Cadastro</Typography>
                 </Breadcrumbs>
-                <Box sx={{height: 10}}/>
-                <Stack direction="row" sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}} >
+                <Box sx={{ height: 10 }} />
+                <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
                     <Typography variant="h4" >Cadastrar Motorista</Typography>
                 </Stack>
-                <Box sx={{height: 20}}/>
+                <Box sx={{ height: 20 }} />
                 <FormControl onSubmit={handleSubmit(onSubmit)} component="form">
-                    <PersonalInfoPaper control={control}/>
-                    <Box sx={{height: 30}}/>
-                    <PhoneNumberInput control={control}/>
-                    <Box sx={{height: 30}}/>
-                    <Paper sx={{padding: 3, boxSizing: 'border-box'}}>
+                    <PersonalInfoPaper control={control} />
+                    <Box sx={{ height: 30 }} />
+                    <PhoneNumberInput control={control} />
+                    <Box sx={{ height: 30 }} />
+                    <Paper sx={{ padding: 3, boxSizing: 'border-box' }}>
                         <Typography variant="h5" >CNH</Typography>
-                        <Grid container spacing={2} sx={{marginTop: 3}}>
+                        <Grid container spacing={2} sx={{ marginTop: 3 }}>
                             <Grid size={6}>
                                 <Controller
                                     name="cnhNumber"
                                     control={control}
                                     render={({ field, fieldState }) => (
-                                        <MaskedTextField 
+                                        <MaskedTextField
                                             mask="00000000000"
                                             placeholder="12345678900"
                                             {...field}
-                                            label="Número Registro" 
-                                            type="text" 
-                                            error={!!fieldState.error} 
+                                            label="Número Registro"
+                                            type="text"
+                                            error={!!fieldState.error}
                                             helperText={fieldState.error?.message}
-                                            variant="outlined" 
-                                            sx={{width: '100%'}}
+                                            variant="outlined"
+                                            sx={{ width: '100%' }}
                                         />
                                     )}
                                 />
@@ -241,8 +235,8 @@ export default function DriverInfoPage() {
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DatePicker 
-                                                label="Validade" 
+                                            <DatePicker
+                                                label="Validade"
                                                 format="DD/MM/YYYY"
                                                 value={field.value ? dayjs(field.value) : null}
                                                 onChange={(newValue) => field.onChange(newValue)}
@@ -260,53 +254,53 @@ export default function DriverInfoPage() {
                             </Grid>
                         </Grid>
                     </Paper>
-                    <Box sx={{height: 30}}/>
+                    <Box sx={{ height: 30 }} />
                     <Stack direction="row" justifyContent="flex-start" spacing={2}>
-                        <Button 
-                            variant="contained" 
-                            color="primary" 
-                            onClick={() => handleOpenDialog('save')} 
-                            loading={loading} 
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleOpenDialog('save')}
+                            loading={loading}
                             loadingPosition="start"
                         >
                             Salvar
                         </Button>
                         {
                             driverId !== 'edit' && (
-                                isEnabled ? 
-                                <Button 
-                                    variant="outlined" 
-                                    color="error" 
-                                    startIcon={<BlockIcon />} 
-                                    onClick={() => handleOpenDialog('disable')} 
-                                    loading={loading} 
-                                    loadingPosition="start"
-                                >
-                                    Desabilitar
-                                </Button> : <Button 
-                                    variant="outlined" 
-                                    color="success" 
-                                    startIcon={<CheckIcon />} 
-                                    onClick={() => handleOpenDialog('enable')} 
-                                    loading={loading} 
-                                    loadingPosition="start"
-                                >
-                                    Habilitar
-                                </Button>
-                            )                                
-                        }   
+                                isEnabled ?
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        startIcon={<BlockIcon />}
+                                        onClick={() => handleOpenDialog('disable')}
+                                        loading={loading}
+                                        loadingPosition="start"
+                                    >
+                                        Desabilitar
+                                    </Button> : <Button
+                                        variant="outlined"
+                                        color="success"
+                                        startIcon={<CheckIcon />}
+                                        onClick={() => handleOpenDialog('enable')}
+                                        loading={loading}
+                                        loadingPosition="start"
+                                    >
+                                        Habilitar
+                                    </Button>
+                            )
+                        }
                     </Stack>
                     {config && (
                         <ConfirmationDialog
                             title={config.title}
                             message={config.message}
-                            open={openDialog !== null} 
+                            open={openDialog !== null}
                             onClose={() => setOpenDialog(null)}
                             onConfirm={config.onConfirm}
                         />
                     )}
                     {alert && (
-                        <MessageAlert 
+                        <MessageAlert
                             open={alert.open}
                             message={alert.message}
                             severity={alert.severity}

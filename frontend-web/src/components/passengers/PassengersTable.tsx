@@ -1,6 +1,5 @@
 import { Chip, Container } from "@mui/material";
 import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId } from '@mui/x-data-grid';
-import FindInPageIcon from '@mui/icons-material/FindInPage';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";

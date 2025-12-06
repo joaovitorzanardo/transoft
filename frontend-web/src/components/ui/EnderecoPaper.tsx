@@ -1,19 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { Controller, type Control, type UseFormSetValue } from "react-hook-form";
-import { IMaskMixin } from "react-imask";
 import { getAddressInfo } from "../../services/address.service";
 import React from "react";
+import { MaskedTextField } from "../TextMaskCustom";
 
 interface EnderecoPaperProps {
     control: Control<any>;
     setValue: UseFormSetValue<any>;
 }
 
-const MaskedTextField = IMaskMixin(({ inputRef, ...props }) => (
-    <TextField {...props} inputRef={inputRef} />
-));
-
-export default function EnderecoPaper({control, setValue}: EnderecoPaperProps) {
+export default function EnderecoPaper({ control, setValue }: EnderecoPaperProps) {
     const [previousCep, setPreviousCep] = React.useState<string>('');
 
     const handleOnBlurCep = async (e: React.FocusEvent<HTMLInputElement>) => {
@@ -32,7 +29,7 @@ export default function EnderecoPaper({control, setValue}: EnderecoPaperProps) {
             setValue('estado', addressData.state);
             setValue('bairro', addressData.neighborhood);
             console.log(addressData)
-        } catch(error) {
+        } catch (error) {
             console.log(error)
         } finally {
             setPreviousCep(cep);
@@ -40,75 +37,75 @@ export default function EnderecoPaper({control, setValue}: EnderecoPaperProps) {
     }
 
     return (
-        <Paper sx={{padding: 3, boxSizing: 'border-box'}}>
+        <Paper sx={{ padding: 3, boxSizing: 'border-box' }}>
             <Typography variant="h5" >Endereço</Typography>
-            <Grid container spacing={2} sx={{marginTop: 3}}>
+            <Grid container spacing={2} sx={{ marginTop: 3 }}>
                 <Grid size={6}>
                     <Controller
                         name="cep"
                         control={control}
                         render={({ field, fieldState }) => (
-                            <MaskedTextField 
+                            <MaskedTextField
                                 mask="00000-000"
                                 placeholder="99700-000"
                                 {...field}
-                                label="CEP" 
-                                type="text" 
+                                label="CEP"
+                                type="text"
                                 onBlur={handleOnBlurCep}
-                                error={!!fieldState.error} 
+                                error={!!fieldState.error}
                                 helperText={fieldState.error?.message}
-                                variant="outlined" 
-                                sx={{width: '100%'}}
+                                variant="outlined"
+                                sx={{ width: '100%' }}
                             />
                         )}
-                    />                    
+                    />
                 </Grid>
                 <Grid size={6}>
-                    <Controller 
+                    <Controller
                         name="estado"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Estado" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
-                    />  
+                        render={({ field, fieldState }) => <TextField label="Estado" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
+                    />
                 </Grid>
             </Grid>
-            <Box sx={{height: 20}}/>
+            <Box sx={{ height: 20 }} />
             <Grid container spacing={2}>
                 <Grid size={6}>
-                    <Controller 
+                    <Controller
                         name="cidade"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Cidade/Município" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
+                        render={({ field, fieldState }) => <TextField label="Cidade/Município" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
                     />
                 </Grid>
                 <Grid size={6}>
-                    <Controller 
+                    <Controller
                         name="bairro"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Bairro" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
+                        render={({ field, fieldState }) => <TextField label="Bairro" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
                     />
                 </Grid>
             </Grid>
-            <Box sx={{height: 20}}/>
+            <Box sx={{ height: 20 }} />
             <Grid container spacing={2}>
                 <Grid size={6}>
-                    <Controller 
+                    <Controller
                         name="endereco"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Endereço" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
+                        render={({ field, fieldState }) => <TextField label="Endereço" disabled type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
                     />
                 </Grid>
                 <Grid size={3}>
-                    <Controller 
+                    <Controller
                         name="numero"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Número" type="number" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
+                        render={({ field, fieldState }) => <TextField label="Número" type="number" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
                     />
                 </Grid>
                 <Grid size={3}>
-                    <Controller 
+                    <Controller
                         name="complemento"
                         control={control}
-                        render={({ field, fieldState }) => <TextField label="Complemento" type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{width: '100%'}}/>}
+                        render={({ field, fieldState }) => <TextField label="Complemento" type="text" error={!!fieldState.error} helperText={fieldState.error?.message} variant="outlined" {...field} sx={{ width: '100%' }} />}
                     />
                 </Grid>
             </Grid>

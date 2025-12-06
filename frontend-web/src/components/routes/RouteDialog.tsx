@@ -10,9 +10,9 @@ interface RouteDialogProps {
     routeId: string;
 }
 
-export default function RouteDialog({open, onClose, routeId}: RouteDialogProps) {
-    const [routeData, setRouteData] = React.useState<RoutePresenter>(null);
-    
+export default function RouteDialog({ open, onClose, routeId }: RouteDialogProps) {
+    const [routeData, setRouteData] = React.useState<RoutePresenter | undefined>(undefined);
+
     React.useEffect(() => {
         async function getById() {
             if (routeId === undefined || routeId === 'edit') {
@@ -32,19 +32,19 @@ export default function RouteDialog({open, onClose, routeId}: RouteDialogProps) 
     }, [routeId]);
 
     return (
-        routeData && 
+        routeData &&
         <Dialog open={open} onClose={onClose} >
             <Container sx={{ padding: 3 }}>
                 <DialogHeader title="Rota" onClose={onClose} />
-                <Box sx={{height: 10}}/>
+                <Box sx={{ height: 10 }} />
                 <Typography variant="body1" >Rota: {routeData.name}</Typography>
                 <Typography variant="body1" >Escola: {routeData.school.name}</Typography>
                 <Typography variant="body1" >Motorista: {routeData.defaultDriver.name}</Typography>
                 <Typography variant="body1" >Veiculo: {routeData.defaultVehicle.plateNumber}</Typography>
                 <Stack direction="row">
                     <Typography variant="body1" >Status:</Typography>
-                    <Box sx={{width: 5}}/>
-                    <Chip 
+                    <Box sx={{ width: 5 }} />
+                    <Chip
                         label="Ativo"
                         color="success"
                         size="small"

@@ -1,5 +1,5 @@
 import { Chip, Container } from "@mui/material";
-import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId  } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, type GridColDef, type GridRowId } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from "react-router";
 import React from "react";
@@ -80,9 +80,9 @@ export function VehicleTable() {
                 };
 
                 const chipProps = getChipProps(params.value);
-                
+
                 return (
-                    <Chip 
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
@@ -90,7 +90,7 @@ export function VehicleTable() {
                     />
                 );
             }
-        }, 
+        },
         {
             field: 'actions',
             type: 'actions',
@@ -112,9 +112,9 @@ export function VehicleTable() {
 
     return (
         <Container>
-            <DataGrid 
-                columns={columns} 
-                rows={data} 
+            <DataGrid
+                columns={columns}
+                rows={data}
                 loading={loading}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}

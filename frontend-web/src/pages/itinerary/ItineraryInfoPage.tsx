@@ -1,4 +1,5 @@
-import { Box, Breadcrumbs, Button, Chip, FormControl, Grid, InputLabel, Link, MenuItem, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Box, Breadcrumbs, Button, Chip, FormControl, Grid, InputLabel, Link, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import React from "react";
@@ -19,7 +20,6 @@ import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import type ItineraryDto from "../../models/itinerary/ItineraryDto";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { id } from "zod/v4/locales";
 
 const dayjsSchema = z.custom<Dayjs | null>(
     (val) => val === null || dayjs.isDayjs(val),

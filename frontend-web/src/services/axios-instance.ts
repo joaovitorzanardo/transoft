@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env?.VITE_API_URL ||
+  'http://localhost:8081';
+
 export const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8081/api',
-    withCredentials: true
+  baseURL: `${API_URL}/api`,
+  withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
@@ -22,9 +25,9 @@ export const redirectToLogin = () => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-      if (error.response?.status === 401) {
-          redirectToLogin();
-      }
-      return Promise.reject(error);
+    if (error.response?.status === 401) {
+      redirectToLogin();
+    }
+    return Promise.reject(error);
   }
 );

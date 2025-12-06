@@ -78,7 +78,7 @@ export default function DriversTable() {
             width: 120,
             renderCell: (params) => {
                 const getChipProps = (status: Status) => {
-                    switch(status) {
+                    switch (status) {
                         case 'ativo':
                             return { color: 'success' as const, label: 'Ativo' };
                         case 'inativo':
@@ -89,9 +89,9 @@ export default function DriversTable() {
                 };
 
                 const chipProps = getChipProps(params.value);
-                
+
                 return (
-                    <Chip 
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
@@ -99,7 +99,7 @@ export default function DriversTable() {
                     />
                 );
             }
-        }, 
+        },
         {
             field: 'actions',
             type: 'actions',
@@ -121,8 +121,8 @@ export default function DriversTable() {
 
     return (
         <Container>
-            <DataGrid 
-                columns={columns} 
+            <DataGrid
+                columns={columns}
                 rows={data}
                 loading={loading}
                 paginationModel={paginationModel}

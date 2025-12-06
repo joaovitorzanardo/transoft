@@ -32,7 +32,7 @@ export default function RouteTable() {
 
     const navigate = useNavigate();
 
-    const navigateToRouteEditPage = (id: GridRowId)=> () => {
+    const navigateToRouteEditPage = (id: GridRowId) => () => {
         navigate(`/routes/${id}`);
     };
 
@@ -90,9 +90,9 @@ export default function RouteTable() {
                 };
 
                 const chipProps = getChipProps(params.value);
-                
+
                 return (
-                    <Chip 
+                    <Chip
                         label={chipProps.label}
                         color={chipProps.color}
                         size="small"
@@ -100,7 +100,7 @@ export default function RouteTable() {
                     />
                 );
             }
-        }, 
+        },
         {
             field: 'actions',
             type: 'actions',
@@ -129,7 +129,7 @@ export default function RouteTable() {
 
     return (
         <Container>
-            <DataGrid columns={columns} 
+            <DataGrid columns={columns}
                 rows={data}
                 loading={loading}
                 paginationModel={paginationModel}
@@ -138,7 +138,7 @@ export default function RouteTable() {
                 rowCount={rowCount}
                 paginationMode="server"
             />
-            <RouteDialog open={openRouteDialog} onClose={handleCloseRouteDialog} routeId={selectedRouteId}/>
+            <RouteDialog open={openRouteDialog} onClose={handleCloseRouteDialog} routeId={selectedRouteId} />
         </Container>
     );
 }

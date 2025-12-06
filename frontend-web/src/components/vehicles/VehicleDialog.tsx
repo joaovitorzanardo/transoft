@@ -17,7 +17,7 @@ interface VehicleDialogProps {
 export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
     const [automakers, setAutomakers] = React.useState<Automaker[]>([]);
     const [vehicleModels, setVehicleModels] = React.useState<VehicleModel[]>([]);
-    
+
     const [selectedAutomaker, setSelectedAutomaker] = React.useState<string>();
     const [selectedVehicleModel, setSelectedVehicleModel] = React.useState<string>();
 
@@ -33,7 +33,7 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
         const fetchAutomakers = async () => {
             try {
                 const automakersData = await getAutomakers();
-                setAutomakers(automakersData);
+                setAutomakers(automakersData.data as Automaker[]);
             } catch (error) {
                 console.error('Error fetching automakers:', error);
             }
@@ -47,8 +47,8 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
             if (!selectedAutomaker) return;
 
             try {
-                const vehicleModelsData = await getVehicleModelsByAutomaker(selectedAutomaker);                
-                setVehicleModels(vehicleModelsData);
+                const vehicleModelsData = await getVehicleModelsByAutomaker(selectedAutomaker);
+                setVehicleModels(vehicleModelsData.data as VehicleModel[]);
             } catch (error) {
                 console.error('Error fetching automakers:', error);
             }
@@ -72,7 +72,7 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
                             {automakers.map((automaker) => (
                                 <MenuItem value={automaker.automakerId}>
                                     {automaker.name}
-                                </MenuItem> 
+                                </MenuItem>
                             ))}
                         </Select>
                         <Select
@@ -82,7 +82,7 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
                             {vehicleModels.map((vehicleModel) => (
                                 <MenuItem value={vehicleModel.modelName}>
                                     {vehicleModel.modelName}
-                                </MenuItem> 
+                                </MenuItem>
                             ))}
                         </Select>
                     </Container>
@@ -90,9 +90,9 @@ export function VehicleDialog({ open, onClose }: VehicleDialogProps) {
                         <TextField label="Capacidade" variant="outlined" type="number" />
                     </Container>
                 </Container>
-                
-                <Divider sx={{marginTop: "20px", marginBottom: "20px"}}/>
-                
+
+                <Divider sx={{ marginTop: "20px", marginBottom: "20px" }} />
+
                 <Container sx={{ display: 'flex', justifyContent: 'flex-end', }}>
                     <Button variant="outlined" color="error" startIcon={<BlockIcon />}>Desabilitar</Button>
                     <Box sx={{ width: "10px" }} />

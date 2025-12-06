@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography, Button } from "@mui/material";
 
 // import EqualizerIcon from '@mui/icons-material/Equalizer';
@@ -30,12 +31,12 @@ export default function SideMenu() {
 
     const items: MenuItem[] = [
         // {name: "Dashboard", icon: <EqualizerIcon/>, path: "/dashboard"}, 
-        {name: "Rotas", icon: <ForkRightIcon />, path: "/routes"}, 
-        {name: "Passageiros", icon: <EmojiPeopleIcon /> , path: "/passengers"},
-        {name: "Motoristas", icon: <PersonIcon /> , path: "/drivers"}, 
-        {name: "Veículos", icon: <DirectionsBusIcon /> , path: "/vehicles"},
-        {name: "Itinerarios", icon: <PendingActionsIcon /> , path: "/itineraries"}, 
-        {name: "Configurações", icon: <SettingsIcon /> , path: "/configuration"}, 
+        { name: "Rotas", icon: <ForkRightIcon />, path: "/routes" },
+        { name: "Passageiros", icon: <EmojiPeopleIcon />, path: "/passengers" },
+        { name: "Motoristas", icon: <PersonIcon />, path: "/drivers" },
+        { name: "Veículos", icon: <DirectionsBusIcon />, path: "/vehicles" },
+        { name: "Itinerarios", icon: <PendingActionsIcon />, path: "/itineraries" },
+        { name: "Configurações", icon: <SettingsIcon />, path: "/configuration" },
         // {name: "Relatórios", icon: <ArticleIcon /> , path: "/reports"}
     ];
 
@@ -59,7 +60,7 @@ export default function SideMenu() {
             <ConfirmationDialog
                 title="Confirmar Sair do Sistema"
                 message="Tem certeza que deseja sair do sistema?"
-                open={openDialog} 
+                open={openDialog}
                 onClose={() => setOpenDialog(false)}
                 onConfirm={async () => {
                     try {
@@ -71,16 +72,16 @@ export default function SideMenu() {
                     }
                 }}
             />
-            <Button 
-                variant="contained" 
-                color="error" 
-                sx={{ margin: 2 }} 
+            <Button
+                variant="contained"
+                color="error"
+                sx={{ margin: 2 }}
                 onClick={() => setOpenDialog(true)}
             >
                 Sair
             </Button>
             {alert && (
-                <MessageAlert 
+                <MessageAlert
                     open={alert.open}
                     message={alert.message}
                     severity={alert.severity}

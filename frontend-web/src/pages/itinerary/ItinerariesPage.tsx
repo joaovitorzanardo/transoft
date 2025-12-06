@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Button, Checkbox, Divider, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Paper, Select, Stack, Typography, type SelectChangeEvent } from "@mui/material";
 import SideMenu from "../../components/SideManu";
 import PageTitle from "../../components/ui/PageTitle";
