@@ -87,6 +87,7 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 
 - Editar as informações da rota e clicar na checkbox para regerar os itinerários.
 - Habilitar/Desabilitar recursos.
+- Sair da conta e logar na outra para mostrar a separação lógica dos dados por empresa.
 
 ## Aplicação Mobile
 
