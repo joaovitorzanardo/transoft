@@ -37,7 +37,7 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 ### 3. Cadastrar Motorista
 
 - **Nome:** Valdir Morais
-- **Email:**
+- **Email:** valdirmoraistcc@hotmail.com
 - **Telefone:** (54) 9 3965-0569
 - **CNH:** 35073262448
 - **Validade:** 06/12/2029
@@ -57,7 +57,7 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 #### Passageiro 1
 
 - **Nome:** Eduardo Ferreira
-- **Email:**
+- **Email:** eduardoferreiratcc@hotmail.com
 - **Telefone:** (54) 9 3484-9591
 - **Rota:** Rota URI - Campus II - NOTURNO
 - **CEP:** 99700-036
@@ -66,7 +66,7 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 #### Passageiro 2
 
 - **Nome:** Adriano de Freitas
-- **Email:**
+- **Email:** adrianofreitastcc@hotmail.com
 - **Telefone:** (54) 9 3123-2056
 - **Rota:** Rota URI - Campus II - NOTURNO
 - **CEP:** 99700-066
@@ -93,8 +93,8 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 
 ### Motorista
 
-- **Email:**
-- **Senha:**
+- **Email:** valdirmoraistcc@hotmail.com
+- **Senha:** a1b2c3
 
 #### Tela Inicial
 
@@ -116,8 +116,8 @@ O fluxo de cadastro irá seguir a seguinte ordem na maioria dos casos:
 
 ### Passageiro
 
-- **Email:**
-- **Senha:**
+- **Email:** eduardoferreiratcc@hotmail.com
+- **Senha:** a1b2c3
 
 #### Tela Inicial
 
