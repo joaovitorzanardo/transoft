@@ -4,7 +4,6 @@ import br.com.transoft.backend.constants.Role;
 import br.com.transoft.backend.dto.LoggedUserAccount;
 import br.com.transoft.backend.dto.itinerary.*;
 import br.com.transoft.backend.dto.itinerary.account.ItineraryAccount;
-import br.com.transoft.backend.dto.itinerary.account.ItineraryAccountView;
 import br.com.transoft.backend.entity.*;
 import br.com.transoft.backend.entity.route.Route;
 import br.com.transoft.backend.exception.InvalidDateIntervalException;
@@ -13,7 +12,6 @@ import br.com.transoft.backend.exception.ResourceNotFoundException;
 import br.com.transoft.backend.repository.ItineraryQueryRepository;
 import br.com.transoft.backend.repository.ItineraryRepository;
 import br.com.transoft.backend.repository.PassengerStatusRepository;
-import br.com.transoft.backend.repository.UserAccountRepository;
 import br.com.transoft.backend.utils.DateUtils;
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.constants.ItineraryType;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -141,8 +140,19 @@ public class ItineraryService {
         passengerStatusRepository.saveAll(passengersStatus);
     }
 
-    public void invalidateMissedItineraries() {
-        List<Itinerary> missedItineraries = itineraryRepository.findMissedItineraries();
+    public void invalidateMissedItinerariesFromPreviousDays() {
+        List<Itinerary> missedItineraries = itineraryRepository.findMissedItinerariesFromPreviousDays();
+
+        for (Itinerary itinerary : missedItineraries) {
+            itinerary.setStatus(ItineraryStatus.PERDIDO);
+        }
+
+        itineraryRepository.saveAll(missedItineraries);
+    }
+
+    public void invalidateMissedItinerariesFromToday() {
+        LocalTime horaLimite = LocalTime.now().plusHours(1);
+        List<Itinerary> missedItineraries = itineraryRepository.findMissedItinerariesFromToday(horaLimite);
 
         for (Itinerary itinerary : missedItineraries) {
             itinerary.setStatus(ItineraryStatus.PERDIDO);

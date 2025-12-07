@@ -20,6 +20,7 @@ import ConfirmationDialog from "../../components/ui/ConfirmationDialog";
 import type ItineraryDto from "../../models/itinerary/ItineraryDto";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import type ItineraryPresenter from "../../models/ItineraryPresenter";
 
 const dayjsSchema = z.custom<Dayjs | null>(
     (val) => val === null || dayjs.isDayjs(val),
@@ -38,11 +39,12 @@ type IFormInputs = z.infer<typeof RouteForm>
 type DialogType = 'save' | 'disable' | null;
 type AlertState = { open: boolean; message: string; severity: 'success' | 'error' } | null;
 
-type ItineraryStatus = 'AGENDADO' | 'EM_ANDAMENTO' | 'CANCELADO' | 'CONCLUIDO' | null;
+type ItineraryStatus = 'AGENDADO' | 'EM_ANDAMENTO' | 'CANCELADO' | 'CONCLUIDO' | 'PERDIDO' | null;
 
 export default function ItineraryInfoPage() {
     const { itineraryId } = useParams();
 
+    const [itineraryValue, setItineraryValue] = React.useState<ItineraryPresenter | null>(null);
     const [drivers, setDrivers] = React.useState<DriverPresenter[]>([]);
     const [vehicles, setVehicles] = React.useState<VehiclePresenter[]>([]);
 
@@ -91,7 +93,8 @@ export default function ItineraryInfoPage() {
                 return;
             }
 
-            const itineraryData = response.data;
+            const itineraryData = response.data as ItineraryPresenter;
+            setItineraryValue(itineraryData);
 
             setItineraryStatus(itineraryData.status);
             setValue('driverId', itineraryData.driver.driverId);
@@ -182,7 +185,26 @@ export default function ItineraryInfoPage() {
         }
     };
 
-    const isDisabled = itineraryStatus === 'CANCELADO' || itineraryStatus === 'CONCLUIDO';
+    const isDisabled = itineraryStatus === 'CANCELADO' || itineraryStatus === 'CONCLUIDO' || itineraryStatus === 'PERDIDO';
+
+    const getChipProps = (status: string) => {
+        switch (status) {
+            case 'AGENDADO':
+                return { color: 'primary' as const, label: 'Agendado' };
+            case 'EM_ANDAMENTO':
+                return { color: 'warning' as const, label: 'Andamento' };
+            case 'CONCLUIDO':
+                return { color: 'success' as const, label: 'Concluído' };
+            case 'CANCELADO':
+                return { color: 'error' as const, label: 'Cancelado' };
+            case 'PERDIDO':
+                return { color: 'default' as const, label: 'Perdido' };
+            default:
+                return { color: 'default' as const, label: 'Desconhecido' };
+        }
+    };
+
+    const statusChipProps = getChipProps(itineraryStatus || '');
 
     return (
         <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
@@ -200,29 +222,26 @@ export default function ItineraryInfoPage() {
                 <Paper sx={{ padding: 3 }}>
                     <Typography variant="h5" sx={{ marginBottom: 2 }}>Dados do Itinerário</Typography>
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: "space-between", marginBottom: 1 }}>
-                        <Typography variant="body1" ><b>Data:</b> 03/12/2025</Typography>
-                        <Chip
-                            label="2 Confirmados"
-                            color="success"
-                            size="small"
-                            variant="filled"
-                        />
+                        <Typography variant="body1" ><b>Data:</b> {itineraryValue?.date ? dayjs(itineraryValue.date).format('DD/MM/YYYY') : 'N/A'}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: "space-between" }}>
-                        <Typography variant="body1"><b>Rota:</b> Rota 1</Typography>
+                        <Typography variant="body1"><b>Rota:</b> {itineraryValue?.route.name}</Typography>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <Chip
-                                label="IDA"
+                                label={itineraryValue?.type === 'IDA' ? 'Ida' : 'Volta'}
                                 color="warning"
                                 size="small"
                                 variant="filled"
                             />
-                            <Chip
-                                label="Agendado"
-                                color="primary"
-                                size="small"
-                                variant="filled"
-                            />
+                            {statusChipProps && (
+                                <Chip
+                                    label={statusChipProps.label}
+                                    color={statusChipProps.color}
+                                    size="small"
+                                    variant="filled"
+                                />
+                            )}
+
                         </Box>
                     </Box>
                 </Paper>

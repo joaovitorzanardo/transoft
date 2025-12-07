@@ -64,6 +64,11 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
 
         Claims claims = tokenService.extractClaimsFromToken(token.get());
 
+        if (tokenService.isClaimsInvalid(claims)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         TokenInfo tokenInfo = tokenService.extractTokenInfo(claims);
 
         if (tokenService.hasExpired(claims.getExpiration())) {
@@ -110,7 +115,7 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .maxAge(900000)
+                    .maxAge(900)
                     .sameSite("Lax")
                     .build();
 

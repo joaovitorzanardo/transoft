@@ -13,9 +13,14 @@ public class InvalidateMissedItinerariesTask {
         this.itineraryService = itineraryService;
     }
 
+    @Scheduled(cron = "0 * * * * ?")
+    public void invalidateFromToday() {
+        itineraryService.invalidateMissedItinerariesFromToday();
+    }
+
     @Scheduled(cron = "0 0 0 * * ?")
-    public void invalidate() {
-        itineraryService.invalidateMissedItineraries();
+    public void invalidateFromPreviousDays() {
+        itineraryService.invalidateMissedItinerariesFromPreviousDays();
     }
 
 }

@@ -2,14 +2,15 @@ package br.com.transoft.backend.repository;
 
 import br.com.transoft.backend.constants.ItineraryStatus;
 import br.com.transoft.backend.entity.Itinerary;
-import br.com.transoft.backend.entity.route.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -154,7 +155,12 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, String> {
     @Query("SELECT i FROM Itinerary i " +
             "WHERE i.status = 'AGENDADO' " +
             "AND i.date < CURRENT_DATE")
-    List<Itinerary> findMissedItineraries();
+    List<Itinerary> findMissedItinerariesFromPreviousDays();
+
+    @Query("SELECT i FROM Itinerary i " +
+            "WHERE i.status = 'AGENDADO' " +
+            "AND i.date = CURRENT_DATE AND i.endTime < :limitTime")
+    List<Itinerary> findMissedItinerariesFromToday(@Param("limitTime") LocalTime limitTime);
 
     int countItineraryByCompany_CompanyId(String companyId);
     int countItineraryByCompany_CompanyIdAndStatus(String companyId, ItineraryStatus status);

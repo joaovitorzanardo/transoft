@@ -31,7 +31,7 @@ public class LoginController {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .maxAge(900000)
+                    .maxAge(900)
                     .sameSite("Lax")
                     .build();
 
@@ -39,7 +39,7 @@ public class LoginController {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .maxAge(604800000)
+                    .maxAge(604800)
                     .sameSite("Lax")
                     .build();
 
