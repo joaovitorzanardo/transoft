@@ -30,14 +30,12 @@ export default function SideMenu() {
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
 
     const items: MenuItem[] = [
-        // {name: "Dashboard", icon: <EqualizerIcon/>, path: "/dashboard"}, 
         { name: "Rotas", icon: <ForkRightIcon />, path: "/routes" },
         { name: "Passageiros", icon: <EmojiPeopleIcon />, path: "/passengers" },
         { name: "Motoristas", icon: <PersonIcon />, path: "/drivers" },
         { name: "Veículos", icon: <DirectionsBusIcon />, path: "/vehicles" },
         { name: "Itinerarios", icon: <PendingActionsIcon />, path: "/itineraries" },
         { name: "Configurações", icon: <SettingsIcon />, path: "/configuration" },
-        // {name: "Relatórios", icon: <ArticleIcon /> , path: "/reports"}
     ];
 
     return (

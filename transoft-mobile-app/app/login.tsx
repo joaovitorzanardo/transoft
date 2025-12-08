@@ -16,6 +16,7 @@ export default function LoginScreen() {
     try {
       const response = await login({ email, password });
       await storage.setToken(response.data.token);
+      await storage.setRefreshToken(response.data.refreshToken);
 
       setUser(response.data.user);
 
@@ -25,23 +26,30 @@ export default function LoginScreen() {
       }
 
       router.replace('/(tabs)');
-    } catch (error:any) {
+    } catch (error: any) {
       showAlert(error.response?.data?.message || 'Ocorreu um erro inesperado. Por favor, tente novamente.');
     }
   };
 
   const showAlert = (message: string) => {
     Alert.alert('Erro ao fazer login', message, [
-          {
-              text: 'Ok'
-          }
-      ]);
+      {
+        text: 'Ok'
+      }
+    ]);
   }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={() => router.push('/settings')}
+      >
+        <Ionicons name="settings-outline" size={28} color="#007AFF" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Transoft</Text>
-      
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -50,7 +58,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      
+
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -67,7 +75,7 @@ export default function LoginScreen() {
           />
         </TouchableOpacity>
       </View>
-      
+
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
@@ -81,6 +89,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     backgroundColor: '#fff',
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 1,
   },
   title: {
     fontSize: 24,

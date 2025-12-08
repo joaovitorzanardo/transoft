@@ -1,7 +1,10 @@
 package br.com.transoft.backend.service;
 
 import br.com.transoft.backend.constants.Role;
+import br.com.transoft.backend.dto.auth.TokenRequest;
 import br.com.transoft.backend.dto.TokenInfo;
+import br.com.transoft.backend.dto.auth.TokenResponse;
+import br.com.transoft.backend.entity.Company;
 import br.com.transoft.backend.entity.RefreshToken;
 import br.com.transoft.backend.entity.UserAccount;
 import br.com.transoft.backend.repository.RefreshTokenRepository;
@@ -77,6 +80,27 @@ public class TokenService {
         saveRefreshToken(refreshToken);
 
         return tokenValue;
+    }
+
+    public TokenResponse refreshToken(TokenRequest tokenRequest) {
+        Claims refreshTokenClaims = extractClaimsFromToken(tokenRequest.refreshToken());
+
+        TokenInfo tokenInfo = extractTokenInfo(refreshTokenClaims);
+
+        if (hasExpired(refreshTokenClaims.getExpiration())) {
+            deleteRefreshToken(tokenRequest.refreshToken());
+            return new TokenResponse("");
+        }
+
+        UserAccount userAccount = UserAccount.builder()
+                .userAccountId(tokenInfo.userAccountId())
+                .company(new Company(tokenInfo.companyId()))
+                .role(tokenInfo.role())
+                .build();
+
+        String newToken = generateToken(userAccount);
+
+        return new TokenResponse(newToken);
     }
 
     private void saveRefreshToken(RefreshToken refreshToken) {

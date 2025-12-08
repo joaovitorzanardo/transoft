@@ -14,13 +14,11 @@ export default function ProfileScreen() {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    // Add your refresh logic here
-    // For example, refetch user data
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
   }, []);
-  
+
   const handleLogout = async () => {
     Alert.alert(
       "Confirmação",
@@ -37,6 +35,7 @@ export default function ProfileScreen() {
             try {
               setUser(null);
               await storage.removeToken();
+              await storage.removeRefreshToken();
               router.replace('/login');
             } catch (error) {
               console.error('Error logging out:', error);
@@ -50,40 +49,40 @@ export default function ProfileScreen() {
   if (!user) {
     return;
   }
- 
+
   return (
     <SafeAreaProvider>
-        <SafeAreaView style={{ 
-          padding: 20, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'space-between', 
-          flex: 1,
-          backgroundColor: '#f5f5f5' 
-        }}>
-          <ScrollView
-            contentContainerStyle={{ flex: 1 }}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          >
-            {
-              user.role === 'DRIVER' ? (
-                <DriverProfile 
-                  isDialogVisible={isDialogVisible}
-                  setIsDialogVisible={setIsDialogVisible}
-                  handleLogout={handleLogout}
-                />
-              ) : (
-                <PassengerProfile
-                  isDialogVisible={isDialogVisible}
-                  setIsDialogVisible={setIsDialogVisible}
-                  handleLogout={handleLogout}
-                />
-              )
-            }
-          </ScrollView>
-        </SafeAreaView>
+      <SafeAreaView style={{
+        padding: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        flex: 1,
+        backgroundColor: '#f5f5f5'
+      }}>
+        <ScrollView
+          contentContainerStyle={{ flex: 1 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {
+            user.role === 'DRIVER' ? (
+              <DriverProfile
+                isDialogVisible={isDialogVisible}
+                setIsDialogVisible={setIsDialogVisible}
+                handleLogout={handleLogout}
+              />
+            ) : (
+              <PassengerProfile
+                isDialogVisible={isDialogVisible}
+                setIsDialogVisible={setIsDialogVisible}
+                handleLogout={handleLogout}
+              />
+            )
+          }
+        </ScrollView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

@@ -52,6 +52,8 @@ export default function VehicleInfoPage() {
             automakerId: ''
         },
         resolver: zodResolver(VehicleForm),
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit',
     });
 
     const selectedAutomaker = watch('automakerId');

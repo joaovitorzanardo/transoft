@@ -10,11 +10,11 @@ interface UpdateRoutesConfirmationDialogProps {
     setUpdateItineraries: (value: boolean) => void;
 }
 
-export default function UpdateRoutesConfirmationDialog({title, message, open, onClose, onConfirm, updateItineraries, setUpdateItineraries}: UpdateRoutesConfirmationDialogProps) {
+export default function UpdateRoutesConfirmationDialog({ title, message, open, onClose, onConfirm, updateItineraries, setUpdateItineraries }: UpdateRoutesConfirmationDialogProps) {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUpdateItineraries(event.target.checked);
-      };
-    
+    };
+
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>
@@ -28,7 +28,7 @@ export default function UpdateRoutesConfirmationDialog({title, message, open, on
                     <FormControlLabel
                         label="Atualizar itinerários agendados para essa rota"
                         control={<Checkbox checked={updateItineraries} onChange={handleChange} />}
-                        labelPlacement="top">
+                        labelPlacement="start">
                     </FormControlLabel>
                 </FormControl>
             </DialogContent>

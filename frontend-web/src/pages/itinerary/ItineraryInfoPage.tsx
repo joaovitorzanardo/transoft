@@ -79,6 +79,8 @@ export default function ItineraryInfoPage() {
             endTime: null
         },
         resolver: zodResolver(RouteForm),
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit',
     });
 
     React.useEffect(() => {

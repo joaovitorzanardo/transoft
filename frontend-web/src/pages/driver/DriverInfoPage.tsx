@@ -64,6 +64,8 @@ export default function DriverInfoPage() {
             cnhExpirationDate: null
         },
         resolver: zodResolver(DriverForm),
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit',
     });
 
     React.useEffect(() => {

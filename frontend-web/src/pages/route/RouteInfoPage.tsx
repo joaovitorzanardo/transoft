@@ -108,6 +108,8 @@ export default function RouteInfoPage() {
             friday: false
         },
         resolver: zodResolver(RouteForm),
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit',
     });
 
     React.useEffect(() => {
@@ -278,20 +280,18 @@ export default function RouteInfoPage() {
     const config = openDialog ? dialogConfig[openDialog] : null;
 
     return (
-        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
+        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA', height: '100vh', overflow: 'hidden' }}>
             <SideMenu />
-            <Stack sx={{ padding: '3rem' }}>
+            <Stack sx={{ padding: '3rem', flex: 1, overflowY: 'auto' }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href="/routes">Rotas</Link>
                     <Typography sx={{ color: 'text.primary' }}>Cadastro</Typography>
                 </Breadcrumbs>
-                <Box sx={{ height: 10 }} />
-                <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
+                <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }} >
                     <Typography variant="h4" >Cadastrar Rota</Typography>
                 </Stack>
-                <Box sx={{ height: 20 }} />
                 <FormControl component="form">
-                    <Paper sx={{ padding: 3 }} >
+                    <Paper sx={{ padding: 3, marginTop: 2 }} >
                         <Typography variant="h5" >Informações Gerais</Typography>
                         <Controller
                             name="name"

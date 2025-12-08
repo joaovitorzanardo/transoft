@@ -67,6 +67,8 @@ export default function PassengerInfoPage() {
             complemento: ''
         },
         resolver: zodResolver(PassengerForm),
+        mode: 'onSubmit',
+        reValidateMode: 'onSubmit',
     });
 
     React.useEffect(() => {
@@ -218,23 +220,23 @@ export default function PassengerInfoPage() {
     const config = openDialog ? dialogConfig[openDialog] : null;
 
     return (
-        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA' }}>
+        <Stack direction="row" sx={{ backgroundColor: '#F7F9FA', height: '100vh', overflow: 'hidden' }}>
             <SideMenu />
-            <Stack sx={{ padding: '3rem' }}>
+            <Stack sx={{ padding: '3rem', flex: 1, overflowY: 'auto' }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href="/passengers">Passageiros</Link>
                     <Typography sx={{ color: 'text.primary' }}>Cadastro</Typography>
                 </Breadcrumbs>
-                <Box sx={{ height: 10 }} />
+                <Box sx={{ marginTop: 1 }} />
                 <Stack direction="row" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
                     <Typography variant="h4" >Cadastrar Passageiro</Typography>
                 </Stack>
-                <Box sx={{ height: 20 }} />
                 <FormControl onSubmit={handleSubmit(onSubmit)} component="form">
+                    <Box sx={{ marginTop: 2 }} />
                     <PersonalInfoPaper control={control} />
-                    <Box sx={{ height: 30 }} />
+                    <Box sx={{ marginTop: 3 }} />
                     <PhoneNumberInput control={control} />
-                    <Box sx={{ height: 30 }} />
+                    <Box sx={{ marginTop: 3 }} />
                     <Paper sx={{ padding: 3 }}>
                         <Typography variant="h5" >Rota</Typography>
                         <Controller

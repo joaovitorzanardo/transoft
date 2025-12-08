@@ -17,33 +17,39 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
                 {...other}
                 mask={mask}
                 inputRef={ref as any}
-                onAccept={(value: any) => onChange({ target: { name: props.name, value } })}
+                onAccept={(value: any) => {
+                    onChange({ target: { name: props.name, value } });
+                }}
                 overwrite
             />
         );
     },
 );
 
-
-type MaskedTextFieldProps = TextFieldProps & {
+type MaskedTextFieldProps = Omit<TextFieldProps, 'InputProps'> & {
     mask: string;
+    InputProps?: TextFieldProps['InputProps'];
 };
 
 export const MaskedTextField = React.forwardRef<HTMLDivElement, MaskedTextFieldProps>(
     (props, ref) => {
-        const { mask, ...textFieldProps } = props;
+        const { mask, InputProps, inputProps, onChange, value, ...textFieldProps } = props;
 
         return (
             <TextField
                 {...textFieldProps}
                 ref={ref}
-                InputProps={{
-                    inputComponent: TextMaskCustom as any,
-                    ...textFieldProps.InputProps,
-                }}
-                inputProps={{
-                    mask: mask,
-                    ...textFieldProps.inputProps
+                value={value}
+                onChange={onChange}
+                slotProps={{
+                    input: {
+                        inputComponent: TextMaskCustom as any,
+                        ...InputProps,
+                    },
+                    htmlInput: {
+                        mask: mask,
+                        ...inputProps
+                    }
                 }}
             />
         );

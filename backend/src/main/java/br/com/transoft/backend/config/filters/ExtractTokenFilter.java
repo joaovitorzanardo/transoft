@@ -50,6 +50,7 @@ public class ExtractTokenFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return path.equals("/api/login") ||
                 path.equals("/api/register") ||
+                path.equals("/api/refresh-token") ||
                 path.equals("/api/register/admin");
     }
 
