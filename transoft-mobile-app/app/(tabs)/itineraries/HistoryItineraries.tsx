@@ -19,23 +19,28 @@ export default function HistoryItineraries() {
     const [loading, setLoading] = useState<boolean>(false);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [itineraries, setItineraries] = useState<ItineraryList[]>([]);
+    const [page, setPage] = useState<number>(0);
+    const [hasMore, setHasMore] = useState<boolean>(true);
     const PAGE_SIZE = 10;
 
     const loadItineraries = async (isRefreshing = false) => {
-        if (loading) return;
+        if (loading || (!isRefreshing && !hasMore)) return;
 
+        const currentPage = isRefreshing ? 0 : page;
         setLoading(true);
         setRefreshing(isRefreshing);
         try {
-            const response = await getItinerariesHistory(0, PAGE_SIZE);
-            
+            const response = await getItinerariesHistory(currentPage, PAGE_SIZE);
+
             if (response.status === 200) {
                 const newData = response.data.map((itinerary: ItineraryAccount) => ({
                     title: itinerary.date,
                     data: itinerary.itinerary
                 }));
-                
+
                 setItineraries(prev => isRefreshing ? newData : [...prev, ...newData]);
+                setPage(currentPage + 1);
+                setHasMore(response.data.length === PAGE_SIZE);
             }
         } catch (error) {
             console.error('Error loading itineraries:', error);
@@ -51,7 +56,7 @@ export default function HistoryItineraries() {
 
     return (
         <View style={{ padding: 20 }}>
-            <SectionList 
+            <SectionList
                 sections={itineraries}
                 refreshControl={
                     <RefreshControl
@@ -59,12 +64,13 @@ export default function HistoryItineraries() {
                         onRefresh={() => loadItineraries(true)}
                     />
                 }
-                renderSectionHeader={({section: {title}}) => (
+                renderSectionHeader={({ section: { title } }) => (
                     <Text>{formatDayOfWeek(title)}, {title}</Text>
                 )}
                 renderItem={({ item }) => (
-                    <ItineraryCard itinerary={item} loading={loading}/>
+                    <ItineraryCard itinerary={item} loading={loading} />
                 )}
+                onEndReached={() => loadItineraries(false)}
                 onEndReachedThreshold={0.5}
             />
         </View>

@@ -47,7 +47,7 @@ export default function DriverItinerary() {
         async function loadItinerary() {
             try {
                 const response = await getItineraryById(id);
-                
+
                 if (response.status === 200) {
                     const newData = response.data;
                     setItinerary(newData);
@@ -60,7 +60,7 @@ export default function DriverItinerary() {
         async function loadPassengers() {
             try {
                 const response = await getPassengersFromItinerary(id);
-                
+
                 if (response.status === 200) {
                     const status = response.data.filter((item: PassengerItineraryPresenter) => item.passenger.email === user?.email)[0]?.status;
                     setStatus(status);
@@ -94,12 +94,12 @@ export default function DriverItinerary() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await finishItinerary(id);
-                       
-                       if (response.status === 200) {
-                        setItinerary(prevState => prevState ? { ...prevState, status: 'CONCLUIDO' } : prevState);
-                           Alert.alert('Sucesso', 'Sua participação foi cancelada com sucesso.');
-                       }
+                        const response = await finishItinerary(id);
+
+                        if (response.status === 200) {
+                            setItinerary(prevState => prevState ? { ...prevState, status: 'CONCLUIDO' } : prevState);
+                            Alert.alert('Sucesso', 'Itinerário finalizado com sucesso.');
+                        }
                     } catch (error) {
                         console.error('Error cancelling trip:', error);
                     }
@@ -117,12 +117,12 @@ export default function DriverItinerary() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await startItinerary(id);
-                       
-                       if (response.status === 200) {
+                        const response = await startItinerary(id);
+
+                        if (response.status === 200) {
                             setItinerary(prevState => prevState ? { ...prevState, status: 'EM_ANDAMENTO' } : prevState);
-                           Alert.alert('Sucesso', 'Itinerário iniciado com sucesso.');
-                       }
+                            Alert.alert('Sucesso', 'Itinerário iniciado com sucesso.');
+                        }
                     } catch (error) {
                         console.error('Error starting itinerary:', error);
                     }
@@ -130,26 +130,26 @@ export default function DriverItinerary() {
             }
         ]);
     }
-    
+
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{flex: 1}}>
+            <SafeAreaView style={{ flex: 1 }}>
                 {loading ? (
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                         <ActivityIndicator size="large" color="#007AFF" />
                     </View>
                 ) : (
-                    <ScrollView 
-                        style={{marginTop: 20}}
-                        contentContainerStyle={{flexGrow: 1, paddingBottom: 20}}
+                    <ScrollView
+                        style={{ marginTop: 20 }}
+                        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
                         showsVerticalScrollIndicator={false}
                     >
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20}}>
-                            <Text style={{ fontWeight: 'bold'}}>{itinerary?.route.name}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20 }}>
+                            <Text style={{ fontWeight: 'bold' }}>{itinerary?.route.name}</Text>
                             <Text>{getItineraryStatusChip(itinerary?.status)}</Text>
                         </View>
 
-                        <View style={{ 
+                        <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 16,
@@ -193,8 +193,8 @@ export default function DriverItinerary() {
 
                         {itinerary?.status !== 'CONCLUIDO' && (
                             <>
-                                <MapView 
-                                    style={{height: 300, width: '100%'}} 
+                                <MapView
+                                    style={{ height: 300, width: '100%' }}
                                     provider="google"
                                     initialRegion={{
                                         latitude: -27.6363,
@@ -203,15 +203,15 @@ export default function DriverItinerary() {
                                         longitudeDelta: 0.0121,
                                     }}
                                 >
-                                <Marker
-                                    coordinate={{ 
-                                        latitude: Number(itinerary?.route.school.address.coordinate.latitude), 
-                                        longitude: Number(itinerary?.route.school.address.coordinate.longitude) 
-                                    }}
-                                    title="Escola"
-                                    description={itinerary?.route.school.name}
-                                    pinColor="red"
-                                />
+                                    <Marker
+                                        coordinate={{
+                                            latitude: Number(itinerary?.route.school.address.coordinate.latitude),
+                                            longitude: Number(itinerary?.route.school.address.coordinate.longitude)
+                                        }}
+                                        title="Escola"
+                                        description={itinerary?.route.school.name}
+                                        pinColor="red"
+                                    />
                                     {passengers.map((passenger) => (
                                         <Marker
                                             key={passenger.id}
@@ -241,7 +241,7 @@ export default function DriverItinerary() {
                                         <Text style={{ color: '#666', fontSize: 12 }}>Confirmado</Text>
                                     </View>
                                 </View>
-                                <TouchableOpacity 
+                                <TouchableOpacity
                                     style={{
                                         backgroundColor: itinerary?.status === 'AGENDADO' ? '#4CAF50' : '#ff4444',
                                         padding: 10,
@@ -262,7 +262,7 @@ export default function DriverItinerary() {
                                 </TouchableOpacity>
                             </>
                         )}
-                        
+
                         <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
@@ -281,17 +281,17 @@ export default function DriverItinerary() {
                                 color: '#444',
                                 marginBottom: 12
                             }}>Passageiros</Text>
-                            
+
                             <View>
                                 {passengers.map((item) => (
-                                    <View 
+                                    <View
                                         key={item.id}
                                         style={{
-                                            flexDirection: 'row', 
-                                            justifyContent: 'space-between', 
-                                            alignItems: 'center', 
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
                                             paddingVertical: 12,
-                                            borderBottomWidth: 1, 
+                                            borderBottomWidth: 1,
                                             borderColor: '#eee'
                                         }}
                                     >

@@ -9,7 +9,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 interface Passengers {
@@ -46,7 +45,7 @@ export default function TripDetailsScreen() {
         async function loadItinerary() {
             try {
                 const response = await getItineraryById(id);
-                
+
                 if (response.status === 200) {
                     const newData = response.data;
                     setItinerary(newData);
@@ -59,7 +58,7 @@ export default function TripDetailsScreen() {
         async function loadPassengers() {
             try {
                 const response = await getPassengersFromItinerary(id);
-                
+
                 if (response.status === 200) {
                     const status = response.data.filter((item: PassengerItineraryPresenter) => item.passenger.email === user?.email)[0]?.status;
                     setStatus(status);
@@ -92,17 +91,17 @@ export default function TripDetailsScreen() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await cancelItineraryForPassenger(id);
-                       
-                       if (response.status === 200) {
-                           setStatus("NAO_VAI");
-                           setPassengers(passengers.map(passenger => 
-                               passenger.email === user?.email 
-                               ? { ...passenger, status: 'NAO_VAI' }
-                               : passenger
-                           ));
-                           Alert.alert('Sucesso', 'Sua participação foi cancelada com sucesso.');
-                       }
+                        const response = await cancelItineraryForPassenger(id);
+
+                        if (response.status === 200) {
+                            setStatus("NAO_VAI");
+                            setPassengers(passengers.map(passenger =>
+                                passenger.email === user?.email
+                                    ? { ...passenger, status: 'NAO_VAI' }
+                                    : passenger
+                            ));
+                            Alert.alert('Sucesso', 'Sua participação foi cancelada com sucesso.');
+                        }
                     } catch (error) {
                         console.error('Error cancelling trip:', error);
                     }
@@ -120,17 +119,17 @@ export default function TripDetailsScreen() {
                 text: 'Sim',
                 onPress: async () => {
                     try {
-                       const response = await confirmItineraryForPassenger(id);
-                       
-                       if (response.status === 200) {
-                           setStatus("CONFIRMADO");
-                           setPassengers(passengers.map(passenger => 
-                               passenger.email === user?.email
-                               ? { ...passenger, status: 'CONFIRMADO' }
-                               : passenger
-                           ));
-                           Alert.alert('Sucesso', 'Sua participação foi confirmada com sucesso.');
-                       }
+                        const response = await confirmItineraryForPassenger(id);
+
+                        if (response.status === 200) {
+                            setStatus("CONFIRMADO");
+                            setPassengers(passengers.map(passenger =>
+                                passenger.email === user?.email
+                                    ? { ...passenger, status: 'CONFIRMADO' }
+                                    : passenger
+                            ));
+                            Alert.alert('Sucesso', 'Sua participação foi confirmada com sucesso.');
+                        }
                     } catch (error) {
                         console.error('Error confirming trip:', error);
                     }
@@ -144,22 +143,22 @@ export default function TripDetailsScreen() {
             <DriverItinerary />
         )
     }
-    
+
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{flex: 1, width: '100%', paddingTop: 20}}>
+            <SafeAreaView style={{ flex: 1, width: '100%', paddingTop: 20 }}>
                 {loading ? (
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                         <ActivityIndicator size="large" color="#007AFF" />
                     </View>
                 ) : (
                     <View>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20}}>
-                            <Text style={{ fontWeight: 'bold'}}>{itinerary?.route.name}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 20, marginLeft: 20, marginRight: 20 }}>
+                            <Text style={{ fontWeight: 'bold' }}>{itinerary?.route.name}</Text>
                             <Text>{getItineraryStatusChip(itinerary?.status)}</Text>
                         </View>
 
-                        <View style={{ 
+                        <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 16,
@@ -201,28 +200,8 @@ export default function TripDetailsScreen() {
                             </View>
                         </View>
 
-                        {itinerary?.status === 'EM_ANDAMENTO' && (
-                            <>
-                                <MapView style={{height: '40%', width: '100%'}} 
-                                    provider="google"
-                                    initialRegion={{
-                                    latitude: 37.78825,
-                                    longitude: -122.4324,
-                                    latitudeDelta: 0.0922,
-                                    longitudeDelta: 0.0421,
-                                    }}
-                                >
-                                    <Marker
-                                        coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-                                        title="My Marker"
-                                        description="Here is a marker example"
-                                    />
-                                </MapView>
-                            </>
-                        )}
-
                         {itinerary?.status !== 'CONCLUIDO' && itinerary?.status !== 'CANCELADO' && (
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={{
                                     backgroundColor: status === 'CONFIRMADO' ? '#ff4444' : '#4CAF50',
                                     padding: 10,
@@ -242,7 +221,7 @@ export default function TripDetailsScreen() {
                                 </Text>
                             </TouchableOpacity>
                         )}
-                        
+
                         <View style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
@@ -261,16 +240,16 @@ export default function TripDetailsScreen() {
                                 color: '#444',
                                 marginBottom: 12
                             }}>Passageiros</Text>
-                            
-                            <FlatList 
-                                data={passengers} 
-                                renderItem={({item}) => (
+
+                            <FlatList
+                                data={passengers}
+                                renderItem={({ item }) => (
                                     <View style={{
-                                        flexDirection: 'row', 
-                                        justifyContent: 'space-between', 
-                                        alignItems: 'center', 
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
                                         paddingVertical: 12,
-                                        borderBottomWidth: 1, 
+                                        borderBottomWidth: 1,
                                         borderColor: '#eee'
                                     }}>
                                         <Text style={{ fontSize: 14, color: '#666' }}>{item.name}</Text>
